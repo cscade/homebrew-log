@@ -1,4 +1,21 @@
 {
-    "name": "seeker-brewing",
-    "version": "0.0.1"
+    "author": "Carson S. Christian <cc@seekerbeer.com>", 
+    "dependencies": {
+        "connect": "2.2.x", 
+        "connect-redis": "1.3.x", 
+        "cradle": "0.6.x", 
+        "flatiron": "0.1.x", 
+        "jade": "0.26.x", 
+        "resourceful": "0.1.x", 
+        "union": "0.3.x", 
+        "winston": "0.5.x"
+    }, 
+    "description": "Live data software for seeker brewing co.", 
+    "devDependencies": {}, 
+    "engines": {
+        "node": "*"
+    }, 
+    "name": "seeker-brewing", 
+    "optionalDependencies": {}, 
+    "version": "0.0.0"
 }
