@@ -14,6 +14,7 @@ var express = require('express'),
 	xml2js = require('xml2js'),
 	fs = require('fs'),
 	connect = require('connect'),
+	path = require('path'),
 	app = express.createServer();
 	
 var recipes = [];
@@ -60,27 +61,59 @@ app.post('/upload', function (req, res) {
 	var parser = new xml2js.Parser();
 	
 	if (req.files && req.files.recipe) {
-		if (req.files.recipe.size < 1) return render.upload.call(res, {
+		if (req.files.recipe.size < 1) {
+			render.upload.call(res, {
 				message: '\
 					<div class="alert">\
 						<strong>Uh...</strong> Forget something?\
 					</div>'
 			});
+			fs.unlink(req.files.recipe.path);
+			return;
+		}
 		fs.readFile(req.files.recipe.path, function(e, data) {
-			if (e) return res.end(JSON.stringify(e));
+			if (e) {
+				render.upload.call(res, {
+						message: '\
+							<div class="alert alert-error">\
+								<strong>Shit.</strong> Could not read the target file. All is lost.\
+							</div>'
+					});
+				fs.unlink(req.files.recipe.path);
+				return;
+			}
 			parser.parseString(data, function (e, result) {
-				if (e || !result.RECIPE) return render.upload.call(res, {
+				var fileref = path.join(__dirname, 'public', '_uploads', connect.utils.uid(8) + '.xml');
+				
+				if (e || !result.RECIPE) {
+					render.upload.call(res, {
 						message: '\
 							<div class="alert alert-error">\
 								<strong>Nope.</strong> Upload BeerXML v1 only.\
 							</div>'
 					});
-				recipes.push({
-					name: result.RECIPE.NAME,
-					modified: new Date(),
-					data: result.RECIPE
+					fs.unlink(req.files.recipe.path);
+					return;
+				}
+				fs.rename(req.files.recipe.path, fileref, function (e) {
+					if (e) {
+						render.upload.call(res, {
+							message: '\
+								<div class="alert alert-error">\
+									<strong>Shit.</strong> Could not rename the target file. All is lost.\
+								</div>'
+						});
+						fs.unlink(req.files.recipe.path);
+						return;
+					}
+					recipes.push({
+						name: result.RECIPE.NAME,
+						modified: new Date(),
+						data: result.RECIPE,
+						fileref: fileref
+					});
+					res.redirect('/');
 				});
-				res.redirect('/');
 			});
 		});
 	}

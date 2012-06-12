@@ -23,11 +23,13 @@ block content
 		thead
 			tr
 				th Name
+				th Location
 				th Last Modified
 		tbody
 			each recipe in recipes
 				tr
 					td= recipe.name
+					td= recipe.fileref
 					td= recipe.modified
 
 block localJS
