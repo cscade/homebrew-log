@@ -26,11 +26,26 @@ module.exports = function (app) {
 	});
 	
 	app.get('/recipe/:recipe', function (req, res) {
+		var extension = req.params.recipe.split('.')[1];
+		
+		if (extension) {
+			req.params.recipe = req.params.recipe.split('.')[0];
+		}
 		app.couch.database('seeker').get(req.params.recipe, function (e, recipe) {
-			if (e) return app.log.error(e.message || e.reason);
-			render.recipe.call(res, {
-				recipe: recipe
-			});
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			if (extension) {
+				if (extension === 'json') {
+					res.writeHeader('content-type', 'application/json');
+					res.end(JSON.stringify(recipe));
+				} else {
+					res.writeHead(400);
+					res.end();
+				}
+			} else {
+				render.recipe.call(res, {
+					recipe: recipe
+				});
+			}
 		});
 	});
 

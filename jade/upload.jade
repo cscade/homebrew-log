@@ -18,6 +18,8 @@ block navigation
 				a(href="/upload") Upload
 
 block content
+	h2 Upload a Recipe
+	hr
 	.message!= message
 	form.form(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
 		label Recipe
