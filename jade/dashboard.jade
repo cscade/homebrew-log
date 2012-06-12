@@ -9,15 +9,25 @@ block navigation
 		span.icon-bar
 		span.icon-bar
 		span.icon-bar
-	.brand Seeker
+	.brand Seeker Brewing Co.
 	.nav-collapse
 		ul.nav
 			li.active
-				a(href='/') Home
+				a(href='/') Recipes
 			li
-				a(href="/upload") Upload Recipe
+				a(href="/upload") Upload
 
 block content
-	p Hi!
+	h2 Recipes
+	table.table
+		thead
+			tr
+				th Name
+				th Last Modified
+		tbody
+			each recipe in recipes
+				tr
+					td= recipe.name
+					td= recipe.modified
 
 block localJS
