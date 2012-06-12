@@ -43,7 +43,23 @@ module.exports = function (app) {
 				}
 			} else {
 				render.recipe.call(res, {
-					recipe: recipe
+					recipe: {
+						_id: recipe._id,
+						name: recipe.name,
+						type: {
+							category: {
+								number: recipe.data.STYLE.CATEGORY_NUMBER,
+								name: recipe.data.STYLE.CATEGORY
+							},
+							style: {
+								letter: recipe.data.STYLE.STYLE_LETTER,
+								name: recipe.data.STYLE.NAME
+							},
+							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
+						},
+						data: recipe.data,
+						batches: recipe.batches
+					}
 				});
 			}
 		});

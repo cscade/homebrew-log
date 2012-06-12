@@ -19,5 +19,9 @@ block navigation
 
 block content
 	h2= recipe.name
+		small.pull-right.visible-desktop
+			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
+		small.visible-phone
+			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 
 block localJS
