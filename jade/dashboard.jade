@@ -27,13 +27,19 @@ block content
 				th Last Modified
 		tbody
 			each recipe in recipes
-				tr
+				tr(data-id=recipe._id)
 					td= recipe.name
 					td
 						- if (recipe.batches.length)
 							span.badge.badge-info= recipe.batches.length
 						- else
 							span.badge 0
-					td= new Date(recipe.mtime)
+					td(data-mtime=new Date(recipe.mtime))
 
 block localJS
+	script(type='text/javascript')
+		window.addEvent('domready', function () {
+			document.getElements('td[data-mtime]').each(function (el) {
+				el.set('text', jQuery.timeago(el.get('data-mtime')));
+			});
+		});
