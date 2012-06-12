@@ -34,14 +34,14 @@ block content
 							span.badge.badge-info= recipe.batches.length
 						- else
 							span.badge 0
-					td(data-mtime=new Date(recipe.mtime))
+					td(data-mtime=recipe.mtime)
 
 block localJS
 	script(type='text/javascript')
 		window.addEvent('domready', function () {
 			// edit time
 			document.getElements('td[data-mtime]').each(function (el) {
-				el.set('text', jQuery.timeago(el.get('data-mtime')));
+				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
 			});
 
 			// click for details
