@@ -1,0 +1,28 @@
+//- Upload Form
+extends _base
+
+append head
+	title Upload a Recipe
+
+block navigation
+	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+		span.icon-bar
+		span.icon-bar
+		span.icon-bar
+	.brand Seeker Brewing Co.
+	.nav-collapse
+		ul.nav
+			li
+				a(href='/') Recipes
+			li.active
+				a(href="/upload") Upload
+
+block content
+	.message!= message
+	form.form(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
+		label Recipe
+		input(type="file", name="recipe")
+		.form-actions
+			button.btn(type="submit") Upload
+
+block localJS
