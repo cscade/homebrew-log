@@ -16,6 +16,7 @@ var express = require('express'),
 
 // Configuration
 app.log = winston;
+app.couch = new (require('cradle')).Connection('http://plastic', 5984, { cache: true });
 
 app.configure(function(){
 	app.set('views', __dirname + '/jade');

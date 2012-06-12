@@ -23,11 +23,17 @@ block content
 		thead
 			tr
 				th Name
+				th Batches
 				th Last Modified
 		tbody
 			each recipe in recipes
 				tr
 					td= recipe.name
-					td= recipe.modified
+					td
+						- if (recipe.batches.length)
+							span.badge.badge-info= recipe.batches.length
+						- else
+							span.badge 0
+					td= new Date(recipe.mtime)
 
 block localJS

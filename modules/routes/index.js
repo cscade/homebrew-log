@@ -9,20 +9,22 @@
 var xml2js = require('xml2js'),
 	fs = require('fs'),
 	connect = require('connect'),
-	path = require('path');
+	path = require('path'),
+	Recipe = require('../database/recipe').Recipe;
 
 module.exports = function (app) {
-	var recipes = [];
 	
 	app.get('/', function (req, res) {
-		res.render('dashboard.jade', {
-			layout: false,
-			locals: {
-				/*
-					TODO real recipes
-				*/
-				recipes: recipes
-			}
+		app.couch.database('seeker').view('recipes/all', { include_docs: true }, function (e, rows) {
+			if (e) return app.log.error(e.message || e.reason);
+			res.render('dashboard.jade', {
+				layout: false,
+				locals: {
+					recipes: rows.map(function (recipe) {
+						return recipe;
+					})
+				}
+			});
 		});
 	});
 
@@ -45,47 +47,44 @@ module.exports = function (app) {
 				return;
 			}
 			fs.readFile(req.files.recipe.path, function(e, data) {
-				if (e) {
-					render.upload.call(res, {
-							message: '\
-								<div class="alert alert-error">\
-									<strong>Shit.</strong> Could not read the target file. All is lost.\
-								</div>'
-						});
-					fs.unlink(req.files.recipe.path);
-					return;
-				}
+				// discard temp file
+				fs.unlink(req.files.recipe.path);
+				if (e) return render.upload.call(res, {
+					message: '\
+						<div class="alert alert-error">\
+							<strong>Shit.</strong> Could not read the target file. All is lost.\
+						</div>'
+				});
 				parser.parseString(data, function (e, result) {
-					var fileref = path.join(__dirname, 'public', '_uploads', connect.utils.uid(8) + '.xml');
+					var fileRef = path.join('/Users/cscade/Projects/seeker-brewing', 'public', '_uploads', connect.utils.uid(8) + '.xml');
 
-					if (e || !result.RECIPE) {
-						render.upload.call(res, {
+					if (e || !result.RECIPE) return render.upload.call(res, {
+						message: '\
+							<div class="alert alert-error">\
+								<strong>Nope.</strong> Upload BeerXML v1 only.\
+							</div>'
+					});
+					fs.writeFile(fileRef, data, function (e) {
+						if (e) return render.upload.call(res, {
 							message: '\
 								<div class="alert alert-error">\
-									<strong>Nope.</strong> Upload BeerXML v1 only.\
+									<strong>Shit.</strong> Could not write the target file. All is lost.\
 								</div>'
 						});
-						fs.unlink(req.files.recipe.path);
-						return;
-					}
-					fs.rename(req.files.recipe.path, fileref, function (e) {
-						if (e) {
-							render.upload.call(res, {
+						// good upload
+						Recipe.create({
+							name: result.RECIPE.NAME,
+							data: result.RECIPE,
+							xmlFile: fileRef
+						}, function (e, recipe) {
+							if (e) return render.upload.call(res, {
 								message: '\
 									<div class="alert alert-error">\
-										<strong>Shit.</strong> Could not rename the target file. All is lost.\
+										<strong>Shit.</strong> The xml file was saved at ' + fileRef + ', but we couldn\'t talk to couch.\
 									</div>'
 							});
-							fs.unlink(req.files.recipe.path);
-							return;
-						}
-						recipes.push({
-							name: result.RECIPE.NAME,
-							modified: new Date(),
-							data: result.RECIPE,
-							fileref: fileref
+							res.redirect('/');
 						});
-						res.redirect('/');
 					});
 				});
 			});
