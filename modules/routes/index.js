@@ -17,13 +17,19 @@ module.exports = function (app) {
 	app.get('/', function (req, res) {
 		app.couch.database('seeker').view('recipes/all', { include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason);
-			res.render('dashboard.jade', {
-				layout: false,
-				locals: {
-					recipes: rows.map(function (recipe) {
-						return recipe;
-					})
-				}
+			render.dashboard.call(res, {
+				recipes: rows.map(function (recipe) {
+					return recipe;
+				})
+			});
+		});
+	});
+	
+	app.get('/recipe/:recipe', function (req, res) {
+		app.couch.database('seeker').get(req.params.recipe, function (e, recipe) {
+			if (e) return app.log.error(e.message || e.reason);
+			render.recipe.call(res, {
+				recipe: recipe
 			});
 		});
 	});
@@ -96,6 +102,22 @@ module.exports = function (app) {
 	var render = {
 		upload: function (data) {
 			this.render('upload.jade', {
+				layout: false,
+				locals: connect.utils.merge({
+					message: '',
+				}, data || {})
+			});
+		},
+		recipe: function (data) {
+			this.render('recipe.jade', {
+				layout: false,
+				locals: connect.utils.merge({
+					message: '',
+				}, data || {})
+			});
+		},
+		dashboard: function (data) {
+			this.render('dashboard.jade', {
 				layout: false,
 				locals: connect.utils.merge({
 					message: '',

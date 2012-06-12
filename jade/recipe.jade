@@ -1,0 +1,23 @@
+//- Dashboard
+extends _base
+
+append head
+	title= recipe.name
+
+block navigation
+	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+		span.icon-bar
+		span.icon-bar
+		span.icon-bar
+	.brand Seeker Brewing Co.
+	.nav-collapse
+		ul.nav
+			li
+				a(href='/') Recipes
+			li.visible-desktop
+				a(href="/upload") Upload
+
+block content
+	h2= recipe.name
+
+block localJS

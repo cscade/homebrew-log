@@ -14,7 +14,7 @@ block navigation
 		ul.nav
 			li.active
 				a(href='/') Recipes
-			li
+			li.visible-desktop
 				a(href="/upload") Upload
 
 block content
@@ -27,7 +27,7 @@ block content
 				th Last Modified
 		tbody
 			each recipe in recipes
-				tr(data-id=recipe._id)
+				tr.interactive(data-id=recipe._id)
 					td= recipe.name
 					td
 						- if (recipe.batches.length)
@@ -39,7 +39,13 @@ block content
 block localJS
 	script(type='text/javascript')
 		window.addEvent('domready', function () {
+			// edit time
 			document.getElements('td[data-mtime]').each(function (el) {
 				el.set('text', jQuery.timeago(el.get('data-mtime')));
+			});
+
+			// click for details
+			document.getElements('tr[data-id]').addEvent('click', function () {
+				window.location = '/recipe/' + this.get('data-id');
 			});
 		});
