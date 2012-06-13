@@ -10,41 +10,36 @@ var connect = require('connect'),
 	convert = require('./convert'),
 	Fermentable = require('./fermentable');
 
+/**
+ * @constructor
+ */
+ /*
+  * @param {Object} specs Raw data object generated directly from BEERXML
+ */
 var Beer = module.exports = function (specs) {
 	var that = this;
 	
-	// specs
-	this.specs = connect.utils.merge({
-		type: '',			// May be one of “Extract”, “Partial Mash” or “All Grain”
-		brewer: '',
-		batch: {
-			size: 0			// Target size of the finished batch in liters.
-		},
-		boil: {
-			size: 0,		// Starting size for the main boil of the wort in liters.
-			time: 0			// The total time to boil the wort in minutes.
-		},
-		efficiency: 100,	// The percent brewhouse efficiency to be used for estimating the starting gravity of the beer. Not required for “Extract” recipes, but is required for “Partial Mash” and “All Grain” recipes.
-		fermentables: []	// Fermentables array, direct from XML
-	}, specs || {});
+	specs = specs || {};
+	this.specs = {};
+	Object.keys(specs).forEach(function (key) {
+		that.specs[key.toLowerCase()] = specs[key];
+	});
 	
 	// convert fermentables
+	this.specs.fermentables = this.specs.fermentables.FERMENTABLE;
 	if (!Array.isArray(this.specs.fermentables)) this.specs.fermentables = [this.specs.fermentables];
 	this.specs.fermentables = this.specs.fermentables.map(function (fermentable) {
-		var specs = {};
-		
-		Object.keys(fermentable).forEach(function (key) {
-			specs[key.toLowerCase()] = fermentable[key];
-		});
-		return new Fermentable(specs);
+		return new Fermentable(fermentable);
 	});
 	
 	// calculate og
+	if (this.specs.og) this.specs.precalculated = { og: this.specs.og };
+	if (this.specs.fg) this.specs.precalculated.fg = this.specs.fg, delete this.specs.fg;
 	this.specs.og = (function () {
 		var og = 0;
 		
 		that.specs.fermentables.forEach(function (fermentable) {
-			og = og + (fermentable.gravity(that.specs.batch.size) - 1);
+			og = og + (fermentable.gravity(that.specs.batch_size) - 1);
 		});
 		return 1 + convert.round.call((og * (that.specs.efficiency / 100)), 3);
 	})();

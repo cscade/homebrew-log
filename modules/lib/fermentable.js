@@ -9,14 +9,19 @@
 var connect = require('connect'),
 	convert = require('./convert');
 
+/**
+ * @constructor
+ */
+/*
+ * @param {Object} specs FERMENTABLE object direct from BEERXML
+*/
 var Fermentable = module.exports = function (specs) {
-	this.specs = connect.utils.merge({
-		name: 'Example Grain',
-		yield: 0,		// Percent dry yield (fine grain) for the grain, or the raw yield by weight if this is an extract adjunct or sugar.
-		color: 0,		// The color of the item in Lovibond Units (SRM for liquid extracts).
-		amount: 0,		// Weight of the fermentable, extract or sugar in Kilograms.
-		type: 'Grain'	// May be "Grain", "Sugar", "Extract", "Dry Extract" or "Adjunct".  Extract refers to liquid extract.
-	}, specs || {});
+	var that = this;
+	
+	this.specs = {};
+	Object.keys(specs).forEach(function (key) {
+		that.specs[key.toLowerCase()] = specs[key];
+	});
 };
 
 /**
@@ -30,10 +35,15 @@ var Fermentable = module.exports = function (specs) {
  * @return {Number} sg (unrounded)
  */
 Fermentable.prototype.gravity = function (water) {
-	var ppppg = (this.specs.yield * 0.01) * 46.214;
+	var ppppg = (this.specs.yield * 0.01) * 46.214,
+		contribution;
 	
-	console.log(this.specs.name, ppppg, {
-		batch: convert.liters.toGallons(water)
+	contribution = (((ppppg * convert.kilograms.toPounds(this.specs.amount)) / convert.liters.toGallons(water)) / 1000) + 1;
+	console.log({
+		name: this.specs.name,
+		ppppg: convert.round.call(ppppg),
+		batch_size: convert.round.call(convert.liters.toGallons(water), 2) + ' gallons',
+		contribution: convert.round.call(contribution, 3)
 	});
-	return (((ppppg * convert.kilograms.toPounds(this.specs.amount)) / convert.liters.toGallons(water)) / 1000) + 1;
+	return contribution;
 };

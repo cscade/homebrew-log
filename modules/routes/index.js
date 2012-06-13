@@ -10,6 +10,7 @@ var xml2js = require('xml2js'),
 	fs = require('fs'),
 	connect = require('connect'),
 	path = require('path'),
+	convert = require('../lib/convert'),
 	Recipe = require('../database/recipe').Recipe;
 
 var Beer = require('../lib/beer');
@@ -44,14 +45,6 @@ module.exports = function (app) {
 					res.end();
 				}
 			} else {
-				// create a Beer instance
-				var beer = new Beer({
-					fermentables: recipe.data.FERMENTABLES.FERMENTABLE,
-					batch: {
-						size: recipe.data.BATCH_SIZE
-					},
-					efficiency: recipe.data.EFFICIENCY
-				});
 				render.recipe.call(res, {
 					recipe: {
 						_id: recipe._id,
@@ -67,7 +60,7 @@ module.exports = function (app) {
 							},
 							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
 						},
-						og: beer.specs.og,
+						beer: new Beer(recipe.data),
 						batches: recipe.batches
 					}
 				});
@@ -153,6 +146,7 @@ module.exports = function (app) {
 			this.render('recipe.jade', {
 				layout: false,
 				locals: connect.utils.merge({
+					convert: convert,
 					message: '',
 				}, data || {})
 			});
