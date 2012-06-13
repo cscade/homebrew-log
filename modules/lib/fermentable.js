@@ -6,8 +6,7 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var connect = require('connect'),
-	convert = require('./convert');
+var convert = require('./convert');
 
 /**
  * @constructor

@@ -18,10 +18,38 @@ block navigation
 				a(href="/upload") Upload
 
 block content
-	h2= recipe.name
+	h2= recipe.name + ' '
+		small= recipe.beer.specs.type
 		small.pull-right.visible-desktop
+			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
+		small.pull-right.visible-tablet
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.visible-phone
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
+	.row
+		.span3
+			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
+				span.label.label-info= recipe.beer.specs.og
+				strong  OG
+				br
+				small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
+		.span3
+			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
+				span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
+				strong  FG
+				br
+				small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
+		.span3
+			p
+				span.label.label-success= recipe.beer.specs.ibu
+				strong  Bitterness
+				br
+				small IBU - Tinseth
+		.span3
+			p
+				span.label.label-warning= recipe.beer.specs.color
+				strong  Color
+				br
+				small SRM - Morey
 
 block localJS

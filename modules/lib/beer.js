@@ -6,9 +6,9 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var connect = require('connect'),
-	convert = require('./convert'),
-	Fermentable = require('./fermentable');
+var convert = require('./convert'),
+	Fermentable = require('./fermentable'),
+	Hop = require('./hop');
 
 /**
  * @constructor
@@ -32,6 +32,13 @@ var Beer = module.exports = function (specs) {
 		return new Fermentable(fermentable);
 	});
 	
+	// convert hops
+	this.specs.hops = this.specs.hops.HOP;
+	if (!Array.isArray(this.specs.hops)) this.specs.hops = [this.specs.hops];
+	this.specs.hops = this.specs.hops.map(function (hop) {
+		return new Hop(hop);
+	});
+	
 	// calculate og
 	if (this.specs.og) this.specs.precalculated = { og: this.specs.og };
 	if (this.specs.fg) this.specs.precalculated.fg = this.specs.fg, delete this.specs.fg;
@@ -52,5 +59,15 @@ var Beer = module.exports = function (specs) {
 			color = color + (fermentable.color(that.specs.batch_size));
 		});
 		return convert.round.call(color, 1, true);
+	})();
+	
+	// calculate ibu
+	this.specs.ibu = (function () {
+		var ibu = 0;
+		
+		that.specs.hops.forEach(function (hop) {
+			ibu += (hop.bitterness(that.specs.batch_size, that.specs.og).ibu);
+		});
+		return convert.round.call(ibu, 0);
 	})();
 };

@@ -15,6 +15,9 @@ exports.liters = {
 exports.kilograms = {
 	toPounds: function (kilograms) {
 		return Number.from(kilograms) * 2.205;
+	},
+	toOunces: function (kilograms) {
+		return Number.from(kilograms) * 35.27;
 	}
 };
 
