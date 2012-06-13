@@ -43,4 +43,14 @@ var Beer = module.exports = function (specs) {
 		});
 		return 1 + convert.round.call((og * (that.specs.efficiency / 100)), 3);
 	})();
+	
+	// calculate color
+	this.specs.color = (function () {
+		var color = 0;
+		
+		that.specs.fermentables.forEach(function (fermentable) {
+			color = color + (fermentable.color(that.specs.batch_size));
+		});
+		return convert.round.call(color, 1, true);
+	})();
 };

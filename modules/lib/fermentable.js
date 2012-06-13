@@ -47,3 +47,17 @@ Fermentable.prototype.gravity = function (water) {
 	});
 	return contribution;
 };
+
+/*
+color
+
+ * @param {Number} water Batch size in liters.
+ * @returns Color contribution of this fermentable in SRM
+ * @type Number
+*/
+Fermentable.prototype.color = function (water) {
+	// Morey's Formula
+	// SRM = 1.4922 * (W * L / V) ^ .6859
+	
+	return Math.pow(1.4922 * ((convert.kilograms.toPounds(this.specs.amount) * Number.from(this.specs.color)) / convert.liters.toGallons(water)), 0.6859);
+};
