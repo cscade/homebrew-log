@@ -49,6 +49,6 @@ Hop.prototype.bitterness = function (water, gravity) {
 		ibu: bu,
 		utilization: utilization
 	};
-	console.log(this.specs.name, result);
+	// console.log(this.specs.name, result);
 	return result;
 };

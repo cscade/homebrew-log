@@ -38,12 +38,12 @@ Fermentable.prototype.gravity = function (water) {
 		contribution;
 	
 	contribution = (((ppppg * convert.kilograms.toPounds(this.specs.amount)) / convert.liters.toGallons(water)) / 1000) + 1;
-	console.log({
-		name: this.specs.name,
-		ppppg: convert.round.call(ppppg),
-		batch_size: convert.round.call(convert.liters.toGallons(water), 2) + ' gallons',
-		contribution: convert.round.call(contribution, 3)
-	});
+	// console.log({
+	// 	name: this.specs.name,
+	// 	ppppg: convert.round.call(ppppg),
+	// 	batch_size: convert.round.call(convert.liters.toGallons(water), 2) + ' gallons',
+	// 	contribution: convert.round.call(contribution, 3)
+	// });
 	return contribution;
 };
 

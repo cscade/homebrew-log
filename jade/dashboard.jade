@@ -46,6 +46,6 @@ block localJS
 
 			// click for details
 			document.getElements('tr[data-id]').addEvent('click', function () {
-				window.location = '/recipe/' + this.get('data-id');
+				window.location = '/recipe/' + this.get('data-id') + '#/';
 			});
 		});

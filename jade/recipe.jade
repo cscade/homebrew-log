@@ -77,23 +77,44 @@ block content
 				strong  Color
 				br
 				small SRM - Morey
-	hr	
-	h3 Batches
-	table.table
-		thead
-			tr
-				th
-				th Name
-				th Brewed
-		tbody
-			- if (recipe.batches.length)
-				each batch, index in recipe.batches
-					tr.interactive(data-id=index)
-						td= index
-						td= batch.name
-						td(data-mtime=batch.brewed)
-			- else
+	hr
+	.area#batches
+		h3 Batches
+			small
+				a(href="#/newBatch").btn.pull-right.new New Batch
+		table.table
+			thead
 				tr
-					td(colspan="3") No batches.
+					th
+					th Name
+					th Brewed
+			tbody
+				- if (recipe.batches.length)
+					each batch, index in recipe.batches
+						tr.interactive(data-id=index)
+							td= index
+							td= batch.name
+							td(data-mtime=batch.brewed)
+				- else
+					tr
+						td(colspan="3") No batches.
+	.area#newBatch
+		h3 New Batch
+		p
+			form.form-horizontal(action="/newBatch", method="post", accept-charset="utf-8")
+				fieldset
+					.control-group
+						label.control-label Batch Name
+						.controls
+							input.span3(type="text", name="name", data-validators="required", value="New Batch")
+					.control-group
+						label.control-label Brewed
+						.controls
+							input.span3(type="text", name="brewed", data-validators="required validate-date dateFormat:'%m/%d/%Y'", value=(new Date()).toDateString())
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Save")
+						| &nbsp;
+						a.btn(href="#/") Cancel
 
 block localJS
+	script(src='/js/recipe/local.js')
