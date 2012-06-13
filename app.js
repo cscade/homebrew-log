@@ -37,6 +37,11 @@ app.configure('production', function () {
 	app.use(express.errorHandler());
 });
 
+Number.from = function (item) {
+	var number = parseFloat(item);
+	return isFinite(number) ? number : null;
+};
+
 // routes
 require('./modules/routes')(app);
 

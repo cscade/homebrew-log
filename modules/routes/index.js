@@ -12,6 +12,8 @@ var xml2js = require('xml2js'),
 	path = require('path'),
 	Recipe = require('../database/recipe').Recipe;
 
+var Beer = require('../lib/beer');
+
 module.exports = function (app) {
 	
 	app.get('/', function (req, res) {
@@ -42,6 +44,14 @@ module.exports = function (app) {
 					res.end();
 				}
 			} else {
+				// create a Beer instance
+				var beer = new Beer({
+					fermentables: recipe.data.FERMENTABLES.FERMENTABLE,
+					batch: {
+						size: recipe.data.BATCH_SIZE
+					},
+					efficiency: recipe.data.EFFICIENCY
+				});
 				render.recipe.call(res, {
 					recipe: {
 						_id: recipe._id,
@@ -57,7 +67,7 @@ module.exports = function (app) {
 							},
 							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
 						},
-						data: recipe.data,
+						og: beer.specs.og,
 						batches: recipe.batches
 					}
 				});
