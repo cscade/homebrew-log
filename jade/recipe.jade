@@ -111,6 +111,37 @@ block content
 						label.control-label Brewed
 						.controls
 							input.span3(type="text", name="brewed", data-validators="required validate-date dateFormat:'%m/%d/%Y'", value=(new Date()).toDateString())
+					.control-group
+						label.control-label Equipment Type
+						.controls
+							select.span3(name="equipment", data-validators="required")
+								option(value="stovetop") Stovetop / Extract / Partial Mash
+								option(value="ag-biab") All Grain, BIAB
+								option(value="ag-insulated") All Grain, Insulated
+								option(value="ag-direct") All Grain, Direct Fire
+								option(value="ag-rims") All Grain, RIMS
+								option(value="ag-herms", selected) All Grain, HERMS
+					.control-group
+						label.control-label Fermented In
+						.controls
+							select.span3(name="fermentor", data-validators="required")
+								option(value="bucket") Bucket
+								option(value="carboy-5") Carboy, 5 gal
+								option(value="carboy-6") Carboy, 6 gal
+								option(value="conical-plastic") Conical, Plastic
+								option(value="conical-stainless", selected) Conical, Stainless
+					.control-group
+						label.control-label Ferment Control Method
+						.controls
+							select.span4(name="control", data-validators="required")
+								option(value="none") No Control; Let it run wild
+								option(value="manual") Manual; Wet towels, swamp cooling, etc
+								option(value="auto-enclosed") Auto Space; Temperature controlled space
+								option(value="auto-wort", selected) Auto in Wort; Temperature controlled wort
+					.control-group
+						label.control-label Notes
+						.controls
+							textarea.span3(name="notes", data-validators="", value="")
 					.form-actions
 						input(type="submit", class="btn btn-primary", value="Save")
 						| &nbsp;

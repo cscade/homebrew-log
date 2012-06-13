@@ -11,6 +11,9 @@ window.addEvent('domready', function () {
 		var routes, router, swap,
 			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
 	
+		setTimeout(function () {
+			if (mobile) window.scrollTo(0, 1);
+		}, 10);
 		// Swapper
 		swap = function () {
 			var route = window.location.hash.slice(2),
@@ -48,7 +51,7 @@ window.addEvent('domready', function () {
 			'/': function () {},
 			'/newBatch': function () {
 				document.getElement('#newBatch form').reset();
-				document.getElement('#newBatch input[name=brewed]').set('value', (new Date()).toDateString());
+				document.getElement('#newBatch form').getElements('.control-group').removeClass('error');
 			}
 		};
 		router = Router(routes);
