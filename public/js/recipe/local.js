@@ -98,6 +98,9 @@ window.addEvent('domready', function () {
 		document.getElement('#createDataPointModal a.btn[data-dismiss=modal]').addEvent('click', function () {
 			if (mobile) context.hidden.show();
 		});
+		document.getElement('#batch form[action="/createDataPoint"]').addEvent('submit', function () {
+			this.getElement('input[name=at]').set('value', Date.parse(this.getElement('input[name=at]').get('value')));
+		});
 		
 		// now button
 		document.getElement('#batch form[action="/createDataPoint"] button.now').addEvent('click', function () {
@@ -114,6 +117,7 @@ window.addEvent('domready', function () {
 			},
 			'/batch': function () {
 				var form = document.getElement('#batch form[action="/updateBatch"]'),
+					points = document.getElement('#batch table tbody'),
 					batch = context.active,
 					descriptions = ampl.descriptions;
 				
@@ -128,6 +132,26 @@ window.addEvent('domready', function () {
 				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
 				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
 				form.getElement('textarea[name=notes]').set('value', batch.notes);
+				if (batch.points.length) {
+					points.getElements('tr').destroy();
+					batch.points.sort(function (a, b) {
+						// sort oldest point first
+						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
+					});
+					batch.points.each(function (point) {
+						points.grab(new Element('tr').adopt(
+							new Element('td', {
+								text: new Date(point.at).format('%x %X')
+							}),
+							new Element('td', {
+								html: point.temp + ' &deg;F'
+							}),
+							new Element('td', {
+								html: point.ambient + ' &deg;F'
+							})
+						));
+					});
+				}
 			}
 		};
 		router = Router(routes);

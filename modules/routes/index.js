@@ -12,7 +12,8 @@ var xml2js = require('xml2js'),
 	path = require('path'),
 	convert = require('../lib/convert'),
 	Recipe = require('../database/recipe').Recipe,
-	Batch = require('../database/recipe.batch').Batch;
+	Batch = require('../database/recipe.batch').Batch,
+	DataPoint = require('../database/recipe.batch.datapoint').DataPoint;
 
 var Beer = require('../lib/beer');
 
@@ -74,8 +75,6 @@ module.exports = function (app) {
 	
 	app.post('/createBatch', function (req, res) {
 		Recipe.get(req.body._id, function (e, recipe) {
-			var parent = req.body._id;
-			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			// format batch as a subrecord
 			req.body._id = '0';
@@ -125,8 +124,6 @@ module.exports = function (app) {
 	
 	app.post('/deleteBatch', function (req, res) {
 		Recipe.get(req.body.parent, function (e, recipe) {
-			var parent = req.body.parent;
-			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			recipe.batches = recipe.batches.filter(function (batch) {
 				// discard prior batch version
@@ -135,6 +132,33 @@ module.exports = function (app) {
 			recipe.save(function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.redirect('/recipe/' + recipe._id + '#/');
+			});
+		});
+	});
+	
+	app.post('/createDataPoint', function (req, res) {
+		Recipe.get(req.body.parent, function (e, recipe) {
+			var batch, at;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			batch = recipe.batches.filter(function (batch) {
+				// find batch
+				return batch._id === req.body.batch;
+			})[0];
+			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
+			at = new Date(req.body.at);
+			if (!at) return app.log.error('Invalid date.'), res.writeHead(400), res.end();
+			DataPoint.create({
+				at: at.getTime(),
+				temp: Number.from(req.body.temp),
+				ambient: Number.from(req.body.ambient)
+			}, function (e, point) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
+				batch.points.push(point);
+				recipe.save(function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+					res.redirect('/recipe/' + recipe._id + '#/');
+				});
 			});
 		});
 	});

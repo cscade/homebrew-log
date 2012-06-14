@@ -28,5 +28,6 @@ exports.Batch = resourceful.define('batch', function () {
 		required: true
 	});
 	this.string('notes');
+	this.array('points');
 	this.timestamps();
 });
