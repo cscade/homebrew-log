@@ -204,6 +204,30 @@ module.exports = function (app) {
 				locals: connect.utils.merge({
 					convert: convert,
 					message: '',
+					descriptions: {
+						"stovetop": 'Stovetop / Extract / Partial Mash',
+						"ag-biab": 'All Grain, BIAB',
+						"ag-insulated": 'All Grain, Insulated',
+						"ag-direct": 'All Grain, Direct Fire',
+						"ag-rims": 'All Grain, RIMS',
+						"ag-herms": 'All Grain, HERMS',
+						"rehydrate-water": 'Rehydrate in water',
+						"rehydrate-wort": 'Rehydrate in wort',
+						"starter": 'Starter, simple',
+						"starter-O2": 'Starter, simple w/ O2',
+						"starter-shaken": 'Starter, shaken',
+						"starter-aerated": 'Starter, aerated',
+						"starter-stir": 'Starter, stir plate',
+						"bucket": 'Bucket',
+						"carboy-5": 'Carboy, 5 gal',
+						"carboy-6": 'Carboy, 6 gal',
+						"conical-plastic": 'Conical, Plastic',
+						"conical-stainless": 'Conical, Stainless',
+						"none": 'No Control; Let it run wild',
+						"manual": 'Manual; Wet towels, swamp cooling, etc',
+						"auto-enclosed": 'Auto Space; Temperature controlled space',
+						"auto-wort": 'Auto in Wort; Temperature controlled wort'
+					}
 				}, data || {})
 			});
 		},
