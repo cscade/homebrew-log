@@ -123,6 +123,21 @@ module.exports = function (app) {
 		});
 	});
 	
+	app.post('/deleteBatch', function (req, res) {
+		Recipe.get(req.body.parent, function (e, recipe) {
+			var parent = req.body.parent;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			recipe.batches = recipe.batches.filter(function (batch) {
+				// discard prior batch version
+				return batch._id !== req.body._id;
+			});
+			recipe.save(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				res.redirect('/recipe/' + recipe._id + '#/');
+			});
+		});
+	});
 
 	app.get('/upload', function (req, res) {
 		render.upload.call(res);

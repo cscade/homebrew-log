@@ -101,7 +101,8 @@ block content
 					tr
 						td(colspan="3") No batches.
 	.area#batch
-		h3.name
+		h3 Batch 
+			small.name
 		p
 			form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
 				input(type="hidden", name="parent", value=recipe._id)
@@ -143,6 +144,21 @@ block content
 						input(type="submit", class="btn btn-primary", value="Update Batch")
 						| &nbsp;
 						a.btn(href="#/") Cancel
+						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
+			.modal.hide#deleteBatchModal
+				.modal-header
+					a.close(href="#", data-dismiss="modal") ×
+					h3 Delete 
+						small.name
+				.modal-body
+					p
+						strong This is an irreversible operation.
+					p The batch 
+						em.name
+						|  will be permanently destroyed.
+				.modal-footer
+					a.btn(href="#", data-dismiss="modal") Cancel
+					a.btn.btn-danger(href="#") Confirm Delete
 	.area#createBatch
 		h3 New Batch
 		p

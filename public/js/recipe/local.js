@@ -63,6 +63,12 @@ window.addEvent('domready', function () {
 			window.location.hash = '#/batch';
 		});
 		
+		// delete batch
+		document.getElement('#deleteBatchModal a.btn-danger').addEvent('click', function (e) {
+			e.stop();
+			document.getElement('#batch form').set('action', '/deleteBatch').submit();
+		});
+		
 		// Router
 		routes = {
 			'/': function () {},
@@ -77,7 +83,7 @@ window.addEvent('domready', function () {
 					descriptions = ampl.descriptions;
 				
 				if (!batch) return window.location.hash = '#/';
-				document.getElement('#batch h3.name').set('html', batch.name + ' <small>Batch</small>');
+				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
 				form.getElement('input[name=name]').set('value', batch.name);
 				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
