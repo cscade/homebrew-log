@@ -11,9 +11,11 @@ window.addEvent('domready', function () {
 		var routes, router, swap,
 			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
 	
+		// scroll away from url bar for mobile
 		setTimeout(function () {
 			if (mobile) window.scrollTo(0, 1);
 		}, 10);
+		
 		// Swapper
 		swap = function () {
 			var route = window.location.hash.slice(2),
@@ -43,15 +45,21 @@ window.addEvent('domready', function () {
 		
 		// Form validation
 		context.validators = {
-			newBatch: new Form.Validator(document.getElement('form[action="/newBatch"]'), context.validationRules)
+			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules)
 		};
+		
+		// times
+		document.getElements('td[data-mtime]').each(function (el) {
+			el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+		});
 		
 		// Router
 		routes = {
 			'/': function () {},
-			'/newBatch': function () {
-				document.getElement('#newBatch form').reset();
-				document.getElement('#newBatch form').getElements('.control-group').removeClass('error');
+			'/createBatch': function () {
+				document.getElement('#createBatch form').reset();
+				document.getElement('#createBatch form input[name=brewed]').set('value', (new Date()).format('%m/%d/%Y'));
+				document.getElement('#createBatch form').getElements('.control-group').removeClass('error');
 			}
 		};
 		router = Router(routes);

@@ -11,7 +11,8 @@ var xml2js = require('xml2js'),
 	connect = require('connect'),
 	path = require('path'),
 	convert = require('../lib/convert'),
-	Recipe = require('../database/recipe').Recipe;
+	Recipe = require('../database/recipe').Recipe,
+	Batch = require('../database/recipe.batch').Batch;
 
 var Beer = require('../lib/beer');
 
@@ -61,10 +62,32 @@ module.exports = function (app) {
 							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
 						},
 						beer: new Beer(recipe.data),
-						batches: recipe.batches
+						batches: recipe.batches.sort(function (a, b) {
+							// sort by newest batch first
+							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
+						})
 					}
 				});
 			}
+		});
+	});
+	
+	app.post('/createBatch', function (req, res) {
+		app.couch.database('seeker').get(req.body._id, function (e, recipe) {
+			var batch, parent = req.body._id;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			// format batch as a subrecord
+			req.body._id = recipe.batches.length.toString();
+			req.body.brewed = new Date(req.body.brewed).getTime();
+			Batch.create(req.body, function (e, batch) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
+				recipe.batches.push(batch);
+				new Recipe(recipe).save(function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+					res.redirect('/recipe/' + recipe._id + '#/');
+				});
+			});
 		});
 	});
 

@@ -81,27 +81,28 @@ block content
 	.area#batches
 		h3 Batches
 			small
-				a(href="#/newBatch").btn.pull-right.new New Batch
+				a(href="#/createBatch").btn.pull-right.new New Batch
 		table.table
 			thead
 				tr
-					th
 					th Name
 					th Brewed
+					th Modified
 			tbody
 				- if (recipe.batches.length)
 					each batch, index in recipe.batches
 						tr.interactive(data-id=index)
-							td= index
 							td= batch.name
-							td(data-mtime=batch.brewed)
+							td= new Date(batch.brewed).toDateString()
+							td(data-mtime=batch.mtime)
 				- else
 					tr
 						td(colspan="3") No batches.
-	.area#newBatch
+	.area#createBatch
 		h3 New Batch
 		p
-			form.form-horizontal(action="/newBatch", method="post", accept-charset="utf-8")
+			form.form-horizontal(action="/createBatch", method="post", accept-charset="utf-8")
+				input(type="hidden", name="_id", value=recipe._id)
 				fieldset
 					.control-group
 						label.control-label Batch Name
@@ -110,7 +111,7 @@ block content
 					.control-group
 						label.control-label Brewed
 						.controls
-							input.span3(type="text", name="brewed", data-validators="required validate-date dateFormat:'%m/%d/%Y'", value=(new Date()).toDateString())
+							input.span3(type="text", name="brewed", data-validators="required validate-date dateFormat:'%m/%d/%Y'", value="")
 					.control-group
 						label.control-label Equipment Type
 						.controls
@@ -121,6 +122,25 @@ block content
 								option(value="ag-direct") All Grain, Direct Fire
 								option(value="ag-rims") All Grain, RIMS
 								option(value="ag-herms", selected) All Grain, HERMS
+					.control-group
+						label.control-label Yeast Strain
+						.controls
+							input.span3(type="text", value=recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')', disabled)
+							.help-block Determined by the recipe.
+					.control-group
+						label.control-label Yeast Method
+						.controls
+							select.span3(name="yeastMethod", data-validators="required")
+								option(value="direct") Direct Pitch
+								- if (recipe.beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
+									option(value="rehydrate-water", selected) Rehydrate in water
+									option(value="rehydrate-wort") Rehydrate in wort
+								- else if (recipe.beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
+									option(value="starter") Starter, simple
+									option(value="starter-O2") Starter, simple w/ O2
+									option(value="starter-shaken") Starter, shaken
+									option(value="starter-aerated") Starter, aerated
+									option(value="starter-stir", selected) Starter, stir plate
 					.control-group
 						label.control-label Fermented In
 						.controls
