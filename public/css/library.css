@@ -11,3 +11,8 @@
 tr.interactive {
   cursor: pointer;
 }
+form .controls .fixed {
+  display: block;
+  padding-top: 4px;
+  font-weight: bold;
+}

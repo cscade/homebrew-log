@@ -91,13 +91,56 @@ block content
 			tbody
 				- if (recipe.batches.length)
 					each batch, index in recipe.batches
-						tr.interactive(data-id=index)
+						tr.interactive(data-id=batch._id)
 							td= batch.name
 							td= new Date(batch.brewed).toDateString()
 							td(data-mtime=batch.mtime)
 				- else
 					tr
 						td(colspan="3") No batches.
+	.area#batch
+		h3.name
+		p
+			form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
+				input(type="hidden", name="parent", value=recipe._id)
+				input(type="hidden", name="_id", value="")
+				fieldset
+					.control-group
+						label.control-label Batch Name
+						.controls
+							input.span3(type="text", name="name", value="")
+					.control-group
+						label.control-label Notes
+						.controls
+							textarea.span3(name="notes", value="")
+					.control-group
+						label.control-label Brewed
+						.controls
+							.fixed(data-name="brewed")
+					.control-group
+						label.control-label Equipment Type
+						.controls
+							.fixed(data-name="equipment")
+					.control-group
+						label.control-label Yeast Strain
+						.controls
+							.fixed= recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')'
+					.control-group
+						label.control-label Yeast Method
+						.controls
+							.fixed(data-name="yeastMethod")
+					.control-group
+						label.control-label Fermented In
+						.controls
+							.fixed(data-name="fermentor")
+					.control-group
+						label.control-label Ferment Control Method
+						.controls
+							.fixed(data-name="control")
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Update Batch")
+						| &nbsp;
+						a.btn(href="#/") Cancel
 	.area#createBatch
 		h3 New Batch
 		p
@@ -169,3 +212,7 @@ block content
 
 block localJS
 	script(src='/js/recipe/local.js')
+	script(type='text/javascript')
+		window.ampl = {
+			batches: !{JSON.stringify(recipe.batches)}
+		};

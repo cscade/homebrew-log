@@ -53,6 +53,16 @@ window.addEvent('domready', function () {
 			el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
 		});
 		
+		// batch detail
+		document.getElements('#batches tr.interactive').addEvent('click', function () {
+			var _id = this.get('data-id');
+			
+			context.active = ampl.batches.filter(function (batch) {
+				return batch._id === _id;
+			})[0];
+			window.location.hash = '#/batch';
+		});
+		
 		// Router
 		routes = {
 			'/': function () {},
@@ -60,6 +70,21 @@ window.addEvent('domready', function () {
 				document.getElement('#createBatch form').reset();
 				document.getElement('#createBatch form input[name=brewed]').set('value', (new Date()).format('%m/%d/%Y'));
 				document.getElement('#createBatch form').getElements('.control-group').removeClass('error');
+			},
+			'/batch': function () {
+				var form = document.getElement('#batch form'),
+					batch = context.active;
+				
+				if (!batch) return window.location.hash = '#/';
+				document.getElement('#batch h3.name').set('html', batch.name + ' <small>Batch</small>');
+				form.getElement('input[name=_id]').set('value', batch._id);
+				form.getElement('input[name=name]').set('value', batch.name);
+				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
+				form.getElement('.fixed[data-name=equipment]').set('text', descriptions[batch.equipment]);
+				form.getElement('.fixed[data-name=yeastMethod]').set('text', descriptions[batch.yeastMethod]);
+				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
+				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
+				form.getElement('textarea[name=notes]').set('value', batch.notes);
 			}
 		};
 		router = Router(routes);
@@ -74,5 +99,31 @@ window.addEvent('domready', function () {
 			delay: 2000,
 			placement: 'bottom'
 		});
+		
+		// descriptions
+		descriptions = {
+			"stovetop": 'Stovetop / Extract / Partial Mash',
+			"ag-biab": 'All Grain, BIAB',
+			"ag-insulated": 'All Grain, Insulated',
+			"ag-direct": 'All Grain, Direct Fire',
+			"ag-rims": 'All Grain, RIMS',
+			"ag-herms": 'All Grain, HERMS',
+			"rehydrate-water": 'Rehydrate in water',
+			"rehydrate-wort": 'Rehydrate in wort',
+			"starter": 'Starter, simple',
+			"starter-O2": 'Starter, simple w/ O2',
+			"starter-shaken": 'Starter, shaken',
+			"starter-aerated": 'Starter, aerated',
+			"starter-stir": 'Starter, stir plate',
+			"bucket": 'Bucket',
+			"carboy-5": 'Carboy, 5 gal',
+			"carboy-6": 'Carboy, 6 gal',
+			"conical-plastic": 'Conical, Plastic',
+			"conical-stainless": 'Conical, Stainless',
+			"none": 'No Control; Let it run wild',
+			"manual": 'Manual; Wet towels, swamp cooling, etc',
+			"auto-enclosed": 'Auto Space; Temperature controlled space',
+			"auto-wort": 'Auto in Wort; Temperature controlled wort'
+		};
 	}({});
 });
