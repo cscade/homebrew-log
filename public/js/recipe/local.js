@@ -42,6 +42,16 @@ window.addEvent('domready', function () {
 				el.getParent('.control-group').removeClass('error');
 			}
 		};
+		// Special Validators
+		Form.Validator.add('validate-dateWithTime', {
+			errorMsg: 'This field requires a date.',
+			test: function (element) {
+				if (Date.parse(element.value) === null) return false;
+				if (!Date.parse(element.value).isValid()) return false;
+				element.value = Date.parse(element.value).format('%x %X');
+				return true;
+			}
+		});
 		
 		// Form validation
 		context.validators = {
@@ -75,6 +85,24 @@ window.addEvent('domready', function () {
 			document.getElement('#batch form[action="/updateBatch"]').set('action', '/deleteBatch').submit();
 		});
 		
+		// create data point
+		document.getElement('#batch button[data-target="#createDataPointModal"]').addEvent('click', function () {
+			var form = document.getElement('#batch form[action="/createDataPoint"]');
+			
+			form.reset();
+			form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
+			form.getElements('.control-group').removeClass('error');
+			if (mobile) setTimeout(function () { window.scrollTo(0, 0); }, 250), context.hidden = document.getElement('#batch form[action="/updateBatch"]').hide();
+		});
+		document.getElement('#createDataPointModal a.btn[data-dismiss=modal]').addEvent('click', function () {
+			if (mobile) context.hidden.show();
+		});
+		
+		// now button
+		document.getElement('#batch form[action="/createDataPoint"] button.now').addEvent('click', function () {
+			document.getElement('#batch form[action="/createDataPoint"] input[name=at]').set('value', (new Date()).format('%x %X'));
+		});
+		
 		// Router
 		routes = {
 			'/': function () {},
@@ -89,9 +117,9 @@ window.addEvent('domready', function () {
 					descriptions = ampl.descriptions;
 				
 				if (!context.active) return window.location.hash = '#/';
-				document.getElement('a[href="#/batch.createDataPoint"]').show();
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
+				document.getElement('#batch form[action="/createDataPoint"] input[name=batch]').set('value', batch._id);
 				form.getElement('input[name=name]').set('value', batch.name);
 				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
 				form.getElement('.fixed[data-name=equipment]').set('text', descriptions[batch.equipment]);
@@ -99,10 +127,6 @@ window.addEvent('domready', function () {
 				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
 				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
 				form.getElement('textarea[name=notes]').set('value', batch.notes);
-			},
-			'/batch.createDataPoint': function () {
-				if (!context.active) return window.location.hash = '#/';
-				document.getElement('a[href="#/batch.createDataPoint"]').hide();
 			}
 		};
 		router = Router(routes);

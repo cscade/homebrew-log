@@ -104,89 +104,107 @@ block content
 		h3 Batch 
 			small.name
 			small.pull-right
-				a.btn.btn-primary(href="#/batch.createDataPoint") New Data Point
-		.area.createDataPoint
-			h4 New Data point
-			p
-				form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8")
-					input(type="hidden", name="_id", value=recipe._id)
-					fieldset
-						.control-group
-							label.control-label Batch Name
-							.controls
-								input.span3(type="text", name="name", data-validators="required", value="New Batch")
-						.form-actions
-							input(type="submit", class="btn btn-primary", value="Save")
-							| &nbsp;
-							a.btn(href="#/batch") Cancel
-		.area.default
-			table.table
-				thead
-					tr
-						th At
-						th Temp
-						th Ambient
-				tbody
-					tr
-						td(colspan="3") No data Points.
-			h4 Details
-			hr
-			p
-				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
-					input(type="hidden", name="parent", value=recipe._id)
-					input(type="hidden", name="_id", value="")
-					fieldset
-						.control-group
-							label.control-label Batch Name
-							.controls
-								input.span3(type="text", name="name", value="")
-						.control-group
-							label.control-label Notes
-							.controls
-								textarea.span3(name="notes", value="")
-						.control-group
-							label.control-label Brewed
-							.controls
-								.fixed(data-name="brewed")
-						.control-group
-							label.control-label Equipment Type
-							.controls
-								.fixed(data-name="equipment")
-						.control-group
-							label.control-label Yeast Strain
-							.controls
-								.fixed= recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')'
-						.control-group
-							label.control-label Yeast Method
-							.controls
-								.fixed(data-name="yeastMethod")
-						.control-group
-							label.control-label Fermented In
-							.controls
-								.fixed(data-name="fermentor")
-						.control-group
-							label.control-label Ferment Control Method
-							.controls
-								.fixed(data-name="control")
-						.form-actions
-							input(type="submit", class="btn btn-primary", value="Update Batch")
-							| &nbsp;
-							a.btn(href="#/") Cancel
-							a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
-				.modal.hide#deleteBatchModal
-					.modal-header
-						a.close(href="#", data-dismiss="modal") ×
-						h3 Delete 
-							small.name
-					.modal-body
-						p
-							strong This is an irreversible operation.
-						p The batch 
-							em.name
-							|  will be permanently destroyed.
-					.modal-footer
-						a.btn(href="#", data-dismiss="modal") Cancel
-						a.btn.btn-danger(href="#") Confirm Delete
+				button.btn.btn-primary(type="button", data-toggle="modal", data-target="#createDataPointModal") New Data Point
+		.modal.hide#createDataPointModal
+			.modal-header
+				a.close(href="#", data-dismiss="modal") ×
+				h3 New Data Point
+			form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8", style="margin:0;")
+				.modal-body
+					p
+						input(type="hidden", name="parent", value=recipe._id)
+						input(type="hidden", name="batch", value="")
+						fieldset
+							.control-group
+								label.control-label At
+								.controls
+									.input-prepend
+										button.btn.now(type="button", tabindex="-1")
+											i.icon.icon-time
+											|  Now
+										input.span2(type="text", name="at", data-validators="required validate-dateWithTime", value="")
+							.control-group.temp
+								label.control-label Temperature
+								.controls
+									.input-append
+										input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
+										span.add-on &deg;F
+							.control-group.ambient
+								label.control-label Ambient
+								.controls
+									.input-append
+										input.span1(type="number", name="ambient", data-validators="required validate-numeric", value="")
+										span.add-on &deg;F
+				.modal-footer
+					a.btn(href="#", data-dismiss="modal") Cancel
+					button.btn.btn-primary(type="submit") Create
+		table.table
+			thead
+				tr
+					th At
+					th Temp
+					th Ambient
+			tbody
+				tr
+					td(colspan="3") No data Points.
+		h4 Details
+		hr
+		p
+			form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
+				input(type="hidden", name="parent", value=recipe._id)
+				input(type="hidden", name="_id", value="")
+				fieldset
+					.control-group
+						label.control-label Batch Name
+						.controls
+							input.span3(type="text", name="name", value="")
+					.control-group
+						label.control-label Notes
+						.controls
+							textarea.span3(name="notes", value="")
+					.control-group
+						label.control-label Brewed
+						.controls
+							.fixed(data-name="brewed")
+					.control-group
+						label.control-label Equipment Type
+						.controls
+							.fixed(data-name="equipment")
+					.control-group
+						label.control-label Yeast Strain
+						.controls
+							.fixed= recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')'
+					.control-group
+						label.control-label Yeast Method
+						.controls
+							.fixed(data-name="yeastMethod")
+					.control-group
+						label.control-label Fermented In
+						.controls
+							.fixed(data-name="fermentor")
+					.control-group
+						label.control-label Ferment Control Method
+						.controls
+							.fixed(data-name="control")
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Update Batch")
+						| &nbsp;
+						a.btn(href="#/") Cancel
+						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
+			.modal.hide#deleteBatchModal
+				.modal-header
+					a.close(href="#", data-dismiss="modal") ×
+					h3 Delete 
+						small.name
+				.modal-body
+					p
+						strong This is an irreversible operation.
+					p The batch 
+						em.name
+						|  will be permanently destroyed.
+				.modal-footer
+					a.btn(href="#", data-dismiss="modal") Cancel
+					a.btn.btn-danger(href="#") Confirm Delete
 	.area#createBatch
 		h3 New Batch
 		p
