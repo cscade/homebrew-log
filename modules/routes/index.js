@@ -94,6 +94,35 @@ module.exports = function (app) {
 			});
 		});
 	});
+	
+	app.post('/updateBatch', function (req, res) {
+		Recipe.get(req.body.parent, function (e, recipe) {
+			var parent = req.body.parent;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			batch = recipe.batches.filter(function (batch) {
+				// find batch
+				return batch._id === req.body._id;
+			})[0];
+			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
+			batch.name = req.body.name;
+			batch.notes = req.body.notes;
+			Batch.create(batch, function (e, batch) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
+				recipe.batches = recipe.batches.filter(function (batch) {
+					// discard prior batch version
+					return batch._id !== req.body._id;
+				});
+				// push in new batch version
+				recipe.batches.push(batch);
+				recipe.save(function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+					res.redirect('/recipe/' + recipe._id + '#/');
+				});
+			});
+		});
+	});
+	
 
 	app.get('/upload', function (req, res) {
 		render.upload.call(res);
