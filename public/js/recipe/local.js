@@ -54,7 +54,8 @@ window.addEvent('domready', function () {
 		
 		// Form validation
 		context.validators = {
-			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules)
+			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules),
+			createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), context.validationRules)
 		};
 		
 		// times
@@ -75,7 +76,7 @@ window.addEvent('domready', function () {
 		// delete batch
 		document.getElement('#deleteBatchModal a.btn-danger').addEvent('click', function (e) {
 			e.stop();
-			document.getElement('#batch form').set('action', '/deleteBatch').submit();
+			document.getElement('#batch form[action="/updateBatch"]').set('action', '/deleteBatch').submit();
 		});
 		
 		// Router
@@ -87,11 +88,12 @@ window.addEvent('domready', function () {
 				document.getElement('#createBatch form').getElements('.control-group').removeClass('error');
 			},
 			'/batch': function () {
-				var form = document.getElement('#batch form'),
+				var form = document.getElement('#batch form[action="/updateBatch"]'),
 					batch = context.active,
 					descriptions = ampl.descriptions;
 				
-				if (!batch) return window.location.hash = '#/';
+				if (!context.active) return window.location.hash = '#/';
+				document.getElement('a[href="#/batch.createDataPoint"]').show();
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
 				form.getElement('input[name=name]').set('value', batch.name);
@@ -101,6 +103,10 @@ window.addEvent('domready', function () {
 				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
 				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
 				form.getElement('textarea[name=notes]').set('value', batch.notes);
+			},
+			'/batch.createDataPoint': function () {
+				if (!context.active) return window.location.hash = '#/';
+				document.getElement('a[href="#/batch.createDataPoint"]').hide();
 			}
 		};
 		router = Router(routes);
@@ -108,12 +114,5 @@ window.addEvent('domready', function () {
 			on: swap
 		});
 		router.init();
-		
-		// Tooltips
-		jQuery('#updateAccount').tooltip({
-			selector: 'span[data-tooltip]',
-			delay: 2000,
-			placement: 'bottom'
-		});
 	}({});
 });
