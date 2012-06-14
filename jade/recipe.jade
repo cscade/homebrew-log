@@ -88,7 +88,6 @@ block content
 					th Name
 					th Brewed
 					th Equipment
-					th Modified
 			tbody
 				- if (recipe.batches.length)
 					each batch, index in recipe.batches
@@ -96,7 +95,6 @@ block content
 							td= batch.name
 							td= new Date(batch.brewed).toDateString()
 							td= descriptions[batch.equipment]
-							td(data-mtime=batch.mtime)
 				- else
 					tr
 						td(colspan="4") No batches.
