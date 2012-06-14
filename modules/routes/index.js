@@ -73,17 +73,21 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createBatch', function (req, res) {
-		app.couch.database('seeker').get(req.body._id, function (e, recipe) {
-			var batch, parent = req.body._id;
+		Recipe.get(req.body._id, function (e, recipe) {
+			var parent = req.body._id;
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			// format batch as a subrecord
-			req.body._id = recipe.batches.length.toString();
+			req.body._id = '0';
+			recipe.batches.forEach(function (batch) {
+				// generate a higher _id
+				req.body._id = (Number.from(batch._id) >= Number.from(req.body._id) ? (Number.from(batch._id) + 1) : req.body._id).toString();
+			});
 			req.body.brewed = new Date(req.body.brewed).getTime();
 			Batch.create(req.body, function (e, batch) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
 				recipe.batches.push(batch);
-				new Recipe(recipe).save(function (e) {
+				recipe.save(function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 					res.redirect('/recipe/' + recipe._id + '#/');
 				});
