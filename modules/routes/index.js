@@ -138,7 +138,7 @@ module.exports = function (app) {
 	
 	app.post('/createDataPoint', function (req, res) {
 		Recipe.get(req.body.parent, function (e, recipe) {
-			var batch, at;
+			var batch, at, pointId = '0';
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			batch = recipe.batches.filter(function (batch) {
@@ -148,10 +148,16 @@ module.exports = function (app) {
 			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
 			at = new Date(req.body.at);
 			if (!at) return app.log.error('Invalid date.'), res.writeHead(400), res.end();
+			batch.points.forEach(function (point) {
+				// generate a higher _id
+				pointId = (Number.from(point._id) >= Number.from(pointId) ? (Number.from(point._id) + 1) : pointId).toString();
+			});
 			DataPoint.create({
+				_id: pointId,
 				at: at.getTime(),
 				temp: Number.from(req.body.temp),
-				ambient: Number.from(req.body.ambient)
+				ambient: Number.from(req.body.ambient),
+				notes: req.body.notes
 			}, function (e, point) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
 				batch.points.push(point);

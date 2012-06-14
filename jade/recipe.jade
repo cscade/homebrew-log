@@ -135,8 +135,12 @@ block content
 									.input-append
 										input.span1(type="number", name="ambient", data-validators="required validate-numeric", value="")
 										span.add-on &deg;F
+							.control-group
+								label.control-label Notes
+								.controls
+									textarea.span2(name="notes", value="")
 				.modal-footer
-					a.btn(href="#", data-dismiss="modal") Cancel
+					a.btn(href="#", data-dismiss="modal", tabindex="-1") Cancel
 					button.btn.btn-primary(type="submit") Create
 		table.table
 			thead

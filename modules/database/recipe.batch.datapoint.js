@@ -18,4 +18,5 @@ exports.DataPoint = resourceful.define('datapoint', function () {
 	this.number('ambient', {
 		required: true
 	});
+	this.string('notes');
 });
