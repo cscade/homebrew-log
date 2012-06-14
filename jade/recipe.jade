@@ -27,58 +27,58 @@ block content
 		small.visible-phone
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 	hr
-	.row.hidden-phone
-		.span3
-			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
-				span.label.label-info= recipe.beer.specs.og
-				strong  OG
-				br
-				small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
-		.span3
-			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
-				span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
-				strong  FG
-				br
-				small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
-		.span3
-			p
-				span.label.label-success= recipe.beer.specs.ibu
-				strong  Bitterness
-				br
-				small IBU - Tinseth
-		.span3
-			p
-				span.label.label-warning= recipe.beer.specs.color
-				strong  Color
-				br
-				small SRM - Morey
-	.row.visible-phone
-		div(style="width:50%;display:inline-block;")
-			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
-				span.label.label-info= recipe.beer.specs.og
-				strong  OG
-				br
-				small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
-		div(style="width:50%;display:inline-block;")
-			p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
-				span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
-				strong  FG
-				br
-				small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
-		div(style="width:50%;display:inline-block;")
-			p
-				span.label.label-success= recipe.beer.specs.ibu
-				strong  Bitterness
-				br
-				small IBU - Tinseth
-		div(style="width:50%;display:inline-block;")
-			p
-				span.label.label-warning= recipe.beer.specs.color
-				strong  Color
-				br
-				small SRM - Morey
-	hr
 	.area#batches
+		.row.hidden-phone
+			.span3
+				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
+					span.label.label-info= recipe.beer.specs.og
+					strong  OG
+					br
+					small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
+			.span3
+				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
+					span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
+					strong  FG
+					br
+					small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
+			.span3
+				p
+					span.label.label-success= recipe.beer.specs.ibu
+					strong  Bitterness
+					br
+					small IBU - Tinseth
+			.span3
+				p
+					span.label.label-warning= recipe.beer.specs.color
+					strong  Color
+					br
+					small SRM - Morey
+		.row.visible-phone
+			div(style="width:50%;display:inline-block;")
+				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
+					span.label.label-info= recipe.beer.specs.og
+					strong  OG
+					br
+					small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
+			div(style="width:50%;display:inline-block;")
+				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
+					span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
+					strong  FG
+					br
+					small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
+			div(style="width:50%;display:inline-block;")
+				p
+					span.label.label-success= recipe.beer.specs.ibu
+					strong  Bitterness
+					br
+					small IBU - Tinseth
+			div(style="width:50%;display:inline-block;")
+				p
+					span.label.label-warning= recipe.beer.specs.color
+					strong  Color
+					br
+					small SRM - Morey
+		hr
 		h3 Batches
 			small.pull-right
 				a(href="#/createBatch").btn.btn-primary.new New Batch
