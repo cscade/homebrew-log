@@ -24,7 +24,7 @@ block content
 			tr
 				th Name
 				th Batches
-				th Last Modified
+				th.hidden-phone Last Modified
 		tbody
 			each recipe in recipes
 				tr.interactive(data-id=recipe._id)
@@ -34,7 +34,7 @@ block content
 							span.badge.badge-info= recipe.batches.length
 						- else
 							span.badge 0
-					td(data-mtime=recipe.mtime)
+					td.hidden-phone(data-mtime=recipe.mtime)
 
 block localJS
 	script(type='text/javascript')
