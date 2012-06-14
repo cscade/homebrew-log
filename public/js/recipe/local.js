@@ -19,11 +19,20 @@ window.addEvent('domready', function () {
 		// Swapper
 		swap = function () {
 			var route = window.location.hash.slice(2),
-				areas = document.getElements('.area');
+				areas = document.getElements('.area'),
+				subarea;
 
 			areas.hide();
+			if (route.indexOf('.') !== -1) subarea = route.split('.')[1], route = route.split('.')[0];
 			if (document.id(route)) {
 				document.id(route).show();
+				// subareas
+				if (subarea) document.getElement('#' + route + ' .area.' + subarea).show();
+				else {
+					try {
+						document.getElements('#' + route + ' .area.default').show();
+					} catch (e) {}
+				}
 				try {
 					if (!mobile) document.id(route).getElement('input[type=text]').focus();
 				} catch (e) {}
