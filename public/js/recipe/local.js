@@ -93,6 +93,7 @@ window.addEvent('domready', function () {
 			form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
 			form.getElements('.control-group').removeClass('error');
 			if (mobile) setTimeout(function () { window.scrollTo(0, 0); }, 250), context.hidden = document.getElement('#batch form[action="/updateBatch"]').hide();
+			else setTimeout(function () { form.getElement('input[name=at]').focus(); }, 10);
 		});
 		document.getElement('#createDataPointModal a.btn[data-dismiss=modal]').addEvent('click', function () {
 			if (mobile) context.hidden.show();
