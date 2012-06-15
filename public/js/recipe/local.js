@@ -99,7 +99,7 @@ window.addEvent('domready', function () {
 			if (mobile) context.hidden.show();
 		});
 		document.getElement('#batch form[action="/createDataPoint"]').addEvent('submit', function (e) {
-			this.validate();
+			if (!this.validate()) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) < (new Date()).decrement('day', 30) && !window.confirm('This date is more than 30 days ago. Save anyways?')) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) > (new Date()) && !window.confirm('This date is in the future. Save anyways?')) return e.stop(), false;
 			this.getElement('input[name=at]').set('value', Date.parse(this.getElement('input[name=at]').get('value')));
