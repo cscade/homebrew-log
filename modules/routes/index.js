@@ -53,16 +53,16 @@ module.exports = function (app) {
 						name: recipe.name,
 						type: {
 							category: {
-								number: recipe.data.STYLE.CATEGORY_NUMBER,
-								name: recipe.data.STYLE.CATEGORY
+								number: recipe.data.style.CATEGORY_NUMBER,
+								name: recipe.data.style.CATEGORY
 							},
 							style: {
-								letter: recipe.data.STYLE.STYLE_LETTER,
-								name: recipe.data.STYLE.NAME
+								letter: recipe.data.style.STYLE_LETTER,
+								name: recipe.data.style.NAME
 							},
-							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
+							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.style.CATEGORY_NUMBER + '.php#style' + recipe.data.style.CATEGORY_NUMBER + recipe.data.style.STYLE_LETTER
 						},
-						beer: new Beer(recipe.data),
+						specs: recipe.data,
 						batches: recipe.batches.sort(function (a, b) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
@@ -197,7 +197,7 @@ module.exports = function (app) {
 						</div>'
 				});
 				parser.parseString(data, function (e, result) {
-					var recipe = {};
+					var recipe;
 					
 					if (e || !result.RECIPE) return render.upload.call(res, {
 						message: '\
@@ -205,9 +205,19 @@ module.exports = function (app) {
 								<strong>Nope.</strong> Upload BeerXML v1 only.\
 							</div>'
 					});
+					recipe = {
+						ibu: {
+							value: Number.from(req.body.ibu),
+							model: req.body.ibuMethod
+						},
+						color: {
+							value: Number.from(req.body.color),
+							model: req.body.colorMethod
+						}
+					};
 					// translate first level xml keys to lowercase
 					Object.keys(result.RECIPE).forEach(function (key) {
-						recipe[key.toLowerCase()] = specs[key];
+						recipe[key.toLowerCase()] = result.RECIPE[key];
 					});
 					Recipe.create({
 						name: result.RECIPE.NAME,

@@ -19,7 +19,7 @@ block navigation
 
 block content
 	h2= recipe.name + ' '
-		small= recipe.beer.specs.type
+		small= recipe.specs.type
 		small.pull-right.visible-desktop
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.pull-right.visible-tablet
@@ -30,54 +30,54 @@ block content
 	.area#batches
 		.row.hidden-phone
 			.span3
-				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
-					span.label.label-info= recipe.beer.specs.og
+				p
+					span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
 					strong  OG
 					br
-					small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
+					small at #{convert.round.call(recipe.specs.efficiency, 1)}% efficiency.
 			.span3
-				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
-					span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
+				p
+					span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
 					strong  FG
 					br
-					small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
+					small at predicted attenuation.
 			.span3
 				p
-					span.label.label-success= recipe.beer.specs.ibu
+					span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
 					strong  Bitterness
 					br
-					small IBU - Tinseth
+					small= 'IBU'  + (recipe.specs.ibu ? (' - ' + recipe.specs.ibu.model.slice(0, 1).toUpperCase() + recipe.specs.ibu.model.slice(1)) : '')
 			.span3
 				p
-					span.label.label-warning= recipe.beer.specs.color
+					span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
 					strong  Color
 					br
-					small SRM - Morey
+					small= 'SRM'  + (recipe.specs.color ? (' - ' + recipe.specs.color.model.slice(0, 1).toUpperCase() + recipe.specs.color.model.slice(1)) : '')
 		.row.visible-phone
 			div(style="width:50%;display:inline-block;")
-				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.og}" : "")
-					span.label.label-info= recipe.beer.specs.og
+				p
+					span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
 					strong  OG
 					br
-					small at #{convert.round.call(recipe.beer.specs.efficiency, 1)}% efficiency.
+					small at #{convert.round.call(recipe.specs.efficiency, 1)}% efficiency.
 			div(style="width:50%;display:inline-block;")
-				p(title=recipe.beer.specs.precalculated ? "XML: #{recipe.beer.specs.precalculated.fg}" : "")
-					span.label.label-info= convert.round.call(Number.from(recipe.beer.specs.precalculated.fg), 3, true)
+				p
+					span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
 					strong  FG
 					br
-					small at #{convert.round.call(Number.from(recipe.beer.specs.yeasts.YEAST.ATTENUATION), 1)}% attenuation.
+					small at predicted attenuation.
 			div(style="width:50%;display:inline-block;")
 				p
-					span.label.label-success= recipe.beer.specs.ibu
+					span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
 					strong  Bitterness
 					br
-					small IBU - Tinseth
+					small= 'IBU'  + (recipe.specs.ibu ? (' - ' + recipe.specs.ibu.model.slice(0, 1).toUpperCase() + recipe.specs.ibu.model.slice(1)) : '')
 			div(style="width:50%;display:inline-block;")
 				p
-					span.label.label-warning= recipe.beer.specs.color
+					span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
 					strong  Color
 					br
-					small SRM - Morey
+					small= 'SRM'  + (recipe.specs.color ? (' - ' + recipe.specs.color.model.slice(0, 1).toUpperCase() + recipe.specs.color.model.slice(1)) : '')
 		hr
 		h3 Batches
 			small.pull-right
@@ -175,7 +175,7 @@ block content
 					.control-group
 						label.control-label Yeast Strain
 						.controls
-							.fixed= recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')'
+							.fixed= recipe.specs.yeasts.YEAST.NAME + ' (' + recipe.specs.yeasts.YEAST.FORM + ')'
 					.control-group
 						label.control-label Yeast Method
 						.controls
@@ -234,17 +234,17 @@ block content
 					.control-group
 						label.control-label Yeast Strain
 						.controls
-							input.span3(type="text", value=recipe.beer.specs.yeasts.YEAST.NAME + ' (' + recipe.beer.specs.yeasts.YEAST.FORM + ')', disabled)
+							input.span3(type="text", value=recipe.specs.yeasts.YEAST.NAME + ' (' + recipe.specs.yeasts.YEAST.FORM + ')', disabled)
 							.help-block Determined by the recipe.
 					.control-group
 						label.control-label Yeast Method
 						.controls
 							select.span3(name="yeastMethod", data-validators="required")
 								option(value="direct") Direct Pitch
-								- if (recipe.beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
+								- if (recipe.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
 									option(value="rehydrate-water", selected)= descriptions['rehydrate-water']
 									option(value="rehydrate-wort")= descriptions['rehydrate-wort']
-								- else if (recipe.beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
+								- else if (recipe.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
 									option(value="starter")= descriptions['starter']
 									option(value="starter-O2")= descriptions['starter-O2']
 									option(value="starter-shaken")= descriptions['starter-shaken']
