@@ -197,16 +197,21 @@ module.exports = function (app) {
 						</div>'
 				});
 				parser.parseString(data, function (e, result) {
+					var recipe = {};
+					
 					if (e || !result.RECIPE) return render.upload.call(res, {
 						message: '\
 							<div class="alert alert-error">\
 								<strong>Nope.</strong> Upload BeerXML v1 only.\
 							</div>'
 					});
-					// good upload
+					// translate first level xml keys to lowercase
+					Object.keys(result.RECIPE).forEach(function (key) {
+						recipe[key.toLowerCase()] = specs[key];
+					});
 					Recipe.create({
 						name: result.RECIPE.NAME,
-						data: result.RECIPE
+						data: recipe
 					}, function (e, recipe) {
 						if (e) return render.upload.call(res, {
 							message: '\
