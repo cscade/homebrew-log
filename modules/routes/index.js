@@ -197,35 +197,24 @@ module.exports = function (app) {
 						</div>'
 				});
 				parser.parseString(data, function (e, result) {
-					var fileRef = path.join('/Users/cscade/Projects/seeker-brewing', 'public', '_uploads', connect.utils.uid(8) + '.xml');
-
 					if (e || !result.RECIPE) return render.upload.call(res, {
 						message: '\
 							<div class="alert alert-error">\
 								<strong>Nope.</strong> Upload BeerXML v1 only.\
 							</div>'
 					});
-					fs.writeFile(fileRef, data, function (e) {
+					// good upload
+					Recipe.create({
+						name: result.RECIPE.NAME,
+						data: result.RECIPE
+					}, function (e, recipe) {
 						if (e) return render.upload.call(res, {
 							message: '\
 								<div class="alert alert-error">\
-									<strong>Shit.</strong> Could not write the target file. All is lost.\
+									<strong>Shit.</strong> We couldn\'t talk to couch.\
 								</div>'
 						});
-						// good upload
-						Recipe.create({
-							name: result.RECIPE.NAME,
-							data: result.RECIPE,
-							xmlFile: fileRef
-						}, function (e, recipe) {
-							if (e) return render.upload.call(res, {
-								message: '\
-									<div class="alert alert-error">\
-										<strong>Shit.</strong> The xml file was saved at ' + fileRef + ', but we couldn\'t talk to couch.\
-									</div>'
-							});
-							res.redirect('/');
-						});
+						res.redirect('/');
 					});
 				});
 			});
