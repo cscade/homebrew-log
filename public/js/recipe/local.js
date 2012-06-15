@@ -142,7 +142,10 @@ window.addEvent('domready', function () {
 						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
 					});
 					batch.points.each(function (point) {
-						points.grab(new Element('tr').adopt(
+						points.grab(new Element('tr', {
+							title: point.notes,
+							'data-show': point.notes ? 'tooltip' : ''
+						}).adopt(
 							new Element('td', {
 								text: new Date(point.at).format('%x %X')
 							}),
@@ -153,6 +156,9 @@ window.addEvent('domready', function () {
 								html: point.ambient + ' &deg;F'
 							})
 						));
+					});
+					jQuery(points).tooltip({
+						selector: 'tr[data-show=tooltip]'
 					});
 				}
 			}
