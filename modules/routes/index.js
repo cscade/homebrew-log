@@ -15,8 +15,6 @@ var xml2js = require('xml2js'),
 	Batch = require('../database/recipe.batch').Batch,
 	DataPoint = require('../database/recipe.batch.datapoint').DataPoint;
 
-var Beer = require('../lib/beer');
-
 module.exports = function (app) {
 	
 	app.get('/', function (req, res) {
