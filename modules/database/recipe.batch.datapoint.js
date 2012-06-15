@@ -9,14 +9,13 @@
 var resourceful = require('resourceful');
 
 exports.DataPoint = resourceful.define('datapoint', function () {
-	this.number('at', {
-		required: true
-	});
-	this.number('temp', {
-		required: true
-	});
-	this.number('ambient', {
-		required: true
-	});
+	this.number('at');
+	this.string('action');
+	this.number('temp');
+	this.number('ambient');
+	this.string('gravity');
+	this.string('to');
+	this.string('in');
 	this.string('notes');
+	this.object('tasting');
 });

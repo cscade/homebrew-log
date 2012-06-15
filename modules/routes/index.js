@@ -15,8 +15,6 @@ var xml2js = require('xml2js'),
 	Batch = require('../database/recipe.batch').Batch,
 	DataPoint = require('../database/recipe.batch.datapoint').DataPoint;
 
-var Beer = require('../lib/beer');
-
 module.exports = function (app) {
 	
 	app.get('/', function (req, res) {
@@ -53,16 +51,16 @@ module.exports = function (app) {
 						name: recipe.name,
 						type: {
 							category: {
-								number: recipe.data.STYLE.CATEGORY_NUMBER,
-								name: recipe.data.STYLE.CATEGORY
+								number: recipe.data.style.CATEGORY_NUMBER,
+								name: recipe.data.style.CATEGORY
 							},
 							style: {
-								letter: recipe.data.STYLE.STYLE_LETTER,
-								name: recipe.data.STYLE.NAME
+								letter: recipe.data.style.STYLE_LETTER,
+								name: recipe.data.style.NAME
 							},
-							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.STYLE.CATEGORY_NUMBER + '.php#style' + recipe.data.STYLE.CATEGORY_NUMBER + recipe.data.STYLE.STYLE_LETTER
+							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.style.CATEGORY_NUMBER + '.php#style' + recipe.data.style.CATEGORY_NUMBER + recipe.data.style.STYLE_LETTER
 						},
-						beer: new Beer(recipe.data),
+						specs: recipe.data,
 						batches: recipe.batches.sort(function (a, b) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
@@ -155,9 +153,21 @@ module.exports = function (app) {
 			DataPoint.create({
 				_id: pointId,
 				at: at.getTime(),
-				temp: Number.from(req.body.temp),
-				ambient: Number.from(req.body.ambient),
-				notes: req.body.notes
+				action: req.body.action,
+				temp: Number.from(req.body.temp) || undefined,
+				ambient: Number.from(req.body.ambient) || undefined,
+				to: req.body.to,
+				'in': req.body['in'],
+				notes: req.body.notes,
+				gravity: req.body.gravity,
+				tasting: req.body.action === 'tasting' ? {
+					from: req.body.from,
+					aroma: req.body.aroma,
+					appearance: req.body.appearance,
+					flavor: req.body.flavor,
+					mouthfeel: req.body.mouthfeel,
+					overall: req.body.overall
+				} : undefined
 			}, function (e, point) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
 				batch.points.push(point);
@@ -197,16 +207,31 @@ module.exports = function (app) {
 						</div>'
 				});
 				parser.parseString(data, function (e, result) {
+					var recipe;
+					
 					if (e || !result.RECIPE) return render.upload.call(res, {
 						message: '\
 							<div class="alert alert-error">\
 								<strong>Nope.</strong> Upload BeerXML v1 only.\
 							</div>'
 					});
-					// good upload
+					recipe = {
+						ibu: {
+							value: Number.from(req.body.ibu),
+							model: req.body.ibuMethod
+						},
+						color: {
+							value: Number.from(req.body.color),
+							model: req.body.colorMethod
+						}
+					};
+					// translate first level xml keys to lowercase
+					Object.keys(result.RECIPE).forEach(function (key) {
+						recipe[key.toLowerCase()] = result.RECIPE[key];
+					});
 					Recipe.create({
 						name: result.RECIPE.NAME,
-						data: result.RECIPE
+						data: recipe
 					}, function (e, recipe) {
 						if (e) return render.upload.call(res, {
 							message: '\
@@ -260,7 +285,15 @@ module.exports = function (app) {
 						"none": 'No Control; Let it run wild',
 						"manual": 'Manual; Wet towels, swamp cooling, etc',
 						"auto-enclosed": 'Auto Space; Temperature controlled space',
-						"auto-wort": 'Auto in Wort; Temperature controlled wort'
+						"auto-wort": 'Auto in Wort; Temperature controlled wort',
+						"pitch": 'Pitch',
+						"temp": 'Temperature',
+						"gravity": 'Gravity',
+						"addition": 'Addition',
+						"dryHop": 'Dry Hop',
+						"rack": 'Rack',
+						"package": 'Package',
+						"tasting": 'Tasting Notes'
 					}
 				}, data || {})
 			});
