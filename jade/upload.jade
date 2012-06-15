@@ -18,11 +18,43 @@ block navigation
 				a(href="/upload") Upload
 
 block content
+	h2 Upload a Recipe
+	hr
 	.message!= message
-	form.form(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
-		label Recipe
-		input(type="file", name="recipe")
-		.form-actions
-			button.btn(type="submit") Upload
+	form.form-horizontal(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
+		fieldset
+			.control-group
+				label.control-label BeerXML 1.0
+				.controls
+					input(type="file", name="recipe")
+			.control-group
+				label.control-label Calculated IBUs
+				.controls
+					input.span1(type="text", name="ibu")
+			.control-group
+				label.control-label IBU Model
+				.controls
+					select.span2(name="ibuMethod")
+						option(value="basic") Basic
+						option(value="rager") Rager
+						option(value="garetz") Garetz
+						option(value="mosher") Mosher
+						option(value="tinseth", selected) Tinseth
+						option(value="daniels") Daniels
+						option(value="fowler") Fowler
+			.control-group
+				label.control-label Calculated Color (SRM)
+				.controls
+					input.span1(type="text", name="color")
+			.control-group
+				label.control-label Color Model
+				.controls
+					select.span2(name="colorMethod")
+						option(value="classic", selected) Classic
+						option(value="morey") Morey
+						option(value="daniels") Daniels
+						option(value="noonan") Noonan
+			.form-actions
+				button.btn(type="submit") Upload
 
 block localJS

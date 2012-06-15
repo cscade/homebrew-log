@@ -14,7 +14,7 @@ block navigation
 		ul.nav
 			li.active
 				a(href='/') Recipes
-			li
+			li.visible-desktop
 				a(href="/upload") Upload
 
 block content
@@ -23,11 +23,29 @@ block content
 		thead
 			tr
 				th Name
-				th Last Modified
+				th Batches
+				th.hidden-phone Last Modified
 		tbody
 			each recipe in recipes
-				tr
+				tr.interactive(data-id=recipe._id)
 					td= recipe.name
-					td= recipe.modified
+					td
+						- if (recipe.batches.length)
+							span.badge.badge-info= recipe.batches.length
+						- else
+							span.badge 0
+					td.hidden-phone(data-mtime=recipe.mtime)
 
 block localJS
+	script(type='text/javascript')
+		window.addEvent('domready', function () {
+			// edit time
+			document.getElements('td[data-mtime]').each(function (el) {
+				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+			});
+
+			// click for details
+			document.getElements('tr[data-id]').addEvent('click', function () {
+				window.location = '/recipe/' + this.get('data-id') + '#/';
+			});
+		});
