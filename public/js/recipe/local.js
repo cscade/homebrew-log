@@ -104,7 +104,7 @@ window.addEvent('domready', function () {
 			if (Date.parse(this.getElement('input[name=at]').get('value')) < (new Date()).decrement('day', 30) && !window.confirm('This date is more than 30 days ago. Save anyways?')) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) > (new Date()) && !window.confirm('This date is in the future. Save anyways?')) return e.stop(), false;
 			this.getElement('input[name=at]').set('value', Date.parse(this.getElement('input[name=at]').get('value')));
-			if (this.getElement('select[name=action]').get('value') === 'gravity') this.getElement('input[name=gravity]').set('value', '1.' + this.getElement('input[name=gravity]').get('value'));
+			if (this.getElement('input[name=gravity]').get('disabled') !== true) this.getElement('input[name=gravity]').set('value', '1.' + this.getElement('input[name=gravity]').get('value'));
 		});
 		
 		// now button
