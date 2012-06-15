@@ -153,9 +153,21 @@ module.exports = function (app) {
 			DataPoint.create({
 				_id: pointId,
 				at: at.getTime(),
-				temp: Number.from(req.body.temp),
-				ambient: Number.from(req.body.ambient),
-				notes: req.body.notes
+				action: req.body.action,
+				temp: Number.from(req.body.temp) || undefined,
+				ambient: Number.from(req.body.ambient) || undefined,
+				to: req.body.to,
+				'in': req.body['in'],
+				notes: req.body.notes,
+				gravity: req.body.gravity,
+				tasting: req.body.action === 'tasting' ? {
+					from: req.body.from,
+					aroma: req.body.aroma,
+					appearance: req.body.appearance,
+					flavor: req.body.flavor,
+					mouthfeel: req.body.mouthfeel,
+					overall: req.body.overall
+				} : undefined
 			}, function (e, point) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
 				batch.points.push(point);
@@ -273,7 +285,15 @@ module.exports = function (app) {
 						"none": 'No Control; Let it run wild',
 						"manual": 'Manual; Wet towels, swamp cooling, etc',
 						"auto-enclosed": 'Auto Space; Temperature controlled space',
-						"auto-wort": 'Auto in Wort; Temperature controlled wort'
+						"auto-wort": 'Auto in Wort; Temperature controlled wort',
+						"pitch": 'Pitch',
+						"temp": 'Temperature',
+						"gravity": 'Gravity',
+						"addition": 'Addition',
+						"dryHop": 'Dry Hop',
+						"rack": 'Rack',
+						"package": 'Package',
+						"tasting": 'Tasting Notes'
 					}
 				}, data || {})
 			});

@@ -90,6 +90,7 @@ window.addEvent('domready', function () {
 			var form = document.getElement('#batch form[action="/createDataPoint"]');
 			
 			form.reset();
+			document.getElement('#batch form[action="/createDataPoint"] select[name=action]').fireEvent('change');
 			form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
 			form.getElements('.control-group').removeClass('error');
 			if (mobile) setTimeout(function () { window.scrollTo(0, 0); }, 250), context.hidden = document.getElement('#batch form[action="/updateBatch"]').hide();
@@ -103,11 +104,21 @@ window.addEvent('domready', function () {
 			if (Date.parse(this.getElement('input[name=at]').get('value')) < (new Date()).decrement('day', 30) && !window.confirm('This date is more than 30 days ago. Save anyways?')) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) > (new Date()) && !window.confirm('This date is in the future. Save anyways?')) return e.stop(), false;
 			this.getElement('input[name=at]').set('value', Date.parse(this.getElement('input[name=at]').get('value')));
+			if (this.getElement('select[name=action]').get('value') === 'gravity') this.getElement('input[name=gravity]').set('value', '1.' + this.getElement('input[name=gravity]').get('value'));
 		});
 		
 		// now button
 		document.getElement('#batch form[action="/createDataPoint"] button.now').addEvent('click', function () {
 			document.getElement('#batch form[action="/createDataPoint"] input[name=at]').set('value', (new Date()).format('%x %X'));
+		});
+		
+		// action chooser
+		document.getElement('#batch form[action="/createDataPoint"] select[name=action]').addEvent('change', function () {
+			this.getParent('form').getElements('.hide').hide();
+			this.getParent('form').getElements('.hide input, .hide select, .hide textarea').set('disabled', true);
+			this.getParent('form').getElements('.' + this.get('value')).show();
+			this.getParent('form').getElements('.' + this.get('value') + ' input, .' + this.get('value') + ' select, .' + this.get('value') + ' textarea').set('disabled', false);
+			this.getParent('form').getElements('.control-group').removeClass('error');
 		});
 		
 		// Router
@@ -147,13 +158,16 @@ window.addEvent('domready', function () {
 							'data-show': point.notes ? 'tooltip' : ''
 						}).adopt(
 							new Element('td', {
-								text: new Date(point.at).format('%x %X')
+								text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
 							}),
 							new Element('td', {
-								html: point.temp + ' &deg;F'
+								text: descriptions[point.action]
 							}),
 							new Element('td', {
-								html: point.ambient + ' &deg;F'
+								html: point.temp ? (point.temp + ' &deg;F') : '-'
+							}),
+							new Element('td', {
+								html: point.ambient ? (point.ambient + ' &deg;F') : '-'
 							})
 						));
 					});
