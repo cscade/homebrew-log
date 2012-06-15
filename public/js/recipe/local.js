@@ -153,26 +153,144 @@ window.addEvent('domready', function () {
 						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
 					});
 					batch.points.each(function (point) {
-						points.grab(new Element('tr', {
-							title: point.notes,
-							'data-show': point.notes ? 'tooltip' : ''
-						}).adopt(
-							new Element('td', {
-								text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
-							}),
-							new Element('td', {
-								text: descriptions[point.action]
-							}),
-							new Element('td', {
-								html: point.temp ? (point.temp + ' &deg;F') : '-'
-							}),
-							new Element('td', {
-								html: point.ambient ? (point.ambient + ' &deg;F') : '-'
-							})
-						));
+						var popoverContent = '';
+						
+						if (point.action === 'pitch') {
+							// pitch
+							if (point.ambient) popoverContent = popoverContent + '<h4>Ambient Temp</h4><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
+							if (point.notes) popoverContent = popoverContent + '<br><h4>Notes</h4><p>' + point.notes + '</p>';
+							points.grab(new Element('tr', {
+								title: 'Details',
+								'data-content': popoverContent,
+								'data-show': popoverContent ? 'popover' : ''
+							}).adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
+										<span>' + ', OG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
+								})
+							));
+						} else if (point.action === 'temp') {
+							// temp
+							if (point.ambient) popoverContent = popoverContent + '<h4>Ambient Temp</h4><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
+							if (point.notes) popoverContent = popoverContent + '<br><h4>Notes</h4><p>' + point.notes + '</p>';
+							points.grab(new Element('tr', {
+								title: 'Details',
+								'data-content': popoverContent,
+								'data-show': popoverContent ? 'popover' : ''
+							}).adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>'
+								})
+							));
+						} else if (point.action === 'gravity') {
+							// gravity
+							points.grab(new Element('tr').adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': SG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
+								})
+							));
+						} else if (point.action === 'addition') {
+							// addition
+							points.grab(new Element('tr').adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
+										<p>' + point.notes + '</p>'
+								})
+							));
+						} else if (point.action === 'dryHop') {
+							// dryHop
+							points.grab(new Element('tr').adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
+										<p>' + point.notes + '</p>'
+								})
+							));
+						} else if (point.action === 'rack') {
+							// rack
+							if (point.notes) popoverContent = popoverContent + '<h4>Notes</h4><p>' + point.notes + '</p>';
+							points.grab(new Element('tr', {
+								title: 'Details',
+								'data-content': popoverContent,
+								'data-show': popoverContent ? 'popover' : ''
+							}).adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': To <strong>' + (point.to ? (point.to + '</strong>') : '-') + '</span>\
+										<span>' + ', SG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
+								})
+							));
+						} else if (point.action === 'package') {
+							// package
+							if (point.notes) popoverContent = popoverContent + '<h4>Notes</h4><p>' + point.notes + '</p>';
+							points.grab(new Element('tr', {
+								title: 'Details',
+								'data-content': popoverContent,
+								'data-show': popoverContent ? 'popover' : ''
+							}).adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': In <strong>' + (point['in'] ? (point['in'] + '</strong>') : '-') + '</span>'
+								})
+							));
+						} else if (point.action === 'tasting') {
+							// tasting
+							if (point.tasting.aroma) popoverContent = popoverContent + '<h4>Aroma</h4><p>' + point.tasting.aroma + '</p>';
+							if (point.tasting.appearance) popoverContent = popoverContent + '<br><h4>Appearance</h4><p>' + point.tasting.appearance + '</p>';
+							if (point.tasting.flavor) popoverContent = popoverContent + '<br><h4>Flavor</h4><p>' + point.tasting.flavor + '</p>';
+							if (point.tasting.mouthfeel) popoverContent = popoverContent + '<br><h4>Mouthfeel</h4><p>' + point.tasting.mouthfeel + '</p>';
+							if (point.tasting.overall) popoverContent = popoverContent + '<br><h4>Overall</h4><p>' + point.tasting.overall + '</p>';
+							points.grab(new Element('tr', {
+								title: 'Details',
+								'data-content': popoverContent,
+								'data-show': popoverContent ? 'popover' : ''
+							}).adopt(
+								new Element('td', {
+									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>\
+										<span>' + ': From <strong>' + (point.tasting.from ? (point.tasting.from + '</strong>') : '-') + '</span>'
+								})
+							));
+						}
 					});
-					jQuery(points).tooltip({
-						selector: 'tr[data-show=tooltip]'
+					jQuery(points).popover({
+						selector: '[data-show=popover]',
+						placement: 'bottom'
 					});
 				}
 			}
