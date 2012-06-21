@@ -333,6 +333,7 @@ block localJS
 	script(src='/js/recipe/local.js')
 	script(type='text/javascript')
 		window.ampl = {
+			_id: !{JSON.stringify(recipe._id)},
 			batches: !{JSON.stringify(recipe.batches)},
 			descriptions: !{JSON.stringify(descriptions)}
 		};
