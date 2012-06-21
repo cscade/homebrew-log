@@ -18,8 +18,7 @@ block navigation
 				a(href="/upload") Upload
 
 block content
-	h2 Upload a Recipe
-	hr
+	h1.page-header Upload a Recipe
 	.message!= message
 	form.form-horizontal(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
 		fieldset

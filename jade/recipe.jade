@@ -18,16 +18,17 @@ block navigation
 				a(href="/upload") Upload
 
 block content
-	h2= recipe.name + ' '
-		small= recipe.specs.type
+	h1.page-header= recipe.name + ' '
 		small.pull-right.visible-desktop
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.pull-right.visible-tablet
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.visible-phone
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
-	hr
 	.area#batches
+		.row
+			.span12
+				h4= recipe.specs.type
 		.row.hidden-phone
 			.span3
 				p
@@ -58,26 +59,18 @@ block content
 				p
 					span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
 					strong  OG
-					br
-					small at #{convert.round.call(recipe.specs.efficiency, 1)}% efficiency.
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
 					strong  FG
-					br
-					small at predicted attenuation.
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
 					strong  Bitterness
-					br
-					small= 'IBU'  + (recipe.specs.ibu ? (' - ' + recipe.specs.ibu.model.slice(0, 1).toUpperCase() + recipe.specs.ibu.model.slice(1)) : '')
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
 					strong  Color
-					br
-					small= 'SRM'  + (recipe.specs.color ? (' - ' + recipe.specs.color.model.slice(0, 1).toUpperCase() + recipe.specs.color.model.slice(1)) : '')
 		hr
 		h3 Batches
 			small.pull-right
@@ -99,7 +92,10 @@ block content
 					tr
 						td(colspan="4") No batches.
 	.area#batch
-		h3 Batch 
+		h3
+			a.btn(href="#/")
+				i.icon-backward
+			|  Batch 
 			small.name
 			small.pull-right
 				button.btn.btn-primary(type="button", data-toggle="modal", data-target="#createDataPointModal") New Data Point
@@ -246,9 +242,8 @@ block content
 						.controls
 							.fixed(data-name="control")
 					.form-actions
-						input(type="submit", class="btn btn-primary", value="Update Batch")
+						button.btn.btn-primary(type="submit") Update Batch
 						| &nbsp;
-						a.btn(href="#/") Cancel
 						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
 			.modal.hide#deleteBatchModal
 				.modal-header
