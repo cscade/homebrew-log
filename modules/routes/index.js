@@ -178,6 +178,28 @@ module.exports = function (app) {
 			});
 		});
 	});
+	
+	app.post('/deleteDataPoint', function (req, res) {
+		Recipe.get(req.body.recipe, function (e, recipe) {
+			var batch;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			// locate batch
+			batch = recipe.batches.filter(function (batch) {
+				return batch._id === req.body.batch;
+			})[0];
+			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
+			// filter out point
+			batch.points = batch.points.filter(function (point) {
+				return point._id !== req.body.point;
+			});
+			// save
+			recipe.save(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				res.end();
+			});
+		});
+	});
 
 	app.get('/upload', function (req, res) {
 		render.upload.call(res);
