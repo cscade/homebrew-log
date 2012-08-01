@@ -189,7 +189,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -207,7 +207,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -221,7 +221,7 @@ window.addEvent('domready', function () {
 							// gravity
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -233,7 +233,7 @@ window.addEvent('domready', function () {
 							// addition
 							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -246,7 +246,7 @@ window.addEvent('domready', function () {
 							// dryHop
 							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -261,7 +261,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
@@ -278,12 +278,27 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': In <strong>' + (point['in'] ? (point['in'] + '</strong>') : '-') + '</span>'
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
+						} else if (point.action === 'note') {
+							// notes
+							if (point.notes) detailContent = point.notes;
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
+								new Element('td', {
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>'
 								}).grab(deleteControl)
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
@@ -298,7 +313,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
