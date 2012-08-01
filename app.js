@@ -15,6 +15,7 @@ var express = require('express'),
 	https = require('https'),
 	fs = require('fs'),
 	app = express(),
+	connect = require('connect'),
 	sslConfig;
 
 // Configuration
@@ -32,6 +33,7 @@ var listen = app.env === 'development' ? 443 : 8081;
 app.configure(function(){
 	app.set('views', __dirname + '/jade');
 	app.set('view engine', 'jade');
+	app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
