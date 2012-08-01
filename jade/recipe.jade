@@ -86,7 +86,9 @@ block content
 					each batch, index in recipe.batches
 						tr.interactive(data-id=batch._id)
 							td= batch.name
-							td= new Date(batch.brewed).toDateString()
+							td #{new Date(batch.brewed).toDateString()}
+								|  - 
+								span(data-mtime=batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed)
 							td= descriptions[batch.equipment]
 				- else
 					tr
@@ -337,3 +339,9 @@ block localJS
 			batches: !{JSON.stringify(recipe.batches)},
 			descriptions: !{JSON.stringify(descriptions)}
 		};
+		window.addEvent('domready', function () {
+			// time
+			document.getElements('span[data-mtime]').each(function (el) {
+				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+			});
+		});
