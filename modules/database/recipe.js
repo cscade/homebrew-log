@@ -9,15 +9,20 @@
 var resourceful = require('resourceful');
 
 var config = {
-	url: 'plastic',
-	database: 'seeker',
-	port: 5984,
-	uri: 'couchdb://plastic:5984/seeker'
+	url: 'https://seeker.iriscouch.com',
+	database: 'seeker'
 };
 
 exports.Recipe = resourceful.define('recipe', function () {
 	this.use('couchdb', {
-		uri: config.uri
+		host: config.url,
+		port: 6984,
+		database: config.database,
+		secure: true,
+		auth: {
+			username: 'seeker',
+			password: 'beer'
+		}
 	});
 
 	this.string('name',{
