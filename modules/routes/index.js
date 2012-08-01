@@ -321,11 +321,19 @@ module.exports = function (app) {
 			});
 		},
 		dashboard: function (data) {
+			var locals;
+			
+			locals = connect.utils.merge({
+				message: ''
+			}, data || {});
+			
+			// sort by mtime
+			locals.recipes = locals.recipes.sort(function (a, b) {
+				return a.mtime === b.mtime ? 0 : (a.mtime > b.mtime ? -1 : 1);
+			});
 			this.render('dashboard.jade', {
 				layout: false,
-				locals: connect.utils.merge({
-					message: '',
-				}, data || {})
+				locals: locals
 			});
 		}
 	};
