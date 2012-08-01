@@ -12,9 +12,12 @@
 
 var express = require('express'),
 	winston = require('winston'),
-	app = express.createServer();
+	https = require('https'),
+	fs = require('fs'),
+	app = express();
 
 // Configuration
+app.env = process.env.NODE_ENV || 'development';
 app.log = winston;
 app.couch = new (require('cradle')).Connection('https://seeker.iriscouch.com', 6984, {
 	cache: true,
@@ -52,11 +55,16 @@ Number.from = function (item) {
 // routes
 require('./modules/routes')(app);
 
-app.listen(80, function () {
+var options = {
+	key: fs.readFileSync('/etc/ssl/node-snakeoil.pem'),
+	cert: fs.readFileSync('/etc/ssl/log.seekerbrewing.dev.pem')
+};
+
+https.createServer(options, app).listen(443, function () {
 	app.log.remove(winston.transports.Console);
 	app.log.add(winston.transports.Console, {
 		colorize: true,
 		timestamp: true
 	});
-	app.log.info('seeker-brewing listening on port ' + app.address().port);
+	app.log.info('seeker-brewing listening on port 443');
 });
