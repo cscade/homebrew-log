@@ -315,6 +315,7 @@ module.exports = function (app) {
 						"dryHop": 'Dry Hop',
 						"rack": 'Rack',
 						"package": 'Package',
+						"note": 'Notes',
 						"tasting": 'Tasting Notes'
 					}
 				}, data || {})

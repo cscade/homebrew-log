@@ -131,6 +131,7 @@ block content
 										option(value="dryHop")= descriptions['dryHop']
 										option(value="rack")= descriptions['rack']
 										option(value="package")= descriptions['package']
+										option(value="note")= descriptions['note']
 										option(value="tasting")= descriptions['tasting']
 							.control-group.hide.pitch.temp.addition.dryHop
 								label.control-label Temperature
@@ -163,7 +164,7 @@ block content
 									select.span2(name="in", data-validators="required")
 										option(value="bottle") Bottle
 										option(value="keg", selected) Keg
-							.control-group.hide.pitch.temp.addition.dryHop.rack.package
+							.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
 								label.control-label Notes
 								.controls
 									textarea.span3(name="notes", value="", rows="6")
