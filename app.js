@@ -12,15 +12,28 @@
 
 var express = require('express'),
 	winston = require('winston'),
-	app = express.createServer();
+	https = require('https'),
+	fs = require('fs'),
+	app = express(),
+	connect = require('connect'),
+	sslConfig;
 
 // Configuration
+app.env = process.env.NODE_ENV || 'development';
 app.log = winston;
-app.couch = new (require('cradle')).Connection('http://plastic', 5984, { cache: true });
+app.couch = new (require('cradle')).Connection('https://seeker.iriscouch.com', 6984, {
+	cache: true,
+	auth: {
+		username: 'seeker',
+		password: 'beer'
+	}
+});
+var listen = app.env === 'development' ? 443 : 8081;
 
 app.configure(function(){
 	app.set('views', __dirname + '/jade');
 	app.set('view engine', 'jade');
+	app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -31,10 +44,18 @@ app.configure(function(){
 
 app.configure('development', function () {
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+	sslConfig = {
+		key: fs.readFileSync('/etc/ssl/node-snakeoil.pem'),
+		cert: fs.readFileSync('/etc/ssl/log.seekerbrewing.dev.pem')
+	};
 });
 
 app.configure('production', function () {
 	app.use(express.errorHandler());
+	sslConfig = {
+		key: fs.readFileSync('/etc/ssl/private/fire.key'),
+		cert: fs.readFileSync('/etc/ssl/certs/log.seekerbeer.com.pem')
+	};
 });
 
 // Number.from utility
@@ -46,11 +67,11 @@ Number.from = function (item) {
 // routes
 require('./modules/routes')(app);
 
-app.listen(80, function () {
+https.createServer(sslConfig, app).listen(listen, function () {
 	app.log.remove(winston.transports.Console);
 	app.log.add(winston.transports.Console, {
 		colorize: true,
 		timestamp: true
 	});
-	app.log.info('seeker-brewing listening on port ' + app.address().port);
+	app.log.info('seeker-brewing listening on port ' + listen + ' (https) in ' + app.env + ' mode.');
 });

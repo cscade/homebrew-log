@@ -178,6 +178,28 @@ module.exports = function (app) {
 			});
 		});
 	});
+	
+	app.post('/deleteDataPoint', function (req, res) {
+		Recipe.get(req.body.recipe, function (e, recipe) {
+			var batch;
+			
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			// locate batch
+			batch = recipe.batches.filter(function (batch) {
+				return batch._id === req.body.batch;
+			})[0];
+			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
+			// filter out point
+			batch.points = batch.points.filter(function (point) {
+				return point._id !== req.body.point;
+			});
+			// save
+			recipe.save(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				res.end();
+			});
+		});
+	});
 
 	app.get('/upload', function (req, res) {
 		render.upload.call(res);
@@ -250,61 +272,61 @@ module.exports = function (app) {
 	// renderers
 	var render = {
 		upload: function (data) {
-			this.render('upload.jade', {
-				layout: false,
-				locals: connect.utils.merge({
-					message: '',
-				}, data || {})
-			});
+			this.render('upload.jade', connect.utils.merge({
+				message: '',
+			}, data || {}));
 		},
 		recipe: function (data) {
-			this.render('recipe.jade', {
-				layout: false,
-				locals: connect.utils.merge({
-					convert: convert,
-					message: '',
-					descriptions: {
-						"stovetop": 'Stovetop / Extract / Partial Mash',
-						"ag-biab": 'All Grain, BIAB',
-						"ag-insulated": 'All Grain, Insulated',
-						"ag-direct": 'All Grain, Direct Fire',
-						"ag-rims": 'All Grain, RIMS',
-						"ag-herms": 'All Grain, HERMS',
-						"rehydrate-water": 'Rehydrate in water',
-						"rehydrate-wort": 'Rehydrate in wort',
-						"starter": 'Starter, simple',
-						"starter-O2": 'Starter, simple w/ O2',
-						"starter-shaken": 'Starter, shaken',
-						"starter-aerated": 'Starter, aerated',
-						"starter-stir": 'Starter, stir plate',
-						"bucket": 'Bucket',
-						"carboy-5": 'Carboy, 5 gal',
-						"carboy-6": 'Carboy, 6 gal',
-						"conical-plastic": 'Conical, Plastic',
-						"conical-stainless": 'Conical, Stainless',
-						"none": 'No Control; Let it run wild',
-						"manual": 'Manual; Wet towels, swamp cooling, etc',
-						"auto-enclosed": 'Auto Space; Temperature controlled space',
-						"auto-wort": 'Auto in Wort; Temperature controlled wort',
-						"pitch": 'Pitch',
-						"temp": 'Temperature',
-						"gravity": 'Gravity',
-						"addition": 'Addition',
-						"dryHop": 'Dry Hop',
-						"rack": 'Rack',
-						"package": 'Package',
-						"tasting": 'Tasting Notes'
-					}
-				}, data || {})
-			});
+			this.render('recipe.jade', connect.utils.merge({
+				convert: convert,
+				message: '',
+				descriptions: {
+					"stovetop": 'Stovetop / Extract / Partial Mash',
+					"ag-biab": 'All Grain, BIAB',
+					"ag-insulated": 'All Grain, Insulated',
+					"ag-direct": 'All Grain, Direct Fire',
+					"ag-rims": 'All Grain, RIMS',
+					"ag-herms": 'All Grain, HERMS',
+					"rehydrate-water": 'Rehydrate in water',
+					"rehydrate-wort": 'Rehydrate in wort',
+					"starter": 'Starter, simple',
+					"starter-O2": 'Starter, simple w/ O2',
+					"starter-shaken": 'Starter, shaken',
+					"starter-aerated": 'Starter, aerated',
+					"starter-stir": 'Starter, stir plate',
+					"bucket": 'Bucket',
+					"carboy-5": 'Carboy, 5 gal',
+					"carboy-6": 'Carboy, 6 gal',
+					"conical-plastic": 'Conical, Plastic',
+					"conical-stainless": 'Conical, Stainless',
+					"none": 'No Control; Let it run wild',
+					"manual": 'Manual; Wet towels, swamp cooling, etc',
+					"auto-enclosed": 'Auto Space; Temperature controlled space',
+					"auto-wort": 'Auto in Wort; Temperature controlled wort',
+					"pitch": 'Pitch',
+					"temp": 'Temperature',
+					"gravity": 'Gravity',
+					"addition": 'Addition',
+					"dryHop": 'Dry Hop',
+					"rack": 'Rack',
+					"package": 'Package',
+					"note": 'Notes',
+					"tasting": 'Tasting Notes'
+				}
+			}, data || {}));
 		},
 		dashboard: function (data) {
-			this.render('dashboard.jade', {
-				layout: false,
-				locals: connect.utils.merge({
-					message: '',
-				}, data || {})
+			var locals;
+			
+			locals = connect.utils.merge({
+				message: ''
+			}, data || {});
+			
+			// sort by mtime
+			locals.recipes = locals.recipes.sort(function (a, b) {
+				return a.mtime === b.mtime ? 0 : (a.mtime > b.mtime ? -1 : 1);
 			});
+			this.render('dashboard.jade', locals);
 		}
 	};
 };

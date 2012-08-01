@@ -153,144 +153,177 @@ window.addEvent('domready', function () {
 						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
 					});
 					batch.points.each(function (point) {
-						var popoverContent = '';
+						var detailContent = '', deleteControl;
+						
+						deleteControl = new Element('a.close', {
+							href: '#',
+							text: '×',
+							events: {
+								click: function (e) {
+									var req,
+										that = this;
+									
+									e.stop();
+									if (confirm('Delete data point? There\'s no undo!')) {
+										req = new Request({
+											url: '/deleteDataPoint',
+											data: {
+												recipe: ampl._id,
+												batch: batch._id,
+												point: point._id
+											},
+											onSuccess: function (res) {
+												that.getParent('tbody').getElements('tr[data-point=' + point._id + ']').destroy();
+											}
+										});
+										req.send();
+									}
+								}
+							}
+						});
 						
 						if (point.action === 'pitch') {
 							// pitch
-							if (point.ambient) popoverContent = popoverContent + '<h4>Ambient Temp</h4><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
-							if (point.notes) popoverContent = popoverContent + '<br><h4>Notes</h4><p>' + point.notes + '</p>';
-							points.grab(new Element('tr', {
-								title: 'Details',
-								'data-content': popoverContent,
-								'data-show': popoverContent ? 'popover' : ''
-							}).adopt(
+							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
+							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
 										<span>' + ', OG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
-								})
-							));
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
 						} else if (point.action === 'temp') {
 							// temp
-							if (point.ambient) popoverContent = popoverContent + '<h4>Ambient Temp</h4><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
-							if (point.notes) popoverContent = popoverContent + '<br><h4>Notes</h4><p>' + point.notes + '</p>';
-							points.grab(new Element('tr', {
-								title: 'Details',
-								'data-content': popoverContent,
-								'data-show': popoverContent ? 'popover' : ''
-							}).adopt(
+							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
+							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>'
-								})
-							));
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
 						} else if (point.action === 'gravity') {
 							// gravity
-							points.grab(new Element('tr').adopt(
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': SG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
-								})
+								}).grab(deleteControl)
 							));
 						} else if (point.action === 'addition') {
 							// addition
-							points.grab(new Element('tr').adopt(
+							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
 										<p>' + point.notes + '</p>'
-								})
+								}).grab(deleteControl)
 							));
 						} else if (point.action === 'dryHop') {
 							// dryHop
-							points.grab(new Element('tr').adopt(
+							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': <strong>' + (point.temp ? (point.temp + '</strong>&deg;F') : '-') + '</span>\
 										<p>' + point.notes + '</p>'
-								})
+								}).grab(deleteControl)
 							));
 						} else if (point.action === 'rack') {
 							// rack
-							if (point.notes) popoverContent = popoverContent + '<h4>Notes</h4><p>' + point.notes + '</p>';
-							points.grab(new Element('tr', {
-								title: 'Details',
-								'data-content': popoverContent,
-								'data-show': popoverContent ? 'popover' : ''
-							}).adopt(
+							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': To <strong>' + (point.to ? (point.to + '</strong>') : '-') + '</span>\
 										<span>' + ', SG <strong>' + (point.gravity ? (point.gravity + '</strong>') : '-') + '</span>'
-								})
-							));
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
 						} else if (point.action === 'package') {
 							// package
-							if (point.notes) popoverContent = popoverContent + '<h4>Notes</h4><p>' + point.notes + '</p>';
-							points.grab(new Element('tr', {
-								title: 'Details',
-								'data-content': popoverContent,
-								'data-show': popoverContent ? 'popover' : ''
-							}).adopt(
+							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': In <strong>' + (point['in'] ? (point['in'] + '</strong>') : '-') + '</span>'
-								})
-							));
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
+						} else if (point.action === 'note') {
+							// notes
+							if (point.notes) detailContent = point.notes;
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
+								new Element('td', {
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
+								}),
+								new Element('td', {
+									html: '\
+										<span>' + descriptions[point.action] + '</span>'
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
 						} else if (point.action === 'tasting') {
 							// tasting
-							if (point.tasting.aroma) popoverContent = popoverContent + '<h4>Aroma</h4><p>' + point.tasting.aroma + '</p>';
-							if (point.tasting.appearance) popoverContent = popoverContent + '<br><h4>Appearance</h4><p>' + point.tasting.appearance + '</p>';
-							if (point.tasting.flavor) popoverContent = popoverContent + '<br><h4>Flavor</h4><p>' + point.tasting.flavor + '</p>';
-							if (point.tasting.mouthfeel) popoverContent = popoverContent + '<br><h4>Mouthfeel</h4><p>' + point.tasting.mouthfeel + '</p>';
-							if (point.tasting.overall) popoverContent = popoverContent + '<br><h4>Overall</h4><p>' + point.tasting.overall + '</p>';
-							points.grab(new Element('tr', {
-								title: 'Details',
-								'data-content': popoverContent,
-								'data-show': popoverContent ? 'popover' : ''
-							}).adopt(
+							if (point.tasting.aroma) detailContent = detailContent + '<h5>Aroma</h5><p>' + point.tasting.aroma + '</p>';
+							if (point.tasting.appearance) detailContent = detailContent + '<h5>Appearance</h5><p>' + point.tasting.appearance + '</p>';
+							if (point.tasting.flavor) detailContent = detailContent + '<h5>Flavor</h5><p>' + point.tasting.flavor + '</p>';
+							if (point.tasting.mouthfeel) detailContent = detailContent + '<h5>Mouthfeel</h5><p>' + point.tasting.mouthfeel + '</p>';
+							if (point.tasting.overall) detailContent = detailContent + '<h5>Overall</h5><p>' + point.tasting.overall + '</p>';
+							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									text: mobile ? new Date(point.at).format('%x') : new Date(point.at).format('%x %X')
+									rowspan: 2,
+									html: jQuery.timeago(point.at)
 								}),
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
 										<span>' + ': From <strong>' + (point.tasting.from ? (point.tasting.from + '</strong>') : '-') + '</span>'
-								})
-							));
+								}).grab(deleteControl)
+							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
+								html: detailContent
+							})));
 						}
-					});
-					jQuery(points).popover({
-						selector: '[data-show=popover]',
-						placement: 'bottom'
 					});
 				}
 			}

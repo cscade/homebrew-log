@@ -18,16 +18,17 @@ block navigation
 				a(href="/upload") Upload
 
 block content
-	h2= recipe.name + ' '
-		small= recipe.specs.type
+	h1.page-header= recipe.name + ' '
 		small.pull-right.visible-desktop
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.pull-right.visible-tablet
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
 		small.visible-phone
 			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
-	hr
 	.area#batches
+		.row
+			.span12
+				h4= recipe.specs.type
 		.row.hidden-phone
 			.span3
 				p
@@ -58,26 +59,18 @@ block content
 				p
 					span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
 					strong  OG
-					br
-					small at #{convert.round.call(recipe.specs.efficiency, 1)}% efficiency.
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
 					strong  FG
-					br
-					small at predicted attenuation.
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
 					strong  Bitterness
-					br
-					small= 'IBU'  + (recipe.specs.ibu ? (' - ' + recipe.specs.ibu.model.slice(0, 1).toUpperCase() + recipe.specs.ibu.model.slice(1)) : '')
 			div(style="width:50%;display:inline-block;")
 				p
 					span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
 					strong  Color
-					br
-					small= 'SRM'  + (recipe.specs.color ? (' - ' + recipe.specs.color.model.slice(0, 1).toUpperCase() + recipe.specs.color.model.slice(1)) : '')
 		hr
 		h3 Batches
 			small.pull-right
@@ -93,13 +86,18 @@ block content
 					each batch, index in recipe.batches
 						tr.interactive(data-id=batch._id)
 							td= batch.name
-							td= new Date(batch.brewed).toDateString()
+							td #{new Date(batch.brewed).toDateString()}
+								|  - 
+								span(data-mtime=batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed)
 							td= descriptions[batch.equipment]
 				- else
 					tr
 						td(colspan="4") No batches.
 	.area#batch
-		h3 Batch 
+		h3
+			a.btn(href="#/")
+				i.icon-backward
+			|  Batch 
 			small.name
 			small.pull-right
 				button.btn.btn-primary(type="button", data-toggle="modal", data-target="#createDataPointModal") New Data Point
@@ -133,6 +131,7 @@ block content
 										option(value="dryHop")= descriptions['dryHop']
 										option(value="rack")= descriptions['rack']
 										option(value="package")= descriptions['package']
+										option(value="note")= descriptions['note']
 										option(value="tasting")= descriptions['tasting']
 							.control-group.hide.pitch.temp.addition.dryHop
 								label.control-label Temperature
@@ -144,14 +143,14 @@ block content
 								label.control-label Ambient
 								.controls
 									.input-append
-										input.span1(type="number", name="ambient", data-validators="required validate-numeric", value="")
+										input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
 										span.add-on &deg;F
 							.control-group.hide.pitch.gravity.rack
 								label.control-label Gravity
 								.controls
 									.input-prepend.input-append
 										span.add-on 1.
-										input.span1(type="number", name="gravity", data-validators="required validate-numeric", value="000")
+										input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
 										span.add-on SG
 							.control-group.hide.rack
 								label.control-label To
@@ -165,7 +164,7 @@ block content
 									select.span2(name="in", data-validators="required")
 										option(value="bottle") Bottle
 										option(value="keg", selected) Keg
-							.control-group.hide.pitch.temp.addition.dryHop.rack.package
+							.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
 								label.control-label Notes
 								.controls
 									textarea.span3(name="notes", value="", rows="6")
@@ -198,14 +197,15 @@ block content
 				.modal-footer
 					a.btn(href="#", data-dismiss="modal", tabindex="-1") Cancel
 					button.btn.btn-primary(type="submit") Create
-		table.table
-			thead
-				tr
-					th At
-					th Action
-			tbody
-				tr
-					td(colspan="2") No data Points.
+		p
+			table.table.table-condensed.table-bordered
+				thead
+					tr
+						th At
+						th Action
+				tbody
+					tr
+						td(colspan="2") No data Points.
 		h4 Details
 		hr
 		p
@@ -246,9 +246,8 @@ block content
 						.controls
 							.fixed(data-name="control")
 					.form-actions
-						input(type="submit", class="btn btn-primary", value="Update Batch")
+						button.btn.btn-primary(type="submit") Update Batch
 						| &nbsp;
-						a.btn(href="#/") Cancel
 						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
 			.modal.hide#deleteBatchModal
 				.modal-header
@@ -337,6 +336,13 @@ block localJS
 	script(src='/js/recipe/local.js')
 	script(type='text/javascript')
 		window.ampl = {
+			_id: !{JSON.stringify(recipe._id)},
 			batches: !{JSON.stringify(recipe.batches)},
 			descriptions: !{JSON.stringify(descriptions)}
 		};
+		window.addEvent('domready', function () {
+			// time
+			document.getElements('span[data-mtime]').each(function (el) {
+				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+			});
+		});
