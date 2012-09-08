@@ -8,6 +8,10 @@
 .area {
   display: none;
 }
+.descriptor {
+  color: #808080;
+  font-style: italic;
+}
 tr.interactive {
   cursor: pointer;
 }
