@@ -147,6 +147,8 @@ window.addEvent('domready', function () {
 				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
 				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
 				form.getElement('textarea[name=notes]').set('value', batch.notes);
+				
+				points.empty();
 				if (batch.points.length) {
 					points.getElements('tr').destroy();
 					batch.points.sort(function (a, b) {
