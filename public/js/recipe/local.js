@@ -158,7 +158,7 @@ window.addEvent('domready', function () {
 					offsetFrom = batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed;
 					
 					batch.points.each(function (point) {
-						var detailContent = '', deleteControl, timeDisplay;
+						var detailContent = '', deleteControl, offsetValue, timeDisplay;
 						
 						deleteControl = new Element('a.close', {
 							href: '#',
@@ -188,7 +188,17 @@ window.addEvent('domready', function () {
 						});
 						
 						// calculate time display
-						timeDisplay = offset(offsetFrom, point.at, 'hours') + '<br>' + jQuery.timeago(point.at);
+						if (offset(offsetFrom, point.at, 'hours') > 72) {
+							// display as days
+							offsetValue = offset(offsetFrom, point.at, 'days');
+							timeDisplay = 'Pitch<strong> ' + (offsetValue > 0 ? '+' : '') + offsetValue + ' days</strong>';
+							timeDisplay = timeDisplay + '<br><span class="descriptor">' + jQuery.timeago(point.at) + '</span>';
+						} else {
+							// display as hours
+							offsetValue = offset(offsetFrom, point.at, 'hours');
+							timeDisplay = 'Pitch<strong> ' + (offsetValue > 0 ? '+' : '') + offsetValue + ' hours</strong>';
+							timeDisplay = timeDisplay + '<br><span class="descriptor">' + jQuery.timeago(point.at) + '</span>';
+						}
 						
 						if (point.action === 'pitch') {
 							// pitch
