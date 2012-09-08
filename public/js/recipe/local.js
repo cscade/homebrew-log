@@ -140,6 +140,8 @@ window.addEvent('domready', function () {
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
 				document.getElement('#batch form[action="/createDataPoint"] input[name=batch]').set('value', batch._id);
+				
+				form.getElement('.fixed[data-name=number]').set('text', batch.number);
 				form.getElement('input[name=name]').set('value', batch.name);
 				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
 				form.getElement('.fixed[data-name=equipment]').set('text', descriptions[batch.equipment]);
