@@ -25,7 +25,7 @@ window.addEvent('domready', function () {
 			if (document.id(route)) {
 				document.id(route).show();
 				try {
-					if (!mobile) document.id(route).getElement('input[type=text]').focus();
+					if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
 				} catch (e) {}
 			} else {
 				// show content on #/
