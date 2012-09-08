@@ -25,7 +25,7 @@ window.addEvent('domready', function () {
 			if (document.id(route)) {
 				document.id(route).show();
 				try {
-					if (!mobile) document.id(route).getElement('input[type=text]').focus();
+					if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
 				} catch (e) {}
 			} else {
 				// show content on #/
@@ -140,6 +140,8 @@ window.addEvent('domready', function () {
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
 				document.getElement('#batch form[action="/createDataPoint"] input[name=batch]').set('value', batch._id);
+				
+				form.getElement('.fixed[data-name=number]').set('text', batch.number);
 				form.getElement('input[name=name]').set('value', batch.name);
 				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
 				form.getElement('.fixed[data-name=equipment]').set('text', descriptions[batch.equipment]);
@@ -147,6 +149,8 @@ window.addEvent('domready', function () {
 				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
 				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
 				form.getElement('textarea[name=notes]').set('value', batch.notes);
+				
+				points.empty();
 				if (batch.points.length) {
 					points.getElements('tr').destroy();
 					batch.points.sort(function (a, b) {

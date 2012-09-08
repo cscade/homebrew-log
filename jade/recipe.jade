@@ -78,6 +78,7 @@ block content
 		table.table
 			thead
 				tr
+					th #
 					th Name
 					th Brewed
 					th Equipment
@@ -85,6 +86,7 @@ block content
 				- if (recipe.batches.length)
 					each batch, index in recipe.batches
 						tr.interactive(data-id=batch._id)
+							td= batch.number
 							td= batch.name
 							td #{new Date(batch.brewed).toDateString()}
 								|  - 
@@ -214,6 +216,10 @@ block content
 				input(type="hidden", name="_id", value="")
 				fieldset
 					.control-group
+						label.control-label Batch Number
+						.controls
+							.fixed(data-name="number")
+					.control-group
 						label.control-label Batch Name
 						.controls
 							input.span3(type="text", name="name", value="")
@@ -269,6 +275,10 @@ block content
 			form.form-horizontal(action="/createBatch", method="post", accept-charset="utf-8")
 				input(type="hidden", name="_id", value=recipe._id)
 				fieldset
+					.control-group
+						label.control-label Batch Number
+						.controls
+							input.span1.firstFocus(type="number", name="number", data-validators="validate-integer", value="New Batch")
 					.control-group
 						label.control-label Batch Name
 						.controls
