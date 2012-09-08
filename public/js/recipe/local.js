@@ -348,14 +348,14 @@ window.addEvent('domready', function () {
 offset
 
 Calulate the offset between two Date objects, and return the
-result as a human-readable string.
+result as a number.
 
-offset(from, to, as='hours')
+offset(from, to, as='days','hours')
 */
 
 var offset = function (from, to, as) {
 	var start, end,
-		seconds, minutes, hours;
+		seconds, minutes, hours, days;
 	
 	// get ms
 	start = (new Date(from)).getTime();
@@ -365,9 +365,12 @@ var offset = function (from, to, as) {
 	seconds = (end - start) / 1000;
 	minutes = seconds / 60;
 	hours = minutes / 60;
+	days = hours / 24;
 	
 	if (as === 'hours') {
-		return hours.round() + ' hours';
+		return hours.round();
+	} if (as === 'days') {
+		return days.round(1);
 	} else {
 		return 'Invalid offset "as" type.';
 	}
