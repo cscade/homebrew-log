@@ -133,7 +133,8 @@ window.addEvent('domready', function () {
 				var form = document.getElement('#batch form[action="/updateBatch"]'),
 					points = document.getElement('#batch table tbody'),
 					batch = context.active,
-					descriptions = ampl.descriptions;
+					descriptions = ampl.descriptions,
+					offsetFrom;
 				
 				if (!context.active) return window.location.hash = '#/';
 				document.getElements('#batch .name').set('text', batch.name);
@@ -152,8 +153,12 @@ window.addEvent('domready', function () {
 						// sort oldest point first
 						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
 					});
+					
+					// find "start" point. Use "pitch" if only one is available, otherwise use batch "brewed" date
+					offsetFrom = batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed;
+					
 					batch.points.each(function (point) {
-						var detailContent = '', deleteControl;
+						var detailContent = '', deleteControl, timeDisplay;
 						
 						deleteControl = new Element('a.close', {
 							href: '#',
@@ -182,6 +187,9 @@ window.addEvent('domready', function () {
 							}
 						});
 						
+						// calculate time display
+						timeDisplay = offset(offsetFrom, point.at, 'hours') + '<br>' + jQuery.timeago(point.at);
+						
 						if (point.action === 'pitch') {
 							// pitch
 							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
@@ -189,7 +197,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -207,7 +215,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -221,7 +229,7 @@ window.addEvent('domready', function () {
 							// gravity
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -233,7 +241,7 @@ window.addEvent('domready', function () {
 							// addition
 							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -246,7 +254,7 @@ window.addEvent('domready', function () {
 							// dryHop
 							points.grab(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -261,7 +269,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -278,7 +286,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -294,7 +302,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -313,7 +321,7 @@ window.addEvent('domready', function () {
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
-									html: jQuery.timeago(point.at)
+									html: timeDisplay
 								}),
 								new Element('td', {
 									html: '\
@@ -335,3 +343,32 @@ window.addEvent('domready', function () {
 		router.init();
 	}({});
 });
+
+/*
+offset
+
+Calulate the offset between two Date objects, and return the
+result as a human-readable string.
+
+offset(from, to, as='hours')
+*/
+
+var offset = function (from, to, as) {
+	var start, end,
+		seconds, minutes, hours;
+	
+	// get ms
+	start = (new Date(from)).getTime();
+	end = (new Date(to)).getTime();
+	
+	// create values
+	seconds = (end - start) / 1000;
+	minutes = seconds / 60;
+	hours = minutes / 60;
+	
+	if (as === 'hours') {
+		return hours.round() + ' hours';
+	} else {
+		return 'Invalid offset "as" type.';
+	}
+};
