@@ -78,6 +78,7 @@ block content
 		table.table
 			thead
 				tr
+					th #
 					th Name
 					th Brewed
 					th Equipment
@@ -85,6 +86,7 @@ block content
 				- if (recipe.batches.length)
 					each batch, index in recipe.batches
 						tr.interactive(data-id=batch._id)
+							td= batch.number
 							td= batch.name
 							td #{new Date(batch.brewed).toDateString()}
 								|  - 
