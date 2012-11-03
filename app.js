@@ -35,7 +35,6 @@ app.configure(function(){
 	app.set('views', __dirname + '/jade');
 	app.set('view engine', 'jade');
 	app.set('version', JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8')).version);
-	app.set('bjcp', JSON.parse(fs.readFileSync(path.join(__dirname, 'modules', 'lib', 'bjcp.json'), 'utf-8')).categories);
 	if (app.env === 'production') app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());

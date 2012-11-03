@@ -20,7 +20,7 @@ window.addEvent('domready', function () {
 		
 	// Form validation
 	context.validators = {
-		createRecipe: new Form.Validator(document.getElement('form[data-action="createRecipe"]'), context.validationRules)
+		createBeer: new Form.Validator(document.getElement('form[data-action="createBeer"]'), context.validationRules)
 	};
 	
 	/*
@@ -40,9 +40,9 @@ window.addEvent('domready', function () {
 		'/': function () {
 			
 		},
-		'/createRecipe': function () {
-			document.getElement('form[data-action="createRecipe"]').getElements('.control-group').removeClass('error');
-			document.getElement('form[data-action="createRecipe"]').reset();
+		'/createBeer': function () {
+			document.getElement('form[data-action="createBeer"]').getElements('.control-group').removeClass('error');
+			document.getElement('form[data-action="createBeer"]').reset();
 		}
 	};
 	router = Router(routes);

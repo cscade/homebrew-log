@@ -19,7 +19,7 @@ block navigation
 
 block content
 	.area#recipes
-		a.btn.btn-primary.pull-right(href="/#/createRecipe") New Recipe
+		a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
 		h1.page-header Recipes
 		table.table
 			thead
@@ -37,9 +37,9 @@ block content
 							- else
 								span.badge 0
 						td.hidden-phone(data-mtime=recipe.mtime)
-	.area#createRecipe
-		h1.page-header Create a new Recipe
-		form.form-horizontal(data-action="createRecipe", action="/", method="post", accept-charset="utf-8")
+	.area#createBeer
+		h1.page-header Create a new Beer
+		form.form-horizontal(data-action="createBeer", action="/", method="post", accept-charset="utf-8")
 			input(type="hidden", name="target", value="recipe")
 			input(type="hidden", name="action", value="create")
 			fieldset
@@ -55,6 +55,13 @@ block content
 								option(value="", disabled, selected=index === 0)= (index + 1) + ' : ' + category.name
 									each subcategory in category.subcategories
 										option(value=subcategory.id.toLowerCase())!= '&nbsp;&nbsp;&nbsp;' + subcategory.id + ', ' + subcategory.name
+				.control-group
+					label.control-label Recipe Type
+					.controls
+						select.span3(name="type", data-validators="required")
+							option(value="all-grain") All Grain
+							option(value="extract-specialty") Extract with Specialty Grains
+							option(value="extract") Extract Only
 				.control-group
 					label.control-label Target OG
 					.controls
@@ -94,7 +101,7 @@ block content
 							input.span1(type="text", name="color", data-validators="required validate-numeric", placeholder="10")
 							span.add-on SRM - Morey
 				.form-actions
-					button.btn.btn-primary(type="submit") Create Recipe
+					button.btn.btn-primary(type="submit") Create Beer
 					| &nbsp;
 					a.btn(href="/#/") Cancel
 

@@ -13,7 +13,24 @@ var xml2js = require('xml2js'),
 	convert = require('../lib/convert'),
 	Recipe = require('../database/recipe').Recipe,
 	Batch = require('../database/recipe.batch').Batch,
-	DataPoint = require('../database/recipe.batch.datapoint').DataPoint;
+	DataPoint = require('../database/recipe.batch.datapoint').DataPoint,
+	bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8')),
+	colorMap;
+	
+// SRM to RGB Color Model
+!function (xml) {
+	var parser = new xml2js.Parser();
+	
+	parser.parseString(xml, function (e, colors) {
+		if (e) return app.log.error('could not parse colors xml', e);
+		colorMap = colors.COLOR.map(function (color) {
+			return {
+				srm: Number.from(color.SRM),
+				rgb: color.RGB
+			};
+		});
+	});
+}(fs.readFileSync(path.join(__dirname, '..', 'lib', 'colors.xml'), 'utf-8'));
 
 module.exports = function (app) {
 	
@@ -35,6 +52,8 @@ module.exports = function (app) {
 			req.params.recipe = req.params.recipe.split('.')[0];
 		}
 		app.couch.database('seeker').get(req.params.recipe, function (e, recipe) {
+			var color = convert.round.call(recipe.data.color.value, 1);
+			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			if (extension) {
 				if (extension === 'json') {
@@ -65,7 +84,8 @@ module.exports = function (app) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
 						})
-					}
+					},
+					color: color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255'
 				});
 			}
 		});
@@ -320,7 +340,7 @@ module.exports = function (app) {
 			
 			locals = connect.utils.merge({
 				message: '',
-				categories: app.get('bjcp')
+				categories: bjcp.categories
 			}, data || {});
 			
 			// sort by mtime
