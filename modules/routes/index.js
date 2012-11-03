@@ -319,7 +319,8 @@ module.exports = function (app) {
 			var locals;
 			
 			locals = connect.utils.merge({
-				message: ''
+				message: '',
+				categories: app.get('bjcp')
 			}, data || {});
 			
 			// sort by mtime

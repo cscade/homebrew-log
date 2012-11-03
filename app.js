@@ -14,6 +14,7 @@ var express = require('express'),
 	winston = require('winston'),
 	https = require('https'),
 	fs = require('fs'),
+	path = require('path'),
 	app = express(),
 	connect = require('connect'),
 	sslConfig;
@@ -33,6 +34,8 @@ var listen = app.env === 'development' ? 443 : 8081;
 app.configure(function(){
 	app.set('views', __dirname + '/jade');
 	app.set('view engine', 'jade');
+	app.set('version', JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8')).version);
+	app.set('bjcp', JSON.parse(fs.readFileSync(path.join(__dirname, 'modules', 'lib', 'bjcp.json'), 'utf-8')).categories);
 	if (app.env === 'production') app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
@@ -73,5 +76,5 @@ https.createServer(sslConfig, app).listen(listen, function () {
 		colorize: true,
 		timestamp: true
 	});
-	app.log.info('seeker-brewing listening on port ' + listen + ' (https) in ' + app.env + ' mode.');
+	app.log.info('seeker-brewing ' + app.get('version') + ' listening on port ' + listen + ' (https) in ' + app.env + ' mode.');
 });

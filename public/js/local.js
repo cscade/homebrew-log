@@ -1,0 +1,66 @@
+// 
+//  local.js
+//  seeker-brewing
+//  
+//  Created by Carson S. Christian on 2012-11-03.
+//  Copyright 2012 (ampl)EGO. All rights reserved.
+// 
+
+window.addEvent('domready', function () {
+	var routes, router, context = {},
+		mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
+	
+	if (!window.location.hash) window.location = '/#/';
+	
+	// Validation rules
+	context.validationRules = {
+		onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
+		onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
+	};
+		
+	// Form validation
+	context.validators = {
+		createRecipe: new Form.Validator(document.getElement('form[data-action="createRecipe"]'), context.validationRules)
+	};
+	
+	/*
+	Recipe List
+	*/
+	// edit time
+	document.getElements('td[data-mtime]').each(function (el) {
+		el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+	});
+	// click for details
+	document.getElements('tr[data-id]').addEvent('click', function () {
+		window.location = '/recipe/' + this.get('data-id') + '#/';
+	});
+	
+	// Router
+	routes = {
+		'/': function () {
+			
+		},
+		'/createRecipe': function () {
+			document.getElement('form[data-action="createRecipe"]').getElements('.control-group').removeClass('error');
+			document.getElement('form[data-action="createRecipe"]').reset();
+		}
+	};
+	router = Router(routes);
+	router.configure({
+		on: function () {
+			var route = window.location.hash.slice(2),
+				areas = document.getElements('.area');
+
+			areas.hide();
+			if (document.id(route)) {
+				document.id(route).show();
+				try {
+					if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
+				} catch (e) {}
+			} else {
+				document.id('recipes').show();
+			}
+		}
+	});
+	router.init();
+});
