@@ -1,0 +1,8 @@
+{
+	"watch": {
+		"seeker": {
+			"resource": "beers",
+			"path": "../../modules/database/beer"
+		}
+	}
+}

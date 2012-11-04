@@ -6,17 +6,16 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var xml2js = require('xml2js'),
-	fs = require('fs'),
+var bjcp,
+	colorMap,
 	connect = require('connect'),
-	path = require('path'),
 	convert = require('../lib/convert'),
-	Recipe = require('../database/recipe').Recipe,
-	Batch = require('../database/recipe.batch').Batch,
-	DataPoint = require('../database/recipe.batch.datapoint').DataPoint,
-	bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8')),
-	colorMap;
-	
+	fs = require('fs'),
+	path = require('path'),
+	xml2js = require('xml2js');
+
+bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
+
 // SRM to RGB Color Model
 !function (xml) {
 	var parser = new xml2js.Parser();
@@ -34,8 +33,11 @@ var xml2js = require('xml2js'),
 
 module.exports = function (app) {
 	
+	// locals
+	var db = app.couch.database(app.get('config').couch.database);
+	
 	app.get('/', function (req, res) {
-		app.couch.database('seeker').view('recipes/all', { include_docs: true }, function (e, rows) {
+		db.view('recipes/all', { include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason);
 			render.dashboard.call(res, {
 				recipes: rows.map(function (recipe) {
@@ -51,7 +53,7 @@ module.exports = function (app) {
 		if (extension) {
 			req.params.recipe = req.params.recipe.split('.')[0];
 		}
-		app.couch.database('seeker').get(req.params.recipe, function (e, recipe) {
+		db.get(req.params.recipe, function (e, recipe) {
 			var color = convert.round.call(recipe.data.color.value, 1);
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();

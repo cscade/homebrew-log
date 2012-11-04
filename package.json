@@ -1,13 +1,14 @@
 {
     "author": "Carson S. Christian <cc@seekerbeer.com>",
     "dependencies": {
-        "resourceful": "0.2.2",
         "cradle": "0.6.x",
         "express": "3.x",
         "jade": "0.27.x",
         "winston": "0.5.x",
         "xml2js": "0.1.x",
-        "connect": "2.4.x"
+        "connect": "2.4.x",
+		"semver": "*",
+		"async": "*"
     },
     "description": "Live data software for seeker brewing co.",
     "devDependencies": {},

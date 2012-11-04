@@ -10,6 +10,10 @@
 			"auth": {
 				"username": "seeker",
 				"password": "beer"
+			},
+			"admin": {
+				"username": "cscade",
+				"password": "seekerbeer"
 			}
 		}
 	},
@@ -24,6 +28,10 @@
 			"auth": {
 				"username": "seeker",
 				"password": "beer"
+			},
+			"admin": {
+				"username": "cscade",
+				"password": "seekerbeer"
 			}
 		}
 	}

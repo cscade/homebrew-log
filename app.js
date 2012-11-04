@@ -17,6 +17,7 @@ var express = require('express'),
 	path = require('path'),
 	app = express(),
 	connect = require('connect'),
+	tweak = require('./lib/tweak'),
 	sslConfig;
 
 // Configuration
@@ -52,14 +53,17 @@ app.configure('production', function () {
 	};
 });
 
-// couch
-require('./lib/cradle').initialize(app);
-
 // Number.from utility
 Number.from = function (item) {
 	var number = parseFloat(item);
 	return isFinite(number) ? number : null;
 };
+
+// couch
+require('./lib/cradle').initialize(app);
+
+// tweak
+tweak.check(app);
 
 // routes
 require('./modules/routes')(app);
