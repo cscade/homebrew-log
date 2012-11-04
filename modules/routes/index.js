@@ -141,52 +141,31 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createDataPoint', function (req, res) {
-		Recipe.get(req.body.parent, function (e, beer) {
-			var batch, at, pointId = '0';
-			
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			batch = beer.batches.filter(function (batch) {
-				// find batch
-				return batch._id === req.body.batch;
-			})[0];
-			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
-			at = new Date(req.body.at);
-			if (!at) return app.log.error('Invalid date.'), res.writeHead(400), res.end();
-			batch.points.forEach(function (point) {
-				// generate a higher _id
-				pointId = (Number.from(point._id) >= Number.from(pointId) ? (Number.from(point._id) + 1) : pointId).toString();
-			});
-			DataPoint.create({
-				_id: pointId,
-				at: at.getTime(),
-				action: req.body.action,
-				temp: Number.from(req.body.temp) || undefined,
-				ambient: Number.from(req.body.ambient) || undefined,
-				to: req.body.to,
-				'in': req.body['in'],
-				notes: req.body.notes,
-				gravity: req.body.gravity,
-				tasting: req.body.action === 'tasting' ? {
-					from: req.body.from,
-					aroma: req.body.aroma,
-					appearance: req.body.appearance,
-					flavor: req.body.flavor,
-					mouthfeel: req.body.mouthfeel,
-					overall: req.body.overall
-				} : undefined
-			}, function (e, point) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
-				batch.points.push(point);
-				beer.save(function (e) {
-					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-					res.redirect('/beer/' + beer._id + '#/');
-				});
-			});
+		app.create.datapoint(req.body.parent, req.body.batch, {
+			at: at.getTime(),
+			action: req.body.action,
+			temp: Number.from(req.body.temp) || undefined,
+			ambient: Number.from(req.body.ambient) || undefined,
+			to: req.body.to,
+			'in': req.body['in'],
+			notes: req.body.notes,
+			gravity: req.body.gravity,
+			tasting: req.body.action === 'tasting' ? {
+				from: req.body.from,
+				aroma: req.body.aroma,
+				appearance: req.body.appearance,
+				flavor: req.body.flavor,
+				mouthfeel: req.body.mouthfeel,
+				overall: req.body.overall
+			} : undefined
+		}, function (e) {
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
+			res.redirect('/beer/' + req.body.parent + '#/');
 		});
 	});
 	
 	app.post('/deleteDataPoint', function (req, res) {
-		Recipe.get(req.body.beer, function (e, beer) {
+		db.get(req.body.beer, function (e, beer) {
 			var batch;
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
@@ -194,13 +173,13 @@ module.exports = function (app) {
 			batch = beer.batches.filter(function (batch) {
 				return batch._id === req.body.batch;
 			})[0];
-			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
+			if (!batch) return app.log.error('No batch with id ' + req.body.batch + ' in ' + req.body.beer), res.writeHead(404), res.end();
 			// filter out point
 			batch.points = batch.points.filter(function (point) {
 				return point._id !== req.body.point;
 			});
 			// save
-			beer.save(function (e) {
+			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.end();
 			});
