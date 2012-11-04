@@ -20,22 +20,13 @@ var express = require('express'),
 	sslConfig;
 
 // Configuration
-app.env = process.env.NODE_ENV || 'development';
 app.log = winston;
-app.couch = new (require('cradle')).Connection('https://seeker.iriscouch.com', 6984, {
-	cache: true,
-	auth: {
-		username: 'seeker',
-		password: 'beer'
-	}
-});
-var listen = app.env === 'development' ? 443 : 8081;
 
 app.configure(function(){
 	app.set('views', __dirname + '/jade');
 	app.set('view engine', 'jade');
+	app.set('config', JSON.parse(fs.readFileSync(path.join(__dirname, 'config', 'config.json'), 'utf-8'))[app.get('env')]);
 	app.set('version', JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8')).version);
-	if (app.env === 'production') app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -53,12 +44,16 @@ app.configure('development', function () {
 });
 
 app.configure('production', function () {
+	app.use(connect.basicAuth('cscade', 'pyramid'));
 	app.use(express.errorHandler());
 	sslConfig = {
 		key: fs.readFileSync('/etc/ssl/private/fire.key'),
 		cert: fs.readFileSync('/etc/ssl/certs/log.seekerbeer.com.pem')
 	};
 });
+
+// couch
+require('./lib/cradle').initialize(app);
 
 // Number.from utility
 Number.from = function (item) {
@@ -69,11 +64,11 @@ Number.from = function (item) {
 // routes
 require('./modules/routes')(app);
 
-https.createServer(sslConfig, app).listen(listen, function () {
+https.createServer(sslConfig, app).listen(app.get('config').listen, function () {
 	app.log.remove(winston.transports.Console);
 	app.log.add(winston.transports.Console, {
 		colorize: true,
 		timestamp: true
 	});
-	app.log.info('seeker-brewing ' + app.get('version') + ' listening on port ' + listen + ' (https) in ' + app.env + ' mode.');
+	app.log.info(app.get('config').name + ' ' + app.get('version') + ' listening on port ' + app.get('config').listen);
 });

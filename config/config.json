@@ -1,0 +1,30 @@
+{
+	"development": {
+		"name": "seeker-brewing",
+		"domain": "log.seekerbeer.com",
+		"listen": 443,
+		"couch": {
+			"url": "https://seeker.iriscouch.com",
+			"port": 6984,
+			"database": "seeker",
+			"auth": {
+				"username": "seeker",
+				"password": "beer"
+			}
+		}
+	},
+	"production": {
+		"name": "seeker-brewing",
+		"domain": "log.seekerbeer.com",
+		"listen": 8081,
+		"couch": {
+			"url": "https://seeker.iriscouch.com",
+			"port": 6984,
+			"database": "seeker",
+			"auth": {
+				"username": "seeker",
+				"password": "beer"
+			}
+		}
+	}
+}
