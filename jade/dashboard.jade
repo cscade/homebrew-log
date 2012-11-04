@@ -4,24 +4,12 @@ extends _base
 append head
 	title Seeker Brewing Co.
 
-block navigation
-	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-		span.icon-bar
-		span.icon-bar
-		span.icon-bar
-	.brand Seeker Brewing Co.
-	.nav-collapse
-		ul.nav
-			li.active
-				a(href='/') Beers
-			li.visible-desktop
-				a(href="/upload") Upload
-
 block content
 	.area#recipes
-		a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
+		a.btn.pull-right.visible-desktop(href="/upload") Upload
+		a.btn.btn-primary.pull-right(href="/#/createBeer", style="margin-right:15px;") New Beer
 		h1.page-header Beers
-		table.table
+		table.table.table-striped.table-hover
 			thead
 				tr
 					th Name

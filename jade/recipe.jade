@@ -4,19 +4,6 @@ extends _base
 append head
 	title= recipe.name
 
-block navigation
-	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-		span.icon-bar
-		span.icon-bar
-		span.icon-bar
-	.brand Seeker Brewing Co.
-	.nav-collapse
-		ul.nav
-			li
-				a(href='/') Beers
-			li.visible-desktop
-				a(href="/upload") Upload
-
 block content
 	h1.page-header
 		div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
@@ -35,7 +22,7 @@ block content
 		.tab-content
 			.tab-pane#batches
 				a.pull-right(href="#/createBatch").btn.btn-primary.new New Batch
-				table.table
+				table.table.table-striped.table-hover
 					thead
 						tr
 							th #
