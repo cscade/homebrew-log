@@ -118,7 +118,7 @@ block content
 		.tab-content
 			.tab-pane#batchPoints
 				.hidden-phone
-					a.btn.btn-primary.pull-right(data-toggle="modal", data-target="#createDataPointModal") New Data Point
+					a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
 					h3
 						a.btn(href="#/")
 							i.icon-backward
@@ -128,7 +128,7 @@ block content
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn(href="#/", style="float:left;")
 							i.icon-backward
-						a.btn.btn-primary(data-toggle="modal", data-target="#createDataPointModal", style="float:right;")
+						a.btn.btn-primary(href="#/createDataPoint", style="float:right;")
 							i.icon-plus.icon-white
 				table.table.table-condensed.table-bordered
 					thead
@@ -138,102 +138,6 @@ block content
 					tbody
 						tr
 							td(colspan="2") No data Points.
-				.modal.hide#createDataPointModal
-					.modal-header
-						a.close(href="#", data-dismiss="modal") ×
-						h3 New Data Point
-					form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8", style="margin:0;")
-						.modal-body
-							p
-								input(type="hidden", name="parent", value=beer._id)
-								input(type="hidden", name="batch", value="")
-								fieldset
-									.control-group
-										label.control-label At
-										.controls
-											.input-prepend
-												button.btn.now(type="button", tabindex="-1")
-													i.icon.icon-time
-													|  Now
-												input.span2(type="text", name="at", data-validators="required validate-dateWithTime", value="")
-									.control-group
-										label.control-label Action
-										.controls
-											select.span2(name="action", data-validators="required")
-												option(value='', selected) ---
-												option(value="pitch")= descriptions['pitch']
-												option(value="temp")= descriptions['temp']
-												option(value="gravity")= descriptions['gravity']
-												option(value="addition")= descriptions['addition']
-												option(value="dryHop")= descriptions['dryHop']
-												option(value="rack")= descriptions['rack']
-												option(value="package")= descriptions['package']
-												option(value="note")= descriptions['note']
-												option(value="tasting")= descriptions['tasting']
-									.control-group.hide.pitch.temp.addition.dryHop
-										label.control-label Temperature
-										.controls
-											.input-append
-												input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
-												span.add-on &deg;F
-									.control-group.hide.pitch.temp
-										label.control-label Ambient
-										.controls
-											.input-append
-												input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
-												span.add-on &deg;F
-									.control-group.hide.pitch.gravity.rack
-										label.control-label Gravity
-										.controls
-											.input-prepend.input-append
-												span.add-on 1.
-												input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
-												span.add-on SG
-									.control-group.hide.rack
-										label.control-label To
-										.controls
-											select.span2(name="to", data-validators="required")
-												option(value="keg", selected) Keg
-												option(value="secondary") Secondary
-									.control-group.hide.package
-										label.control-label In
-										.controls
-											select.span2(name="in", data-validators="required")
-												option(value="bottle") Bottle
-												option(value="keg", selected) Keg
-									.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
-										label.control-label Notes
-										.controls
-											textarea.span3(name="notes", value="", rows="6")
-									.control-group.hide.tasting
-										label.control-label From
-										.controls
-											select.span2(name="from", data-validators="required")
-												option(value="keg", selected) Keg
-												option(value="bottle") Bottle
-									.control-group.hide.tasting
-										label.control-label Aroma
-										.controls
-											textarea.span3(name="aroma", value="", rows="3")
-									.control-group.hide.tasting
-										label.control-label Appearance
-										.controls
-											textarea.span3(name="appearance", value="", rows="3")
-									.control-group.hide.tasting
-										label.control-label Flavor
-										.controls
-											textarea.span3(name="flavor", value="", rows="3")
-									.control-group.hide.tasting
-										label.control-label Mouthfeel
-										.controls
-											textarea.span3(name="mouthfeel", value="", rows="3")
-									.control-group.hide.tasting
-										label.control-label Overall
-										.controls
-											textarea.span3(name="overall", value="", rows="3")
-						.modal-footer
-							a.btn(href="#", data-dismiss="modal", tabindex="-1") Cancel
-							button.btn.btn-primary(type="submit") Create
 			.tab-pane#batchDetails
 				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
 					input(type="hidden", name="parent", value=beer._id)
@@ -293,6 +197,99 @@ block content
 					.modal-footer
 						a.btn(href="#", data-dismiss="modal") Cancel
 						a.btn.btn-danger(href="#") Confirm Delete
+	.area#createDataPoint
+		h3 New Data Point
+		form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8")
+			input(type="hidden", name="parent", value=beer._id)
+			input(type="hidden", name="batch", value="")
+			fieldset
+				.control-group
+					label.control-label At
+					.controls
+						.input-prepend
+							button.btn.now(type="button", tabindex="-1")
+								i.icon.icon-time
+								|  Now
+							input.span2(type="text", name="at", data-validators="required validate-dateWithTime", value="")
+				.control-group
+					label.control-label Action
+					.controls
+						select.span2(name="action", data-validators="required")
+							option(value='', selected) ---
+							option(value="pitch")= descriptions['pitch']
+							option(value="temp")= descriptions['temp']
+							option(value="gravity")= descriptions['gravity']
+							option(value="addition")= descriptions['addition']
+							option(value="dryHop")= descriptions['dryHop']
+							option(value="rack")= descriptions['rack']
+							option(value="package")= descriptions['package']
+							option(value="note")= descriptions['note']
+							option(value="tasting")= descriptions['tasting']
+				.control-group.hide.pitch.temp.addition.dryHop
+					label.control-label Temperature
+					.controls
+						.input-append
+							input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
+							span.add-on &deg;F
+				.control-group.hide.pitch.temp
+					label.control-label Ambient
+					.controls
+						.input-append
+							input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
+							span.add-on &deg;F
+				.control-group.hide.pitch.gravity.rack
+					label.control-label Gravity
+					.controls
+						.input-prepend.input-append
+							span.add-on 1.
+							input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
+							span.add-on SG
+				.control-group.hide.rack
+					label.control-label To
+					.controls
+						select.span2(name="to", data-validators="required")
+							option(value="keg", selected) Keg
+							option(value="secondary") Secondary
+				.control-group.hide.package
+					label.control-label In
+					.controls
+						select.span2(name="in", data-validators="required")
+							option(value="bottle") Bottle
+							option(value="keg", selected) Keg
+				.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
+					label.control-label Notes
+					.controls
+						textarea.span3(name="notes", value="", rows="6")
+				.control-group.hide.tasting
+					label.control-label From
+					.controls
+						select.span2(name="from", data-validators="required")
+							option(value="keg", selected) Keg
+							option(value="bottle") Bottle
+				.control-group.hide.tasting
+					label.control-label Aroma
+					.controls
+						textarea.span3(name="aroma", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Appearance
+					.controls
+						textarea.span3(name="appearance", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Flavor
+					.controls
+						textarea.span3(name="flavor", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Mouthfeel
+					.controls
+						textarea.span3(name="mouthfeel", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Overall
+					.controls
+						textarea.span3(name="overall", value="", rows="3")
+			.form-actions
+				button.btn.btn-primary(type="submit") Create
+				| &nbsp;
+				a.btn(href="#/batch") Cancel
 	.area#createBatch
 		h3 New Batch
 		p
