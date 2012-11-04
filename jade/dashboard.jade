@@ -4,48 +4,105 @@ extends _base
 append head
 	title Seeker Brewing Co.
 
-block navigation
-	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-		span.icon-bar
-		span.icon-bar
-		span.icon-bar
-	.brand Seeker Brewing Co.
-	.nav-collapse
-		ul.nav
-			li.active
-				a(href='/') Recipes
-			li.visible-desktop
-				a(href="/upload") Upload
-
 block content
-	h1.page-header Recipes
-	table.table
-		thead
-			tr
-				th Name
-				th Batches
-				th.hidden-phone Last Modified
-		tbody
-			each recipe in recipes
-				tr.interactive(data-id=recipe._id)
-					td= recipe.name
-					td
-						- if (recipe.batches.length)
-							span.badge.badge-info= recipe.batches.length
-						- else
-							span.badge 0
-					td.hidden-phone(data-mtime=recipe.mtime)
+	.area#beers
+		a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
+		h1.page-header Beers
+		table.table.table-striped.table-hover
+			thead
+				tr
+					th Name
+					th Batches
+					th.hidden-phone Last Modified
+			tbody
+				each beer in beers
+					tr.interactive(data-id=beer._id)
+						td= beer.name
+						td
+							- if (beer.batches.length)
+								span.badge.badge-info= beer.batches.length
+							- else
+								span.badge 0
+						td.hidden-phone(data-mtime=beer.mtime)
+	.area#createBeer
+		h1.page-header Create a new Beer
+		form.form-horizontal(action="/createBeer", method="post", accept-charset="utf-8", enctype="multipart/form-data")
+			fieldset
+				.control-group
+					label.control-label Name
+					.controls
+						input.span4(type="text", name="name", data-validators="required", placeholder="Awesome Sauce")
+				.control-group
+					label.control-label BJCP Category
+					.controls
+						select.span4(name="bjcp", data-validators="required")
+							each category, index in categories
+								option(value="", disabled, selected=index === 0)= (index + 1) + ' : ' + category.name
+									each subcategory in category.subcategories
+										option(value=JSON.stringify({ number: subcategory.id.length === 2 ? subcategory.id.substring(0, 1) : subcategory.id.substring(0, 2), letter: subcategory.id.length === 2 ? subcategory.id.substring(1) : subcategory.id.substring(2) }))!= '&nbsp;&nbsp;&nbsp;' + subcategory.id + ', ' + subcategory.name
+				.control-group
+					label.control-label Beer Type
+					.controls
+						select.span3(name="type", data-validators="required")
+							option(value="All Grain") All Grain
+							option(value="Extract with Specialty Grains") Extract with Specialty Grains
+							option(value="Extract") Extract
+				.control-group
+					label.control-label Target OG
+					.controls
+						.input-prepend.input-append
+							span.add-on 1.
+							input.span1(type="text", name="og", data-validators="required validate-numeric", placeholder="000")
+							span.add-on SG
+				.control-group
+					label.control-label Target Efficiency
+					.controls
+						.input-prepend.input-append
+							input.span1(type="text", name="efficiency", data-validators="required validate-numeric", placeholder="80")
+							span.add-on %
+				.control-group
+					label.control-label Target FG
+					.controls
+						.input-prepend.input-append
+							span.add-on 1.
+							input.span1(type="text", name="fg", data-validators="required validate-numeric", placeholder="000")
+							span.add-on SG
+				.control-group
+					label.control-label Target Attenuation
+					.controls
+						.input-prepend.input-append
+							input.span1(type="text", name="attenuation", data-validators="required validate-numeric", placeholder="75")
+							span.add-on %
+				.control-group
+					label.control-label Bitterness
+					.controls
+						.input-prepend.input-append
+							input.span1(type="text", name="bitterness", data-validators="required validate-numeric", placeholder="50")
+							span.add-on IBU - Tinseth
+				.control-group
+					label.control-label Color
+					.controls
+						.input-prepend.input-append
+							input.span1(type="text", name="color", data-validators="required validate-numeric", placeholder="10")
+							span.add-on SRM - Morey
+				.control-group
+					label.control-label Yeast
+					.controls
+						input.span3(type="text", name="yeast[name]", data-validators="required", placeholder="WLP-001")
+				.control-group
+					.controls
+						select.span2(name="yeast[type]", data-validators="required")
+							option(value="Dry") Dry
+							option(value="Liquid", selected) Liquid
+							option(value="Repitch") Repitch
+				.control-group
+					label.control-label BeerXML 1.0
+					.controls
+						input(type="file", name="recipe")
+				.form-actions
+					button.btn.btn-primary(type="submit") Create Beer
+					| &nbsp;
+					a.btn(href="/#/") Cancel
 
 block localJS
-	script(type='text/javascript')
-		window.addEvent('domready', function () {
-			// edit time
-			document.getElements('td[data-mtime]').each(function (el) {
-				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
-			});
-
-			// click for details
-			document.getElements('tr[data-id]').addEvent('click', function () {
-				window.location = '/recipe/' + this.get('data-id') + '#/';
-			});
-		});
+	script(type='text/javascript', src="/js/local.js")

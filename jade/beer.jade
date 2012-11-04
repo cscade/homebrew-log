@@ -1,0 +1,359 @@
+//- Dashboard
+extends _base
+
+append head
+	title= beer.name
+
+block content
+	h1.page-header
+		div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
+			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + color + ")")
+			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
+		| #{beer.name + ' '}
+		br
+		small(style="margin-left:70px;")
+			a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+	.area#content
+		ul.nav.nav-tabs
+			li
+				a(href="#batches") Batches
+			li
+				a(href="#beer") Beer Details
+		.tab-content
+			.tab-pane#batches
+				a.pull-right(href="#/createBatch").btn.btn-primary.new New Batch
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th #
+							th Name
+							th Brewed
+							th Equipment
+					tbody
+						- if (beer.batches.length)
+							each batch, index in beer.batches
+								tr.interactive(data-id=batch._id)
+									td= batch.number
+									td= batch.name
+									td #{new Date(batch.brewed).toDateString()}
+										|  - 
+										span(data-mtime=batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed)
+									td= descriptions[batch.equipment]
+						- else
+							tr
+								td(colspan="4") No batches.
+			.tab-pane#beer
+				.row
+					.span12
+						h4= beer.properties.type
+				.row.hidden-phone
+					table.table.span12
+						tbody
+							td(style="text-align:center;")
+								span.label.label-success= beer.properties.abv + '%'
+								strong  ABV
+								br
+								small apparent, by gravity
+							td(style="text-align:center;")
+								span.label.label-info= beer.properties.og
+								strong  OG
+								br
+								small at #{beer.properties.efficiency}% efficiency
+							td(style="text-align:center;")
+								span.label.label-info= beer.properties.fg
+								strong  FG
+								br
+								small at #{beer.properties.attenuation}% attenuation
+							td(style="text-align:center;")
+								span.label.label-success= beer.properties.bitterness
+								strong  Bitterness
+								br
+								small= 'IBU - Tinseth'
+							td(style="text-align:center;")
+								span.label.label-warning= beer.properties.color
+								strong  Color
+								br
+								small= 'SRM - Morey'
+				.row.visible-phone
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-info= beer.properties.abv + '%'
+							strong  ABV
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-info= beer.properties.og
+							strong  OG
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-info= beer.properties.fg
+							strong  FG
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-success= beer.properties.bitterness
+							strong  Bitterness
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-warning= beer.properties.color
+							strong  Color
+				hr
+	.area#batch
+		ul.nav.nav-tabs
+			li
+				a(href="#batchPoints") Data Points
+			li
+				a(href="#batchDetails") Batch Details
+		.tab-content
+			.tab-pane#batchPoints
+				a.btn.btn-primary.pull-right(data-toggle="modal", data-target="#createDataPointModal") New Data Point
+				h3
+					a.btn(href="#/")
+						i.icon-backward
+					span.name(style="margin-left:13px;")
+				table.table.table-condensed.table-bordered
+					thead
+						tr
+							th Timing
+							th Action
+					tbody
+						tr
+							td(colspan="2") No data Points.
+				.modal.hide#createDataPointModal
+					.modal-header
+						a.close(href="#", data-dismiss="modal") ×
+						h3 New Data Point
+					form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8", style="margin:0;")
+						.modal-body
+							p
+								input(type="hidden", name="parent", value=beer._id)
+								input(type="hidden", name="batch", value="")
+								fieldset
+									.control-group
+										label.control-label At
+										.controls
+											.input-prepend
+												button.btn.now(type="button", tabindex="-1")
+													i.icon.icon-time
+													|  Now
+												input.span2(type="text", name="at", data-validators="required validate-dateWithTime", value="")
+									.control-group
+										label.control-label Action
+										.controls
+											select.span2(name="action", data-validators="required")
+												option(value='', selected) ---
+												option(value="pitch")= descriptions['pitch']
+												option(value="temp")= descriptions['temp']
+												option(value="gravity")= descriptions['gravity']
+												option(value="addition")= descriptions['addition']
+												option(value="dryHop")= descriptions['dryHop']
+												option(value="rack")= descriptions['rack']
+												option(value="package")= descriptions['package']
+												option(value="note")= descriptions['note']
+												option(value="tasting")= descriptions['tasting']
+									.control-group.hide.pitch.temp.addition.dryHop
+										label.control-label Temperature
+										.controls
+											.input-append
+												input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
+												span.add-on &deg;F
+									.control-group.hide.pitch.temp
+										label.control-label Ambient
+										.controls
+											.input-append
+												input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
+												span.add-on &deg;F
+									.control-group.hide.pitch.gravity.rack
+										label.control-label Gravity
+										.controls
+											.input-prepend.input-append
+												span.add-on 1.
+												input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
+												span.add-on SG
+									.control-group.hide.rack
+										label.control-label To
+										.controls
+											select.span2(name="to", data-validators="required")
+												option(value="keg", selected) Keg
+												option(value="secondary") Secondary
+									.control-group.hide.package
+										label.control-label In
+										.controls
+											select.span2(name="in", data-validators="required")
+												option(value="bottle") Bottle
+												option(value="keg", selected) Keg
+									.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
+										label.control-label Notes
+										.controls
+											textarea.span3(name="notes", value="", rows="6")
+									.control-group.hide.tasting
+										label.control-label From
+										.controls
+											select.span2(name="from", data-validators="required")
+												option(value="keg", selected) Keg
+												option(value="bottle") Bottle
+									.control-group.hide.tasting
+										label.control-label Aroma
+										.controls
+											textarea.span3(name="aroma", value="", rows="3")
+									.control-group.hide.tasting
+										label.control-label Appearance
+										.controls
+											textarea.span3(name="appearance", value="", rows="3")
+									.control-group.hide.tasting
+										label.control-label Flavor
+										.controls
+											textarea.span3(name="flavor", value="", rows="3")
+									.control-group.hide.tasting
+										label.control-label Mouthfeel
+										.controls
+											textarea.span3(name="mouthfeel", value="", rows="3")
+									.control-group.hide.tasting
+										label.control-label Overall
+										.controls
+											textarea.span3(name="overall", value="", rows="3")
+						.modal-footer
+							a.btn(href="#", data-dismiss="modal", tabindex="-1") Cancel
+							button.btn.btn-primary(type="submit") Create
+			.tab-pane#batchDetails
+				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
+					input(type="hidden", name="parent", value=beer._id)
+					input(type="hidden", name="_id", value="")
+					fieldset
+						.control-group
+							label.control-label Batch Number
+							.controls
+								.fixed(data-name="number")
+						.control-group
+							label.control-label Batch Name
+							.controls
+								input.span3(type="text", name="name", value="")
+						.control-group
+							label.control-label Notes
+							.controls
+								textarea.span3(name="notes", value="")
+						.control-group
+							label.control-label Brewed
+							.controls
+								.fixed(data-name="brewed")
+						.control-group
+							label.control-label Equipment Type
+							.controls
+								.fixed(data-name="equipment")
+						.control-group
+							label.control-label Yeast Strain
+							.controls
+								.fixed= beer.properties.yeast
+						.control-group
+							label.control-label Yeast Method
+							.controls
+								.fixed(data-name="yeastMethod")
+						.control-group
+							label.control-label Fermented In
+							.controls
+								.fixed(data-name="fermentor")
+						.control-group
+							label.control-label Ferment Control Method
+							.controls
+								.fixed(data-name="control")
+						.form-actions
+							button.btn.btn-primary(type="submit") Update Batch
+							| &nbsp;
+							a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
+				.modal.hide#deleteBatchModal
+					.modal-header
+						a.close(href="#", data-dismiss="modal") ×
+						h3 Delete 
+							small.name
+					.modal-body
+						p
+							strong This is an irreversible operation.
+						p The batch 
+							em.name
+							|  will be permanently destroyed.
+					.modal-footer
+						a.btn(href="#", data-dismiss="modal") Cancel
+						a.btn.btn-danger(href="#") Confirm Delete
+	.area#createBatch
+		h3 New Batch
+		p
+			form.form-horizontal(action="/createBatch", method="post", accept-charset="utf-8")
+				input(type="hidden", name="_id", value=beer._id)
+				fieldset
+					.control-group
+						label.control-label Batch Number
+						.controls
+							input.span1.firstFocus(type="number", name="number", data-validators="validate-integer", value="New Batch")
+					.control-group
+						label.control-label Batch Name
+						.controls
+							input.span3(type="text", name="name", data-validators="required", value="New Batch")
+					.control-group
+						label.control-label Brewed
+						.controls
+							input.span3(type="text", name="brewed", data-validators="required validate-date dateFormat:'%m/%d/%Y'", value="")
+					.control-group
+						label.control-label Equipment Type
+						.controls
+							select.span3(name="equipment", data-validators="required")
+								option(value="stovetop")= descriptions['stovetop']
+								option(value="ag-biab")= descriptions['ag-biab']
+								option(value="ag-insulated")= descriptions['ag-insulated']
+								option(value="ag-direct")= descriptions['ag-direct']
+								option(value="ag-rims")= descriptions['ag-rims']
+								option(value="ag-herms", selected)= descriptions['ag-herms']
+					.control-group
+						label.control-label Yeast Strain
+						.controls
+							input.span3(type="text", value=beer.properties.yeast, disabled)
+							.help-block Determined by the beer.
+					.control-group
+						label.control-label Yeast Method
+						.controls
+							select.span3(name="yeastMethod", data-validators="required")
+								option(value="direct") Direct Pitch
+									option(value="rehydrate-water", selected)= descriptions['rehydrate-water']
+									option(value="rehydrate-wort")= descriptions['rehydrate-wort']
+									option(value="starter")= descriptions['starter']
+									option(value="starter-O2")= descriptions['starter-O2']
+									option(value="starter-shaken")= descriptions['starter-shaken']
+									option(value="starter-aerated")= descriptions['starter-aerated']
+									option(value="starter-stir", selected)= descriptions['starter-stir']
+					.control-group
+						label.control-label Fermented In
+						.controls
+							select.span3(name="fermentor", data-validators="required")
+								option(value="bucket")= descriptions['bucket']
+								option(value="carboy-5")= descriptions['carboy-5']
+								option(value="carboy-6")= descriptions['carboy-6']
+								option(value="conical-plastic")= descriptions['conical-plastic']
+								option(value="conical-stainless", selected)= descriptions['conical-stainless']
+					.control-group
+						label.control-label Ferment Control Method
+						.controls
+							select.span4(name="control", data-validators="required")
+								option(value="none")= descriptions['none']
+								option(value="manual")= descriptions['manual']
+								option(value="auto-enclosed")= descriptions['auto-enclosed']
+								option(value="auto-wort", selected)= descriptions['auto-wort']
+					.control-group
+						label.control-label Notes
+						.controls
+							textarea.span3(name="notes", data-validators="", value="")
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Save")
+						| &nbsp;
+						a.btn(href="#/") Cancel
+
+block localJS
+	script(src='/js/beer/local.js')
+	script(type='text/javascript')
+		window.ampl = {
+			_id: !{JSON.stringify(beer._id)},
+			batches: !{JSON.stringify(beer.batches)},
+			descriptions: !{JSON.stringify(descriptions)}
+		};
+		window.addEvent('domready', function () {
+			// time
+			document.getElements('span[data-mtime]').each(function (el) {
+				el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
+			});
+		});

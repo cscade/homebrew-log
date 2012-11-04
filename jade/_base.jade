@@ -29,12 +29,15 @@ html(lang='en')
 		.navbar.navbar-fixed-top
 			.navbar-inner
 				.container
-					block navigation
+					.brand Seeker Brewing Co.
+					ul.nav
+						li
+							a(href='/') Beers
 		.container
 			block content
 		
 		// javascript
-		script(src='/js/library.min.js')
+		script(src='/js/lib/library.min.js')
 		script(type='text/javascript')
 			jQuery.noConflict();
 		block localJS

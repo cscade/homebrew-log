@@ -8,39 +8,18 @@
 
 window.addEvent('domready', function () {
 	!function (context) {
-		var routes, router, swap,
+		var routes, router,
 			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
 	
 		// scroll away from url bar for mobile
 		setTimeout(function () {
 			if (mobile) window.scrollTo(0, 1);
 		}, 10);
-		
-		// Swapper
-		swap = function () {
-			var route = window.location.hash.slice(2),
-				areas = document.getElements('.area');
-
-			areas.hide();
-			if (document.id(route)) {
-				document.id(route).show();
-				try {
-					if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
-				} catch (e) {}
-			} else {
-				// show content on #/
-				document.id('batches').show();
-			}
-		};
 	
 		// Validation rules
 		context.validationRules = {
-			onElementFail: function (el) {
-				el.getParent('.control-group').addClass('error');
-			},
-			onElementPass: function (el) {
-				el.getParent('.control-group').removeClass('error');
-			}
+			onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
+			onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
 		};
 		// Special Validators
 		Form.Validator.add('validate-dateWithTime', {
@@ -58,6 +37,16 @@ window.addEvent('domready', function () {
 			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules),
 			createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), context.validationRules)
 		};
+		
+		// nav tabs
+		jQuery('#content ul.nav.nav-tabs a').click(function (e) {
+			if (e) e.preventDefault();
+			jQuery(this).tab('show');
+		});
+		jQuery('#batch ul.nav.nav-tabs a').click(function (e) {
+			if (e) e.preventDefault();
+			jQuery(this).tab('show');
+		});
 		
 		// times
 		document.getElements('td[data-mtime]').each(function (el) {
@@ -86,7 +75,7 @@ window.addEvent('domready', function () {
 		});
 		
 		// create data point
-		document.getElement('#batch button[data-target="#createDataPointModal"]').addEvent('click', function () {
+		document.getElement('#batch a[data-target="#createDataPointModal"]').addEvent('click', function () {
 			var form = document.getElement('#batch form[action="/createDataPoint"]');
 			
 			form.reset();
@@ -123,7 +112,12 @@ window.addEvent('domready', function () {
 		
 		// Router
 		routes = {
-			'/': function () {},
+			'/': function () {
+				setTimeout(function () {
+					// set active tab
+					jQuery('#content ul.nav.nav-tabs li a:first').trigger('click');
+				}, 10);
+			},
 			'/createBatch': function () {
 				document.getElement('#createBatch form').reset();
 				document.getElement('#createBatch form input[name=brewed]').set('value', (new Date()).format('%m/%d/%Y'));
@@ -137,6 +131,10 @@ window.addEvent('domready', function () {
 					offsetFrom;
 				
 				if (!context.active) return window.location.hash = '#/';
+				setTimeout(function () {
+					// set active tab
+					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
+				}, 10);
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
 				document.getElement('#batch form[action="/createDataPoint"] input[name=batch]').set('value', batch._id);
@@ -177,7 +175,7 @@ window.addEvent('domready', function () {
 										req = new Request({
 											url: '/deleteDataPoint',
 											data: {
-												recipe: ampl._id,
+												beer: ampl._id,
 												batch: batch._id,
 												point: point._id
 											},
@@ -352,7 +350,20 @@ window.addEvent('domready', function () {
 		};
 		router = Router(routes);
 		router.configure({
-			on: swap
+			on: function () {
+				var route = window.location.hash.slice(2),
+					areas = document.getElements('.area');
+
+				areas.hide();
+				if (document.id(route)) {
+					document.id(route).show();
+					try {
+						if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
+					} catch (e) {}
+				} else {
+					document.id('content').show();
+				}
+			}
 		});
 		router.init();
 	}({});
