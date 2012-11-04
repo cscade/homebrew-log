@@ -117,6 +117,7 @@ module.exports = function (app) {
 			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
 			batch.name = req.body.name;
 			batch.notes = req.body.notes;
+			beer.mtime = Date.now();
 			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.redirect('/beer/' + beer._id + '#/');
@@ -133,6 +134,7 @@ module.exports = function (app) {
 				// discard prior batch version
 				return batch._id !== req.body._id;
 			});
+			beer.mtime = Date.now();
 			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.redirect('/beer/' + beer._id + '#/');
@@ -142,7 +144,7 @@ module.exports = function (app) {
 	
 	app.post('/createDataPoint', function (req, res) {
 		app.create.datapoint(req.body.parent, req.body.batch, {
-			at: at.getTime(),
+			at: req.body.at,
 			action: req.body.action,
 			temp: Number.from(req.body.temp) || undefined,
 			ambient: Number.from(req.body.ambient) || undefined,
@@ -178,7 +180,7 @@ module.exports = function (app) {
 			batch.points = batch.points.filter(function (point) {
 				return point._id !== req.body.point;
 			});
-			// save
+			beer.mtime = Date.now();
 			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.end();
