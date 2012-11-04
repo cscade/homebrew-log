@@ -81,7 +81,8 @@ module.exports = function (app) {
 							},
 							link: 'http://www.bjcp.org/styles04/Category' + beer.data.style.CATEGORY_NUMBER + '.php#style' + beer.data.style.CATEGORY_NUMBER + beer.data.style.STYLE_LETTER
 						},
-						specs: beer.data,
+						properties: beer.properties,
+						data: beer.data,
 						batches: beer.batches.sort(function (a, b) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
@@ -274,13 +275,13 @@ module.exports = function (app) {
 					"ag-direct": 'All Grain, Direct Fire',
 					"ag-rims": 'All Grain, RIMS',
 					"ag-herms": 'All Grain, HERMS',
-					"rehydrate-water": 'Rehydrate in water',
-					"rehydrate-wort": 'Rehydrate in wort',
-					"starter": 'Starter, simple',
-					"starter-O2": 'Starter, simple w/ O2',
-					"starter-shaken": 'Starter, shaken',
-					"starter-aerated": 'Starter, aerated',
-					"starter-stir": 'Starter, stir plate',
+					"rehydrate-water": 'Dry, Rehydrate in water',
+					"rehydrate-wort": 'Dry, Rehydrate in wort',
+					"starter": 'Liquid, Starter, simple',
+					"starter-O2": 'Liquid, Starter, simple w/ O2',
+					"starter-shaken": 'Liquid, Starter, shaken',
+					"starter-aerated": 'Liquid, Starter, aerated',
+					"starter-stir": 'Liquid, Starter, stir plate',
 					"bucket": 'Bucket',
 					"carboy-5": 'Carboy, 5 gal',
 					"carboy-6": 'Carboy, 6 gal',

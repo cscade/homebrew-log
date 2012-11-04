@@ -45,48 +45,55 @@ block content
 			.tab-pane#beer
 				.row
 					.span12
-						h4= beer.specs.type
+						h4= beer.properties.type
 				.row.hidden-phone
-					.span3
-						p
-							span.label.label-info= convert.round.call(Number.from(beer.specs.og), 3, true)
-							strong  OG
-							br
-							small at #{convert.round.call(beer.specs.efficiency, 1)}% efficiency.
-					.span3
-						p
-							span.label.label-info= convert.round.call(Number.from(beer.specs.fg), 3, true)
-							strong  FG
-							br
-							small at predicted attenuation.
-					.span3
-						p
-							span.label.label-success= beer.specs.ibu ? beer.specs.ibu.value : '-'
-							strong  Bitterness
-							br
-							small= 'IBU'  + (beer.specs.ibu ? (' - ' + beer.specs.ibu.model.slice(0, 1).toUpperCase() + beer.specs.ibu.model.slice(1)) : '')
-					.span3
-						p
-							span.label.label-warning= beer.specs.color ? beer.specs.color.value : '-'
-							strong  Color
-							br
-							small= 'SRM'  + (beer.specs.color ? (' - ' + beer.specs.color.model.slice(0, 1).toUpperCase() + beer.specs.color.model.slice(1)) : '')
+					table.table.span12
+						tbody
+							td(style="text-align:center;")
+								span.label.label-success= beer.properties.abv + '%'
+								strong  ABV
+								br
+								small apparent, by gravity
+							td(style="text-align:center;")
+								span.label.label-info= beer.properties.og
+								strong  OG
+								br
+								small at #{beer.properties.efficiency}% efficiency
+							td(style="text-align:center;")
+								span.label.label-info= beer.properties.fg
+								strong  FG
+								br
+								small at #{beer.properties.attenuation}% attenuation
+							td(style="text-align:center;")
+								span.label.label-success= beer.properties.bitterness
+								strong  Bitterness
+								br
+								small= 'IBU - Tinseth'
+							td(style="text-align:center;")
+								span.label.label-warning= beer.properties.color
+								strong  Color
+								br
+								small= 'SRM - Morey'
 				.row.visible-phone
-					div(style="width:50%;display:inline-block;")
+					div(style="width:33%;display:inline-block;")
 						p
-							span.label.label-info= convert.round.call(Number.from(beer.specs.og), 3, true)
+							span.label.label-info= beer.properties.abv + '%'
+							strong  ABV
+					div(style="width:33%;display:inline-block;")
+						p
+							span.label.label-info= beer.properties.og
 							strong  OG
-					div(style="width:50%;display:inline-block;")
+					div(style="width:33%;display:inline-block;")
 						p
-							span.label.label-info= convert.round.call(Number.from(beer.specs.fg), 3, true)
+							span.label.label-info= beer.properties.fg
 							strong  FG
-					div(style="width:50%;display:inline-block;")
+					div(style="width:33%;display:inline-block;")
 						p
-							span.label.label-success= beer.specs.ibu ? beer.specs.ibu.value : '-'
+							span.label.label-success= beer.properties.bitterness
 							strong  Bitterness
-					div(style="width:50%;display:inline-block;")
+					div(style="width:33%;display:inline-block;")
 						p
-							span.label.label-warning= beer.specs.color ? beer.specs.color.value : '-'
+							span.label.label-warning= beer.properties.color
 							strong  Color
 				hr
 	.area#batch
@@ -234,7 +241,7 @@ block content
 						.control-group
 							label.control-label Yeast Strain
 							.controls
-								.fixed= beer.specs.yeasts.YEAST.NAME + ' (' + beer.specs.yeasts.YEAST.FORM + ')'
+								.fixed= beer.properties.yeast
 						.control-group
 							label.control-label Yeast Method
 							.controls
@@ -296,17 +303,15 @@ block content
 					.control-group
 						label.control-label Yeast Strain
 						.controls
-							input.span3(type="text", value=beer.specs.yeasts.YEAST.NAME + ' (' + beer.specs.yeasts.YEAST.FORM + ')', disabled)
+							input.span3(type="text", value=beer.properties.yeast, disabled)
 							.help-block Determined by the beer.
 					.control-group
 						label.control-label Yeast Method
 						.controls
 							select.span3(name="yeastMethod", data-validators="required")
 								option(value="direct") Direct Pitch
-								- if (beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
 									option(value="rehydrate-water", selected)= descriptions['rehydrate-water']
 									option(value="rehydrate-wort")= descriptions['rehydrate-wort']
-								- else if (beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
 									option(value="starter")= descriptions['starter']
 									option(value="starter-O2")= descriptions['starter-O2']
 									option(value="starter-shaken")= descriptions['starter-shaken']
