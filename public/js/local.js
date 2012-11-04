@@ -12,6 +12,11 @@ window.addEvent('domready', function () {
 	
 	if (!window.location.hash) window.location = '/#/';
 	
+	// scroll away from url bar for mobile
+	setTimeout(function () {
+		if (mobile) window.scrollTo(0, 1);
+	}, 10);
+	
 	// Validation rules
 	context.validationRules = {
 		onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },

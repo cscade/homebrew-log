@@ -5,14 +5,23 @@ append head
 	title= beer.name
 
 block content
-	h1.page-header
-		div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
+	.hidden-phone
+		h1.page-header
+			div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
+				div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + color + ")")
+				img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
+			| #{beer.name + ' '}
+			br
+			small(style="margin-left:70px;")
+				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+	.visible-phone
+		div(style="width:60px;height:85px;position:relative;float:right;")
 			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + color + ")")
 			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
-		| #{beer.name + ' '}
-		br
-		small(style="margin-left:70px;")
-			a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+		h3(style="margin:-10px 0 15px 0;line-height:30px;")= beer.name + ' '
+			br
+			small
+				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
 	.area#content
 		ul.nav.nav-tabs
 			li
@@ -21,14 +30,18 @@ block content
 				a(href="#beer") Beer Details
 		.tab-content
 			.tab-pane#batches
-				a.pull-right(href="#/createBatch").btn.btn-primary.new New Batch
+				.hidden-phone
+					a.pull-right(href="#/createBatch").btn.btn-primary.new New Batch
+				.visible-phone
+					a.pull-right.btn.btn-primary(href="#/createBatch")
+						i.icon-plus.icon-white
 				table.table.table-striped.table-hover
 					thead
 						tr
 							th #
 							th Name
 							th Brewed
-							th Equipment
+							th.hidden-phone Equipment
 					tbody
 						- if (beer.batches.length)
 							each batch, index in beer.batches
@@ -38,7 +51,7 @@ block content
 									td #{new Date(batch.brewed).toDateString()}
 										|  - 
 										span(data-mtime=batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed)
-									td= descriptions[batch.equipment]
+									td.hidden-phone= descriptions[batch.equipment]
 						- else
 							tr
 								td(colspan="4") No batches.
@@ -90,7 +103,7 @@ block content
 					div(style="width:33%;display:inline-block;")
 						p
 							span.label.label-success= beer.properties.bitterness
-							strong  Bitterness
+							strong  IBU
 					div(style="width:33%;display:inline-block;")
 						p
 							span.label.label-warning= beer.properties.color
@@ -104,11 +117,19 @@ block content
 				a(href="#batchDetails") Batch Details
 		.tab-content
 			.tab-pane#batchPoints
-				a.btn.btn-primary.pull-right(data-toggle="modal", data-target="#createDataPointModal") New Data Point
-				h3
-					a.btn(href="#/")
-						i.icon-backward
-					span.name(style="margin-left:13px;")
+				.hidden-phone
+					a.btn.btn-primary.pull-right(data-toggle="modal", data-target="#createDataPointModal") New Data Point
+					h3
+						a.btn(href="#/")
+							i.icon-backward
+						span.name(style="margin-left:13px;")
+				.visible-phone
+					h4.name
+					div(style="float:left;margin:0 0 15px 0;width:100%;")
+						a.btn(href="#/", style="float:left;")
+							i.icon-backward
+						a.btn.btn-primary(data-toggle="modal", data-target="#createDataPointModal", style="float:right;")
+							i.icon-plus.icon-white
 				table.table.table-condensed.table-bordered
 					thead
 						tr
