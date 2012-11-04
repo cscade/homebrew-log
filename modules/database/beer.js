@@ -16,7 +16,7 @@ exports.tweak = function (doc, next) {
 };
 
 exports.design = {
-	_id:"_design/recipes",
+	_id:"_design/beers",
 	language: "javascript",
 	views: {
 		all: {

@@ -5,7 +5,7 @@ append head
 	title Seeker Brewing Co.
 
 block content
-	.area#recipes
+	.area#beers
 		a.btn.pull-right.visible-desktop(href="/upload") Upload
 		a.btn.btn-primary.pull-right(href="/#/createBeer", style="margin-right:15px;") New Beer
 		h1.page-header Beers
@@ -16,19 +16,19 @@ block content
 					th Batches
 					th.hidden-phone Last Modified
 			tbody
-				each recipe in recipes
-					tr.interactive(data-id=recipe._id)
-						td= recipe.name
+				each beer in beers
+					tr.interactive(data-id=beer._id)
+						td= beer.name
 						td
-							- if (recipe.batches.length)
-								span.badge.badge-info= recipe.batches.length
+							- if (beer.batches.length)
+								span.badge.badge-info= beer.batches.length
 							- else
 								span.badge 0
-						td.hidden-phone(data-mtime=recipe.mtime)
+						td.hidden-phone(data-mtime=beer.mtime)
 	.area#createBeer
 		h1.page-header Create a new Beer
 		form.form-horizontal(data-action="createBeer", action="/", method="post", accept-charset="utf-8")
-			input(type="hidden", name="target", value="recipe")
+			input(type="hidden", name="target", value="beer")
 			input(type="hidden", name="action", value="create")
 			fieldset
 				.control-group

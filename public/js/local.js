@@ -32,7 +32,7 @@ window.addEvent('domready', function () {
 	});
 	// click for details
 	document.getElements('tr[data-id]').addEvent('click', function () {
-		window.location = '/recipe/' + this.get('data-id') + '#/';
+		window.location = '/beer/' + this.get('data-id') + '/#/';
 	});
 	
 	// Router
@@ -58,7 +58,7 @@ window.addEvent('domready', function () {
 					if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
 				} catch (e) {}
 			} else {
-				document.id('recipes').show();
+				document.id('beers').show();
 			}
 		}
 	});

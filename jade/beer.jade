@@ -2,23 +2,23 @@
 extends _base
 
 append head
-	title= recipe.name
+	title= beer.name
 
 block content
 	h1.page-header
 		div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
 			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + color + ")")
 			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
-		| #{recipe.name + ' '}
+		| #{beer.name + ' '}
 		br
 		small(style="margin-left:70px;")
-			a(href=recipe.type.link)= recipe.type.category.number + recipe.type.style.letter + ' - ' + recipe.type.style.name
+			a(href=beer.type.link)= beer.type.category.number + beer.type.style.letter + ' - ' + beer.type.style.name
 	.area#content
 		ul.nav.nav-tabs
 			li
 				a(href="#batches") Batches
 			li
-				a(href="#recipe") Beer Details
+				a(href="#beer") Beer Details
 		.tab-content
 			.tab-pane#batches
 				a.pull-right(href="#/createBatch").btn.btn-primary.new New Batch
@@ -30,8 +30,8 @@ block content
 							th Brewed
 							th Equipment
 					tbody
-						- if (recipe.batches.length)
-							each batch, index in recipe.batches
+						- if (beer.batches.length)
+							each batch, index in beer.batches
 								tr.interactive(data-id=batch._id)
 									td= batch.number
 									td= batch.name
@@ -42,51 +42,51 @@ block content
 						- else
 							tr
 								td(colspan="4") No batches.
-			.tab-pane#recipe
+			.tab-pane#beer
 				.row
 					.span12
-						h4= recipe.specs.type
+						h4= beer.specs.type
 				.row.hidden-phone
 					.span3
 						p
-							span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
+							span.label.label-info= convert.round.call(Number.from(beer.specs.og), 3, true)
 							strong  OG
 							br
-							small at #{convert.round.call(recipe.specs.efficiency, 1)}% efficiency.
+							small at #{convert.round.call(beer.specs.efficiency, 1)}% efficiency.
 					.span3
 						p
-							span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
+							span.label.label-info= convert.round.call(Number.from(beer.specs.fg), 3, true)
 							strong  FG
 							br
 							small at predicted attenuation.
 					.span3
 						p
-							span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
+							span.label.label-success= beer.specs.ibu ? beer.specs.ibu.value : '-'
 							strong  Bitterness
 							br
-							small= 'IBU'  + (recipe.specs.ibu ? (' - ' + recipe.specs.ibu.model.slice(0, 1).toUpperCase() + recipe.specs.ibu.model.slice(1)) : '')
+							small= 'IBU'  + (beer.specs.ibu ? (' - ' + beer.specs.ibu.model.slice(0, 1).toUpperCase() + beer.specs.ibu.model.slice(1)) : '')
 					.span3
 						p
-							span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
+							span.label.label-warning= beer.specs.color ? beer.specs.color.value : '-'
 							strong  Color
 							br
-							small= 'SRM'  + (recipe.specs.color ? (' - ' + recipe.specs.color.model.slice(0, 1).toUpperCase() + recipe.specs.color.model.slice(1)) : '')
+							small= 'SRM'  + (beer.specs.color ? (' - ' + beer.specs.color.model.slice(0, 1).toUpperCase() + beer.specs.color.model.slice(1)) : '')
 				.row.visible-phone
 					div(style="width:50%;display:inline-block;")
 						p
-							span.label.label-info= convert.round.call(Number.from(recipe.specs.og), 3, true)
+							span.label.label-info= convert.round.call(Number.from(beer.specs.og), 3, true)
 							strong  OG
 					div(style="width:50%;display:inline-block;")
 						p
-							span.label.label-info= convert.round.call(Number.from(recipe.specs.fg), 3, true)
+							span.label.label-info= convert.round.call(Number.from(beer.specs.fg), 3, true)
 							strong  FG
 					div(style="width:50%;display:inline-block;")
 						p
-							span.label.label-success= recipe.specs.ibu ? recipe.specs.ibu.value : '-'
+							span.label.label-success= beer.specs.ibu ? beer.specs.ibu.value : '-'
 							strong  Bitterness
 					div(style="width:50%;display:inline-block;")
 						p
-							span.label.label-warning= recipe.specs.color ? recipe.specs.color.value : '-'
+							span.label.label-warning= beer.specs.color ? beer.specs.color.value : '-'
 							strong  Color
 				hr
 	.area#batch
@@ -117,7 +117,7 @@ block content
 					form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8", style="margin:0;")
 						.modal-body
 							p
-								input(type="hidden", name="parent", value=recipe._id)
+								input(type="hidden", name="parent", value=beer._id)
 								input(type="hidden", name="batch", value="")
 								fieldset
 									.control-group
@@ -208,7 +208,7 @@ block content
 							button.btn.btn-primary(type="submit") Create
 			.tab-pane#batchDetails
 				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
-					input(type="hidden", name="parent", value=recipe._id)
+					input(type="hidden", name="parent", value=beer._id)
 					input(type="hidden", name="_id", value="")
 					fieldset
 						.control-group
@@ -234,7 +234,7 @@ block content
 						.control-group
 							label.control-label Yeast Strain
 							.controls
-								.fixed= recipe.specs.yeasts.YEAST.NAME + ' (' + recipe.specs.yeasts.YEAST.FORM + ')'
+								.fixed= beer.specs.yeasts.YEAST.NAME + ' (' + beer.specs.yeasts.YEAST.FORM + ')'
 						.control-group
 							label.control-label Yeast Method
 							.controls
@@ -269,7 +269,7 @@ block content
 		h3 New Batch
 		p
 			form.form-horizontal(action="/createBatch", method="post", accept-charset="utf-8")
-				input(type="hidden", name="_id", value=recipe._id)
+				input(type="hidden", name="_id", value=beer._id)
 				fieldset
 					.control-group
 						label.control-label Batch Number
@@ -296,17 +296,17 @@ block content
 					.control-group
 						label.control-label Yeast Strain
 						.controls
-							input.span3(type="text", value=recipe.specs.yeasts.YEAST.NAME + ' (' + recipe.specs.yeasts.YEAST.FORM + ')', disabled)
-							.help-block Determined by the recipe.
+							input.span3(type="text", value=beer.specs.yeasts.YEAST.NAME + ' (' + beer.specs.yeasts.YEAST.FORM + ')', disabled)
+							.help-block Determined by the beer.
 					.control-group
 						label.control-label Yeast Method
 						.controls
 							select.span3(name="yeastMethod", data-validators="required")
 								option(value="direct") Direct Pitch
-								- if (recipe.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
+								- if (beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'dry')
 									option(value="rehydrate-water", selected)= descriptions['rehydrate-water']
 									option(value="rehydrate-wort")= descriptions['rehydrate-wort']
-								- else if (recipe.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
+								- else if (beer.specs.yeasts.YEAST.FORM.toLowerCase() === 'liquid')
 									option(value="starter")= descriptions['starter']
 									option(value="starter-O2")= descriptions['starter-O2']
 									option(value="starter-shaken")= descriptions['starter-shaken']
@@ -339,11 +339,11 @@ block content
 						a.btn(href="#/") Cancel
 
 block localJS
-	script(src='/js/recipe/local.js')
+	script(src='/js/beer/local.js')
 	script(type='text/javascript')
 		window.ampl = {
-			_id: !{JSON.stringify(recipe._id)},
-			batches: !{JSON.stringify(recipe.batches)},
+			_id: !{JSON.stringify(beer._id)},
+			batches: !{JSON.stringify(beer.batches)},
 			descriptions: !{JSON.stringify(descriptions)}
 		};
 		window.addEvent('domready', function () {

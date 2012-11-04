@@ -175,7 +175,7 @@ window.addEvent('domready', function () {
 										req = new Request({
 											url: '/deleteDataPoint',
 											data: {
-												recipe: ampl._id,
+												beer: ampl._id,
 												batch: batch._id,
 												point: point._id
 											},

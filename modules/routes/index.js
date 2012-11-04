@@ -37,52 +37,52 @@ module.exports = function (app) {
 	var db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
-		db.view('recipes/all', { include_docs: true }, function (e, rows) {
+		db.view('beers/all', { include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason);
 			render.dashboard.call(res, {
-				recipes: rows.map(function (recipe) {
-					return recipe;
+				beers: rows.map(function (beer) {
+					return beer;
 				})
 			});
 		});
 	});
 	
-	app.get('/recipe/:recipe', function (req, res) {
-		var extension = req.params.recipe.split('.')[1];
+	app.get('/beer/:beer', function (req, res) {
+		var extension = req.params.beer.split('.')[1];
 		
 		if (extension) {
-			req.params.recipe = req.params.recipe.split('.')[0];
+			req.params.beer = req.params.beer.split('.')[0];
 		}
-		db.get(req.params.recipe, function (e, recipe) {
-			var color = convert.round.call(recipe.data.color.value, 1);
+		db.get(req.params.beer, function (e, beer) {
+			var color = convert.round.call(beer.data.color.value, 1);
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			if (extension) {
 				if (extension === 'json') {
 					res.writeHeader('content-type', 'application/json');
-					res.end(JSON.stringify(recipe));
+					res.end(JSON.stringify(beer));
 				} else {
 					res.writeHead(400);
 					res.end();
 				}
 			} else {
-				render.recipe.call(res, {
-					recipe: {
-						_id: recipe._id,
-						name: recipe.name,
+				render.beer.call(res, {
+					beer: {
+						_id: beer._id,
+						name: beer.name,
 						type: {
 							category: {
-								number: recipe.data.style.CATEGORY_NUMBER,
-								name: recipe.data.style.CATEGORY
+								number: beer.data.style.CATEGORY_NUMBER,
+								name: beer.data.style.CATEGORY
 							},
 							style: {
-								letter: recipe.data.style.STYLE_LETTER,
-								name: recipe.data.style.NAME
+								letter: beer.data.style.STYLE_LETTER,
+								name: beer.data.style.NAME
 							},
-							link: 'http://www.bjcp.org/styles04/Category' + recipe.data.style.CATEGORY_NUMBER + '.php#style' + recipe.data.style.CATEGORY_NUMBER + recipe.data.style.STYLE_LETTER
+							link: 'http://www.bjcp.org/styles04/Category' + beer.data.style.CATEGORY_NUMBER + '.php#style' + beer.data.style.CATEGORY_NUMBER + beer.data.style.STYLE_LETTER
 						},
-						specs: recipe.data,
-						batches: recipe.batches.sort(function (a, b) {
+						specs: beer.data,
+						batches: beer.batches.sort(function (a, b) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
 						})
@@ -99,7 +99,7 @@ module.exports = function (app) {
 		delete req.body._id;
 		app.create.batch(beer, req.body, function (e) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-			res.redirect('/recipe/' + beer + '/#/');
+			res.redirect('/beer/' + beer + '/#/');
 		});
 	});
 	
@@ -119,7 +119,7 @@ module.exports = function (app) {
 			batch.notes = req.body.notes;
 			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-				res.redirect('/recipe/' + beer._id + '#/');
+				res.redirect('/beer/' + beer._id + '#/');
 			});
 		});
 	});
@@ -135,17 +135,17 @@ module.exports = function (app) {
 			});
 			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-				res.redirect('/recipe/' + beer._id + '#/');
+				res.redirect('/beer/' + beer._id + '#/');
 			});
 		});
 	});
 	
 	app.post('/createDataPoint', function (req, res) {
-		Recipe.get(req.body.parent, function (e, recipe) {
+		Recipe.get(req.body.parent, function (e, beer) {
 			var batch, at, pointId = '0';
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			batch = recipe.batches.filter(function (batch) {
+			batch = beer.batches.filter(function (batch) {
 				// find batch
 				return batch._id === req.body.batch;
 			})[0];
@@ -177,21 +177,21 @@ module.exports = function (app) {
 			}, function (e, point) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
 				batch.points.push(point);
-				recipe.save(function (e) {
+				beer.save(function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-					res.redirect('/recipe/' + recipe._id + '#/');
+					res.redirect('/beer/' + beer._id + '#/');
 				});
 			});
 		});
 	});
 	
 	app.post('/deleteDataPoint', function (req, res) {
-		Recipe.get(req.body.recipe, function (e, recipe) {
+		Recipe.get(req.body.beer, function (e, beer) {
 			var batch;
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			// locate batch
-			batch = recipe.batches.filter(function (batch) {
+			batch = beer.batches.filter(function (batch) {
 				return batch._id === req.body.batch;
 			})[0];
 			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
@@ -200,7 +200,7 @@ module.exports = function (app) {
 				return point._id !== req.body.point;
 			});
 			// save
-			recipe.save(function (e) {
+			beer.save(function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.end();
 			});
@@ -282,8 +282,8 @@ module.exports = function (app) {
 				message: '',
 			}, data || {}));
 		},
-		recipe: function (data) {
-			this.render('recipe.jade', connect.utils.merge({
+		beer: function (data) {
+			this.render('beer.jade', connect.utils.merge({
 				convert: convert,
 				message: '',
 				descriptions: {
@@ -330,7 +330,7 @@ module.exports = function (app) {
 			}, data || {});
 			
 			// sort by mtime
-			locals.recipes = locals.recipes.sort(function (a, b) {
+			locals.beers = locals.beers.sort(function (a, b) {
 				return a.mtime === b.mtime ? 0 : (a.mtime > b.mtime ? -1 : 1);
 			});
 			this.render('dashboard.jade', locals);
