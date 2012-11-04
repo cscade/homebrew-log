@@ -75,20 +75,7 @@ window.addEvent('domready', function () {
 		});
 		
 		// create data point
-		document.getElement('#batch a[data-target="#createDataPointModal"]').addEvent('click', function () {
-			var form = document.getElement('#batch form[action="/createDataPoint"]');
-			
-			form.reset();
-			document.getElement('#batch form[action="/createDataPoint"] select[name=action]').fireEvent('change');
-			form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
-			form.getElements('.control-group').removeClass('error');
-			if (mobile) setTimeout(function () { window.scrollTo(0, 0); }, 250), context.hidden = document.getElement('#batch form[action="/updateBatch"]').hide();
-			else setTimeout(function () { form.getElement('input[name=at]').focus(); }, 10);
-		});
-		document.getElement('#createDataPointModal a.btn[data-dismiss=modal]').addEvent('click', function () {
-			if (mobile) context.hidden.show();
-		});
-		document.getElement('#batch form[action="/createDataPoint"]').addEvent('submit', function (e) {
+		document.getElement('#createDataPoint form').addEvent('submit', function (e) {
 			if (!this.validate()) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) < (new Date()).decrement('day', 30) && !window.confirm('This date is more than 30 days ago. Save anyways?')) return e.stop(), false;
 			if (Date.parse(this.getElement('input[name=at]').get('value')) > (new Date()) && !window.confirm('This date is in the future. Save anyways?')) return e.stop(), false;
@@ -97,12 +84,12 @@ window.addEvent('domready', function () {
 		});
 		
 		// now button
-		document.getElement('#batch form[action="/createDataPoint"] button.now').addEvent('click', function () {
-			document.getElement('#batch form[action="/createDataPoint"] input[name=at]').set('value', (new Date()).format('%x %X'));
+		document.getElement('#createDataPoint form button.now').addEvent('click', function () {
+			document.getElement('#createDataPoint form input[name=at]').set('value', (new Date()).format('%x %X'));
 		});
 		
 		// action chooser
-		document.getElement('#batch form[action="/createDataPoint"] select[name=action]').addEvent('change', function () {
+		document.getElement('#createDataPoint form select[name=action]').addEvent('change', function () {
 			this.getParent('form').getElements('.hide').hide();
 			this.getParent('form').getElements('.hide input, .hide select, .hide textarea').set('disabled', true);
 			this.getParent('form').getElements('.' + this.get('value')).show();
@@ -137,7 +124,7 @@ window.addEvent('domready', function () {
 				}, 10);
 				document.getElements('#batch .name').set('text', batch.name);
 				form.getElement('input[name=_id]').set('value', batch._id);
-				document.getElement('#batch form[action="/createDataPoint"] input[name=batch]').set('value', batch._id);
+				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
 				
 				form.getElement('.fixed[data-name=number]').set('text', batch.number);
 				form.getElement('input[name=name]').set('value', batch.name);
@@ -152,8 +139,8 @@ window.addEvent('domready', function () {
 				if (batch.points.length) {
 					points.getElements('tr').destroy();
 					batch.points.sort(function (a, b) {
-						// sort oldest point first
-						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
+						// sort oldest point last
+						return a.at > b.at ? -1 : (a.at < b.at ? 1 : 0);
 					});
 					
 					// find "start" point. Use "pitch" if only one is available, otherwise use batch "brewed" date
@@ -346,6 +333,14 @@ window.addEvent('domready', function () {
 						}
 					});
 				}
+			},
+			'/createDataPoint': function () {
+				var form = document.getElement('#createDataPoint form');
+			
+				form.reset();
+				document.getElement('#createDataPoint form select[name=action]').fireEvent('change');
+				form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
+				form.getElements('.control-group').removeClass('error');
 			}
 		};
 		router = Router(routes);

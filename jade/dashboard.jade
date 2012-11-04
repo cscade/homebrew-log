@@ -6,8 +6,13 @@ append head
 
 block content
 	.area#beers
-		a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
-		h1.page-header Beers
+		.hidden-phone
+			a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
+			h1.page-header Beers
+		.visible-phone
+			a.btn.btn-primary.pull-right(href="/#/createBeer")
+				i.icon-file.icon-white
+			h3(style="margin:-10px 0 15px 0;line-height:30px;") Beers
 		table.table.table-striped.table-hover
 			thead
 				tr
@@ -25,7 +30,10 @@ block content
 								span.badge 0
 						td.hidden-phone(data-mtime=beer.mtime)
 	.area#createBeer
-		h1.page-header Create a new Beer
+		.hidden-phone
+			h1.page-header Create a new Beer
+		.visible-phone
+			h3(style="margin:-10px 0 15px 0;line-height:30px;") Create a new Beer
 		form.form-horizontal(action="/createBeer", method="post", accept-charset="utf-8", enctype="multipart/form-data")
 			fieldset
 				.control-group
