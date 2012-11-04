@@ -6,8 +6,7 @@ append head
 
 block content
 	.area#beers
-		a.btn.pull-right.visible-desktop(href="/upload") Upload
-		a.btn.btn-primary.pull-right(href="/#/createBeer", style="margin-right:15px;") New Beer
+		a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
 		h1.page-header Beers
 		table.table.table-striped.table-hover
 			thead
@@ -27,7 +26,7 @@ block content
 						td.hidden-phone(data-mtime=beer.mtime)
 	.area#createBeer
 		h1.page-header Create a new Beer
-		form.form-horizontal(action="/createBeer", method="post", accept-charset="utf-8")
+		form.form-horizontal(action="/createBeer", method="post", accept-charset="utf-8", enctype="multipart/form-data")
 			fieldset
 				.control-group
 					label.control-label Name
@@ -96,6 +95,10 @@ block content
 							option(value="Dry") Dry
 							option(value="Liquid", selected) Liquid
 							option(value="Repitch") Repitch
+				.control-group
+					label.control-label BeerXML 1.0
+					.controls
+						input(type="file", name="recipe")
 				.form-actions
 					button.btn.btn-primary(type="submit") Create Beer
 					| &nbsp;

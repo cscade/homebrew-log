@@ -77,13 +77,6 @@ exports.design = {
 			optional('data', 'object');
 			
 			/*
-			xmlFile - String
-			
-			Location of BeerXML file on disk.
-			*/
-			optional('xmlFile', 'string');
-			
-			/*
 			batches - Array
 			
 			Batches of this beer.

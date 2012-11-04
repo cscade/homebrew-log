@@ -73,7 +73,6 @@ module.exports = function (app) {
 						name: beer.name,
 						bjcp: beer.properties.bjcp,
 						properties: beer.properties,
-						data: beer.data,
 						batches: beer.batches.sort(function (a, b) {
 							// sort by newest batch first
 							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
@@ -86,13 +85,15 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createBeer', function (req, res) {
-		var body = req.body, beer;
+		var body = req.body, beer,
+			parser = new xml2js.Parser(),
+			next;
 		
 		beer = {
 			name: body.name,
 			properties: {
 				bjcp: JSON.parse(body.bjcp),
-				color: convert.round.call(Number.from(body.color), 1, true).toString(),
+				color: Number.from(body.color) > 40 ? '40' : (Number.from(body.color) < 0 ? '0' : convert.round.call(Number.from(body.color), 1, true).toString()),
 				bitterness: convert.round.call(Number.from(body.bitterness), 1, true).toString(),
 				type: body.type,
 				og: convert.round.call(1 + (Number.from(body.og) / 1000), 3, true).toString(),
@@ -103,10 +104,33 @@ module.exports = function (app) {
 				abv: convert.round.call(((Number.from(body.og) - Number.from(body.fg)) * 131) / 1000, 1, true).toString()
 			}
 		};
-		app.create.beer(beer, function (e, beer) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-			res.redirect('/beer/' + beer._id + '/#/');
-		});
+		next = function () {
+			app.create.beer(beer, function (e, beer) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				res.redirect('/beer/' + beer._id + '/#/');
+			});
+		};
+		// BeerXML?
+		if (req.files && req.files.recipe && req.files.recipe.size) {
+			fs.readFile(req.files.recipe.path, function(e, data) {
+				// discard file
+				fs.unlink(req.files.recipe.path);
+				if (e) return next();
+				parser.parseString(data, function (e, result) {
+					var recipe = {};
+					
+					if (e || !result.RECIPE) return next();
+					// translate first level xml keys to lowercase
+					Object.keys(result.RECIPE).forEach(function (key) {
+						recipe[key.toLowerCase()] = result.RECIPE[key];
+					});
+					beer.recipe = recipe;
+					next();
+				});
+			});
+		} else {
+			next();
+		}
 	});
 	
 	app.post('/createBatch', function (req, res) {
@@ -204,81 +228,8 @@ module.exports = function (app) {
 		});
 	});
 
-	app.get('/upload', function (req, res) {
-		render.upload.call(res);
-	});
-
-	app.post('/upload', function (req, res) {
-		var parser = new xml2js.Parser();
-
-		if (req.files && req.files.recipe) {
-			if (req.files.recipe.size < 1) {
-				render.upload.call(res, {
-					message: '\
-						<div class="alert">\
-							<strong>Uh...</strong> Forget something?\
-						</div>'
-				});
-				fs.unlink(req.files.recipe.path);
-				return;
-			}
-			fs.readFile(req.files.recipe.path, function(e, data) {
-				// discard temp file
-				fs.unlink(req.files.recipe.path);
-				if (e) return render.upload.call(res, {
-					message: '\
-						<div class="alert alert-error">\
-							<strong>Shit.</strong> Could not read the target file. All is lost.\
-						</div>'
-				});
-				parser.parseString(data, function (e, result) {
-					var recipe;
-					
-					if (e || !result.RECIPE) return render.upload.call(res, {
-						message: '\
-							<div class="alert alert-error">\
-								<strong>Nope.</strong> Upload BeerXML v1 only.\
-							</div>'
-					});
-					recipe = {
-						ibu: {
-							value: Number.from(req.body.bitterness),
-							model: 'tinseth'
-						},
-						color: {
-							value: Number.from(req.body.color),
-							model: 'morey'
-						}
-					};
-					// translate first level xml keys to lowercase
-					Object.keys(result.RECIPE).forEach(function (key) {
-						recipe[key.toLowerCase()] = result.RECIPE[key];
-					});
-					Recipe.create({
-						name: result.RECIPE.NAME,
-						data: recipe
-					}, function (e, recipe) {
-						if (e) return render.upload.call(res, {
-							message: '\
-								<div class="alert alert-error">\
-									<strong>Shit.</strong> We couldn\'t talk to couch.\
-								</div>'
-						});
-						res.redirect('/');
-					});
-				});
-			});
-		}
-		else render.upload.call(res);
-	});
-
 	// renderers
 	var render = {
-		upload: function (data) {
-			this.render('upload.jade', connect.utils.merge({
-				message: '',
-			}, data || {}));
-		},
 		beer: function (data) {
 			this.render('beer.jade', connect.utils.merge({
 				convert: convert,
