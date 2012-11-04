@@ -259,12 +259,12 @@ module.exports = function (app) {
 					});
 					recipe = {
 						ibu: {
-							value: Number.from(req.body.ibu),
-							model: req.body.ibuMethod
+							value: Number.from(req.body.bitterness),
+							model: 'tinseth'
 						},
 						color: {
 							value: Number.from(req.body.color),
-							model: req.body.colorMethod
+							model: 'morey'
 						}
 					};
 					// translate first level xml keys to lowercase

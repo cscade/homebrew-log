@@ -14,33 +14,20 @@ block content
 				.controls
 					input(type="file", name="recipe")
 			.control-group
-				label.control-label Calculated IBUs
+				label.control-label Bitterness
 				.controls
-					input.span1(type="text", name="ibu")
+					.input-prepend.input-append
+						input.span1(type="text", name="bitterness", data-validators="required validate-numeric", placeholder="50")
+						span.add-on IBU - Tinseth
 			.control-group
-				label.control-label IBU Model
+				label.control-label Color
 				.controls
-					select.span2(name="ibuMethod")
-						option(value="basic") Basic
-						option(value="rager") Rager
-						option(value="garetz") Garetz
-						option(value="mosher") Mosher
-						option(value="tinseth", selected) Tinseth
-						option(value="daniels") Daniels
-						option(value="fowler") Fowler
-			.control-group
-				label.control-label Calculated Color (SRM)
-				.controls
-					input.span1(type="text", name="color")
-			.control-group
-				label.control-label Color Model
-				.controls
-					select.span2(name="colorMethod")
-						option(value="classic", selected) Classic
-						option(value="morey") Morey
-						option(value="daniels") Daniels
-						option(value="noonan") Noonan
+					.input-prepend.input-append
+						input.span1(type="text", name="color", data-validators="required validate-numeric", placeholder="10")
+						span.add-on SRM - Morey
 			.form-actions
-				button.btn(type="submit") Upload
+				button.btn.btn-primary(type="submit") Upload
+				| &nbsp;
+				a.btn(href="/#/") Cancel
 
 block localJS
