@@ -94,64 +94,48 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createBatch', function (req, res) {
-		Recipe.get(req.body._id, function (e, recipe) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			// format batch as a subrecord
-			req.body._id = '0';
-			recipe.batches.forEach(function (batch) {
-				// generate a higher _id
-				req.body._id = (Number.from(batch._id) >= Number.from(req.body._id) ? (Number.from(batch._id) + 1) : req.body._id).toString();
-			});
-			req.body.brewed = new Date(req.body.brewed).getTime();
-			Batch.create(req.body, function (e, batch) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
-				recipe.batches.push(batch);
-				recipe.save(function (e) {
-					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-					res.redirect('/recipe/' + recipe._id + '#/');
-				});
-			});
+		var beer = req.body._id;
+		
+		delete req.body._id;
+		app.create.batch(beer, req.body, function (e) {
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+			res.redirect('/recipe/' + beer + '/#/');
 		});
 	});
 	
 	app.post('/updateBatch', function (req, res) {
-		Recipe.get(req.body.parent, function (e, recipe) {
-			var parent = req.body.parent;
+		var parent = req.body.parent;
+		
+		db.get(parent, function (e, beer) {
+			var batch;
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			batch = recipe.batches.filter(function (batch) {
+			batch = beer.batches.filter(function (batch) {
 				// find batch
 				return batch._id === req.body._id;
 			})[0];
 			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
 			batch.name = req.body.name;
 			batch.notes = req.body.notes;
-			Batch.create(batch, function (e, batch) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
-				recipe.batches = recipe.batches.filter(function (batch) {
-					// discard prior batch version
-					return batch._id !== req.body._id;
-				});
-				// push in new batch version
-				recipe.batches.push(batch);
-				recipe.save(function (e) {
-					if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-					res.redirect('/recipe/' + recipe._id + '#/');
-				});
+			db.save(beer._id, beer._rev, beer, function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				res.redirect('/recipe/' + beer._id + '#/');
 			});
 		});
 	});
 	
 	app.post('/deleteBatch', function (req, res) {
-		Recipe.get(req.body.parent, function (e, recipe) {
+		var parent = req.body.parent;
+		
+		db.get(parent, function (e, beer) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			recipe.batches = recipe.batches.filter(function (batch) {
+			beer.batches = beer.batches.filter(function (batch) {
 				// discard prior batch version
 				return batch._id !== req.body._id;
 			});
-			recipe.save(function (e) {
+			db.save(beer._id, beer._rev, beer, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-				res.redirect('/recipe/' + recipe._id + '#/');
+				res.redirect('/recipe/' + beer._id + '#/');
 			});
 		});
 	});
