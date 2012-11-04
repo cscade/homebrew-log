@@ -1,3 +1,7 @@
+## 0.2.1 - 2012-11-04
+
+* switch to express.basicauth
+
 ## 0.2.0 - 2012-11-04
 
 * beer in a glass SRM representation
