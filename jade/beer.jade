@@ -12,7 +12,7 @@ block content
 		| #{beer.name + ' '}
 		br
 		small(style="margin-left:70px;")
-			a(href=beer.type.link)= beer.type.category.number + beer.type.style.letter + ' - ' + beer.type.style.name
+			a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
 	.area#content
 		ul.nav.nav-tabs
 			li

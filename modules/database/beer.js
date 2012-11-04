@@ -8,21 +8,7 @@
 
 exports.tweak = function (doc, next) {
 	if (doc.resource === 'beer') {
-		// var convert = require('../lib/convert');
-		// 
-		// if (!doc.properties) doc.properties = {};
-		// doc.properties.color = doc.data.color.value.toString();
-		// doc.properties.bitterness = doc.data.ibu.value.toString();
-		// doc.properties.yeast = doc.data.yeasts.YEAST.NAME + ' (' + doc.data.yeasts.YEAST.FORM + ')';
-		// doc.properties.bjcp = (doc.data.style.CATEGORY_NUMBER + doc.data.style.STYLE_LETTER).toLowerCase();
-		// doc.properties.type = doc.data.type;
-		// doc.properties.og = convert.round.call(Number.from(doc.data.og), 3, true).toString();
-		// doc.properties.fg = convert.round.call(Number.from(doc.data.fg), 3, true).toString();
-		// doc.properties.efficiency = convert.round.call(Number.from(doc.data.efficiency), 1, true).toString();
-		// // calculated
-		// doc.properties.attenuation = convert.round.call(((doc.properties.og - doc.properties.fg)/(doc.properties.og - 1)) * 100, 1, true).toString();
-		// doc.properties.abv = convert.round.call((doc.properties.og - doc.properties.fg) * 131, 1, true).toString();
-		// return next(doc);
+		
 	}
 	// no-change endpoint
 	next();

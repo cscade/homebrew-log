@@ -54,7 +54,7 @@ module.exports = function (app) {
 			req.params.beer = req.params.beer.split('.')[0];
 		}
 		db.get(req.params.beer, function (e, beer) {
-			var color = convert.round.call(beer.data.color.value, 1);
+			var color = convert.round.call(beer.properties.color, 1);
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
 			if (extension) {
@@ -66,21 +66,12 @@ module.exports = function (app) {
 					res.end();
 				}
 			} else {
+				beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
 				render.beer.call(res, {
 					beer: {
 						_id: beer._id,
 						name: beer.name,
-						type: {
-							category: {
-								number: beer.data.style.CATEGORY_NUMBER,
-								name: beer.data.style.CATEGORY
-							},
-							style: {
-								letter: beer.data.style.STYLE_LETTER,
-								name: beer.data.style.NAME
-							},
-							link: 'http://www.bjcp.org/styles04/Category' + beer.data.style.CATEGORY_NUMBER + '.php#style' + beer.data.style.CATEGORY_NUMBER + beer.data.style.STYLE_LETTER
-						},
+						bjcp: beer.properties.bjcp,
 						properties: beer.properties,
 						data: beer.data,
 						batches: beer.batches.sort(function (a, b) {
@@ -91,6 +82,30 @@ module.exports = function (app) {
 					color: color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255'
 				});
 			}
+		});
+	});
+	
+	app.post('/createBeer', function (req, res) {
+		var body = req.body, beer;
+		
+		beer = {
+			name: body.name,
+			properties: {
+				bjcp: JSON.parse(body.bjcp),
+				color: convert.round.call(Number.from(body.color), 1, true).toString(),
+				bitterness: convert.round.call(Number.from(body.bitterness), 1, true).toString(),
+				type: body.type,
+				og: convert.round.call(1 + (Number.from(body.og) / 1000), 3, true).toString(),
+				fg: convert.round.call(1 + (Number.from(body.fg) / 1000), 3, true).toString(),
+				efficiency: convert.round.call(Number.from(body.efficiency), 1, true).toString(),
+				attenuation: convert.round.call(Number.from(body.attenuation), 1, true).toString(),
+				yeast: body.yeast.name + ' (' + body.yeast.type + ')',
+				abv: convert.round.call(((Number.from(body.og) - Number.from(body.fg)) * 131) / 1000, 1, true).toString()
+			}
+		};
+		app.create.beer(beer, function (e, beer) {
+			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+			res.redirect('/beer/' + beer._id + '/#/');
 		});
 	});
 	

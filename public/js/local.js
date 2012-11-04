@@ -20,7 +20,7 @@ window.addEvent('domready', function () {
 		
 	// Form validation
 	context.validators = {
-		createBeer: new Form.Validator(document.getElement('form[data-action="createBeer"]'), context.validationRules)
+		createBeer: new Form.Validator(document.getElement('form[action="/createBeer"]'), context.validationRules)
 	};
 	
 	/*
@@ -41,8 +41,8 @@ window.addEvent('domready', function () {
 			
 		},
 		'/createBeer': function () {
-			document.getElement('form[data-action="createBeer"]').getElements('.control-group').removeClass('error');
-			document.getElement('form[data-action="createBeer"]').reset();
+			document.getElement('form[action="/createBeer"]').getElements('.control-group').removeClass('error');
+			document.getElement('form[action="/createBeer"]').reset();
 		}
 	};
 	router = Router(routes);
