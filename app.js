@@ -16,7 +16,6 @@ var express = require('express'),
 	fs = require('fs'),
 	path = require('path'),
 	app = express(),
-	connect = require('connect'),
 	tweak = require('./lib/tweak'),
 	sslConfig;
 
@@ -45,7 +44,7 @@ app.configure('development', function () {
 });
 
 app.configure('production', function () {
-	app.use(connect.basicAuth('cscade', 'pyramid'));
+	app.use(express.basicAuth('cscade', 'pyramid'));
 	app.use(express.errorHandler());
 	sslConfig = {
 		key: fs.readFileSync('/etc/ssl/private/fire.key'),
