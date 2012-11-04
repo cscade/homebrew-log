@@ -152,8 +152,8 @@ window.addEvent('domready', function () {
 				if (batch.points.length) {
 					points.getElements('tr').destroy();
 					batch.points.sort(function (a, b) {
-						// sort oldest point first
-						return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0);
+						// sort oldest point last
+						return a.at > b.at ? -1 : (a.at < b.at ? 1 : 0);
 					});
 					
 					// find "start" point. Use "pitch" if only one is available, otherwise use batch "brewed" date
