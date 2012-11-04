@@ -2,7 +2,7 @@
 extends _base
 
 append head
-	title Upload a Recipe
+	title Upload a Beer
 
 block navigation
 	a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
@@ -13,12 +13,12 @@ block navigation
 	.nav-collapse
 		ul.nav
 			li
-				a(href='/') Recipes
+				a(href='/') Beers
 			li.active
 				a(href="/upload") Upload
 
 block content
-	h1.page-header Upload a Recipe
+	h1.page-header Upload a Beer
 	.message!= message
 	form.form-horizontal(method="post", action="/upload", enctype="multipart/form-data", accept-charset="utf-8")
 		fieldset

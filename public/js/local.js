@@ -24,7 +24,7 @@ window.addEvent('domready', function () {
 	};
 	
 	/*
-	Recipe List
+	Beer List
 	*/
 	// edit time
 	document.getElements('td[data-mtime]').each(function (el) {
