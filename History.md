@@ -1,3 +1,7 @@
+## 0.2.2 - 2012-11-04
+
+* fix express.basicauth
+
 ## 0.2.1 - 2012-11-04
 
 * switch to express.basicauth

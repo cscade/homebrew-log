@@ -27,6 +27,7 @@ app.configure(function(){
 	app.set('view engine', 'jade');
 	app.set('config', JSON.parse(fs.readFileSync(path.join(__dirname, 'config', 'config.json'), 'utf-8'))[app.get('env')]);
 	app.set('version', JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8')).version);
+	if (app.get('env') === 'production') app.use(express.basicAuth('cscade', 'pyramid'));
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -44,7 +45,6 @@ app.configure('development', function () {
 });
 
 app.configure('production', function () {
-	app.use(express.basicAuth('cscade', 'pyramid'));
 	app.use(express.errorHandler());
 	sslConfig = {
 		key: fs.readFileSync('/etc/ssl/private/fire.key'),
