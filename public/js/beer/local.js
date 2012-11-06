@@ -7,9 +7,42 @@
 // 
 
 window.addEvent('domready', function () {
-	!function (context) {
-		var Module = context.Module,
-			routes, router,
+	/*
+	offset
+
+	Calulate the offset between two Date objects, and return the
+	result as a number.
+
+	offset(from, to, as='days','hours')
+	*/
+	var offset = function (from, to, as) {
+		var start, end,
+			seconds, minutes, hours, days;
+	
+		// get ms
+		start = (new Date(from)).getTime();
+		end = (new Date(to)).getTime();
+	
+		// create values
+		seconds = (end - start) / 1000;
+		minutes = seconds / 60;
+		hours = minutes / 60;
+		days = hours / 24;
+	
+		if (as === 'hours') {
+			return hours.round();
+		} if (as === 'days') {
+			return days.round(1);
+		} else {
+			return 'Invalid offset "as" type.';
+		}
+	};
+	
+	/*
+	View
+	*/
+	!function (view) {
+		var routes, router,
 			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
 	
 		// scroll away from url bar for mobile
@@ -39,7 +72,7 @@ window.addEvent('domready', function () {
 				createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), module.rules),
 				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules)
 			};
-		}(context.validation = new Module());
+		}(view.validation = new view.Module());
 		
 		// nav tabs
 		jQuery('#content ul.nav.nav-tabs a').click(function (e) {
@@ -60,7 +93,7 @@ window.addEvent('domready', function () {
 		document.getElements('#batches tr.interactive').addEvent('click', function () {
 			var _id = this.get('data-id');
 			
-			context.active = ampl.get('batches').filter(function (batch) {
+			view.active = ampl.get('batches').filter(function (batch) {
 				return batch._id === _id;
 			})[0];
 			window.location.hash = '#/batch';
@@ -116,11 +149,11 @@ window.addEvent('domready', function () {
 			'/batch': function () {
 				var form = document.getElement('#batch form[action="/updateBatch"]'),
 					points = document.getElement('#batch table tbody'),
-					batch = context.active,
+					batch = view.active,
 					descriptions = ampl.get('descriptions'),
 					offsetFrom;
 				
-				if (!context.active) return window.location.hash = '#/';
+				if (!view.active) return window.location.hash = '#/';
 				setTimeout(function () {
 					// set active tab
 					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
@@ -366,35 +399,3 @@ window.addEvent('domready', function () {
 		router.init();
 	}(ampl.set('view', new ampl.View()));
 });
-
-/*
-offset
-
-Calulate the offset between two Date objects, and return the
-result as a number.
-
-offset(from, to, as='days','hours')
-*/
-
-var offset = function (from, to, as) {
-	var start, end,
-		seconds, minutes, hours, days;
-	
-	// get ms
-	start = (new Date(from)).getTime();
-	end = (new Date(to)).getTime();
-	
-	// create values
-	seconds = (end - start) / 1000;
-	minutes = seconds / 60;
-	hours = minutes / 60;
-	days = hours / 24;
-	
-	if (as === 'hours') {
-		return hours.round();
-	} if (as === 'days') {
-		return days.round(1);
-	} else {
-		return 'Invalid offset "as" type.';
-	}
-};
