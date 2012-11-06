@@ -8,35 +8,38 @@
 
 window.addEvent('domready', function () {
 	!function (context) {
-		var routes, router,
+		var Module = context.Module,
+			routes, router,
 			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
 	
 		// scroll away from url bar for mobile
 		setTimeout(function () {
 			if (mobile) window.scrollTo(0, 1);
 		}, 10);
-	
-		// Validation rules
-		context.validationRules = {
-			onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
-			onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
-		};
-		// Special Validators
-		Form.Validator.add('validate-dateWithTime', {
-			errorMsg: 'This field requires a date.',
-			test: function (element) {
-				if (Date.parse(element.value) === null) return false;
-				if (!Date.parse(element.value).isValid()) return false;
-				element.value = Date.parse(element.value).format('%x %X');
-				return true;
-			}
-		});
 		
-		// Form validation
-		context.validators = {
-			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules),
-			createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), context.validationRules)
-		};
+		// form validation
+		!function (module) {
+			// rules
+			module.rules = {
+				onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
+				onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
+			};
+			// extend validators (global)
+			Form.Validator.add('validate-dateWithTime', {
+				errorMsg: 'This field requires a date.',
+				test: function (element) {
+					if (Date.parse(element.value) === null) return false;
+					if (!Date.parse(element.value).isValid()) return false;
+					element.value = Date.parse(element.value).format('%x %X');
+					return true;
+				}
+			});
+			// forms
+			module.forms = {
+				createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), module.rules),
+				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules)
+			};
+		}(context.validation = new Module());
 		
 		// nav tabs
 		jQuery('#content ul.nav.nav-tabs a').click(function (e) {
@@ -57,7 +60,7 @@ window.addEvent('domready', function () {
 		document.getElements('#batches tr.interactive').addEvent('click', function () {
 			var _id = this.get('data-id');
 			
-			context.active = ampl.batches.filter(function (batch) {
+			context.active = ampl.get('batches').filter(function (batch) {
 				return batch._id === _id;
 			})[0];
 			window.location.hash = '#/batch';
@@ -114,7 +117,7 @@ window.addEvent('domready', function () {
 				var form = document.getElement('#batch form[action="/updateBatch"]'),
 					points = document.getElement('#batch table tbody'),
 					batch = context.active,
-					descriptions = ampl.descriptions,
+					descriptions = ampl.get('descriptions'),
 					offsetFrom;
 				
 				if (!context.active) return window.location.hash = '#/';
@@ -361,7 +364,7 @@ window.addEvent('domready', function () {
 			}
 		});
 		router.init();
-	}({});
+	}(ampl.set('view', new ampl.View()));
 });
 
 /*

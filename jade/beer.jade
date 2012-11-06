@@ -114,6 +114,8 @@ block content
 			li
 				a(href="#batchPoints") Data Points
 			li
+				a(href="#batchPlot") Plot
+			li
 				a(href="#batchDetails") Batch Details
 		.tab-content
 			.tab-pane#batchPoints
@@ -138,6 +140,8 @@ block content
 					tbody
 						tr
 							td(colspan="2") No data Points.
+			.tab-pane#batchPlot
+				#flot(style="width:940px;height:400px;")
 			.tab-pane#batchDetails
 				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
 					input(type="hidden", name="parent", value=beer._id)
@@ -364,11 +368,9 @@ block content
 block localJS
 	script(src='/js/beer/local.js')
 	script(type='text/javascript')
-		window.ampl = {
-			_id: !{JSON.stringify(beer._id)},
-			batches: !{JSON.stringify(beer.batches)},
-			descriptions: !{JSON.stringify(descriptions)}
-		};
+		ampl.set('_id', !{JSON.stringify(beer._id)});
+		ampl.set('batches', !{JSON.stringify(beer.batches)});
+		ampl.set('descriptions', !{JSON.stringify(descriptions)});
 		window.addEvent('domready', function () {
 			// time
 			document.getElements('span[data-mtime]').each(function (el) {
