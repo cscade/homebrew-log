@@ -1,22 +1,22 @@
 {
 	"development": {
-		"name": "seeker-brewing",
-		"domain": "log.seekerbeer.com",
+		"name": "homebrew-log",
+		"domain": "localhost",
 		"listen": 80,
 		"couch": {
 			"url": "http://fire-dev",
 			"port": 80,
-			"database": "seeker"
+			"database": "homebrew-log"
 		}
 	},
 	"production": {
-		"name": "seeker-brewing",
+		"name": "homebrew-log",
 		"domain": "log.seekerbeer.com",
 		"listen": 8081,
 		"couch": {
 			"url": "http://localhost",
 			"port": 5984,
-			"database": "seeker"
+			"database": "homebrew-log"
 		}
 	}
 }

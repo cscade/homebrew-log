@@ -1,6 +1,6 @@
 {
 	"watch": {
-		"seeker": {
+		"homebrew-log": {
 			"resource": "beers",
 			"path": "../../modules/database/beer"
 		}
