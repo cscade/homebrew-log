@@ -29,13 +29,14 @@ html(lang='en')
 		.navbar.navbar-fixed-top
 			.navbar-inner
 				.container
-					a.brand(href="/#/") Seeker Brewing Co.
+					a.brand(href="/#/") Home Brew Log
 		.container
 			block content
 		
 		// javascript
 		script(src='/js/lib/library.min.js')
+		script(src='/js/lib/ampl.js')
 		script(type='text/javascript')
 			jQuery.noConflict();
+		script(src='/js/lib/jquery.flot.js')
 		block localJS
-

@@ -7,36 +7,71 @@
 // 
 
 window.addEvent('domready', function () {
-	!function (context) {
-		var routes, router,
-			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
+	/*
+	offset
+
+	Calulate the offset between two Date objects, and return the
+	result as a number.
+
+	offset(from, to, as='days','hours')
+	*/
+	var offset = function (from, to, as) {
+		var start, end,
+			seconds, minutes, hours, days;
+	
+		// get ms
+		start = (new Date(from)).getTime();
+		end = (new Date(to)).getTime();
+	
+		// create values
+		seconds = (end - start) / 1000;
+		minutes = seconds / 60;
+		hours = minutes / 60;
+		days = hours / 24;
+	
+		if (as === 'hours') {
+			return hours.round();
+		} if (as === 'days') {
+			return days.round(1);
+		} else {
+			return 'Invalid offset "as" type.';
+		}
+	};
+	
+	/*
+	View
+	*/
+	!function (view) {
+		view.mobile = (Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos) || false;
 	
 		// scroll away from url bar for mobile
 		setTimeout(function () {
-			if (mobile) window.scrollTo(0, 1);
-		}, 10);
-	
-		// Validation rules
-		context.validationRules = {
-			onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
-			onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
-		};
-		// Special Validators
-		Form.Validator.add('validate-dateWithTime', {
-			errorMsg: 'This field requires a date.',
-			test: function (element) {
-				if (Date.parse(element.value) === null) return false;
-				if (!Date.parse(element.value).isValid()) return false;
-				element.value = Date.parse(element.value).format('%x %X');
-				return true;
-			}
-		});
+			if (view.mobile) window.scrollTo(0, 1);
+		}, 100);
 		
-		// Form validation
-		context.validators = {
-			createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), context.validationRules),
-			createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), context.validationRules)
-		};
+		// form validation
+		!function (module) {
+			// rules
+			module.rules = {
+				onElementFail: function (el) { el.getParent('.control-group').addClass('error'); },
+				onElementPass: function (el) { el.getParent('.control-group').removeClass('error'); }
+			};
+			// extend validators (global)
+			Form.Validator.add('validate-dateWithTime', {
+				errorMsg: 'This field requires a date.',
+				test: function (element) {
+					if (Date.parse(element.value) === null) return false;
+					if (!Date.parse(element.value).isValid()) return false;
+					element.value = Date.parse(element.value).format('%x %X');
+					return true;
+				}
+			});
+			// forms
+			module.forms = {
+				createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), module.rules),
+				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules)
+			};
+		}(view.validation = new view.Module());
 		
 		// nav tabs
 		jQuery('#content ul.nav.nav-tabs a').click(function (e) {
@@ -46,6 +81,13 @@ window.addEvent('domready', function () {
 		jQuery('#batch ul.nav.nav-tabs a').click(function (e) {
 			if (e) e.preventDefault();
 			jQuery(this).tab('show');
+			// charting triggers
+			if (document.id(this).get('href') === '#batchPlot') {
+				view.plot.generate();
+			} else {
+				view.plot.cleanup();
+			}
+			if (view.mobile) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		
 		// times
@@ -57,7 +99,7 @@ window.addEvent('domready', function () {
 		document.getElements('#batches tr.interactive').addEvent('click', function () {
 			var _id = this.get('data-id');
 			
-			context.active = ampl.batches.filter(function (batch) {
+			view.active = ampl.get('batches').filter(function (batch) {
 				return batch._id === _id;
 			})[0];
 			window.location.hash = '#/batch';
@@ -65,7 +107,7 @@ window.addEvent('domready', function () {
 		
 		// delete batch
 		document.getElement('#batch a.btn-danger').addEvent('click', function (e) {
-			if (mobile) setTimeout(function () {
+			if (view.mobile) setTimeout(function () {
 				window.scrollTo(0, 0);
 			}, 250);
 		});
@@ -97,8 +139,165 @@ window.addEvent('domready', function () {
 			this.getParent('form').getElements('.control-group').removeClass('error');
 		});
 		
+		// batch charting
+		!function (module) {
+			// plot options
+			module.options = {
+				xaxis: {
+					show: true,
+					position: 'bottom'
+				},
+				yaxis: {
+					show: true,
+					position: 'left',
+					// min: 55, 
+					// max: 80,
+					tickSize: 1
+				},
+				colors: ["#3F9FCF", "#3c3c3c"],
+				grid: {
+					markings: [
+						// lag
+						{ color: "#eac932", xaxis: { from: 15, to: 15 } },
+						// exponential growth
+						{ color: "#3F9FCF", xaxis: { from: 96, to: 96 } },
+						// stationary
+						{ color: "#1dbc48", xaxis: { from: 240, to: 240 } }
+					]
+				}
+			};
+			
+			/*
+			generate
+			
+			format data and generate chart
+			*/
+			module.generate = function () {
+				var points = view.active.points, pitch, temps, ambients;
+				
+				// find pitch
+				points.each(function (point) { if (point.action === 'pitch') pitch = point; });
+				// use pitch as zero
+				pitch.plotTime = (((pitch.at / 1000) / 60) / 60).round();
+				pitch.plotAt = 0;
+				
+				// sort by time, asc
+				points.sort(function (a, b) { return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0); });
+				
+				// find temps & ambients
+				temps = points.filter(function (point) { return point.temp !== undefined; });
+				ambients = points.filter(function (point) { return point.ambient !== undefined; });
+				// develop plotAt for all points vs pitch (in hours)
+				temps.each(function (point) { point.plotAt = (((point.at / 1000) / 60) / 60).round() - pitch.plotTime; });
+				ambients.each(function (point) { point.plotAt = (((point.at / 1000) / 60) / 60).round() - pitch.plotTime; });
+				
+				module.draw([
+					{
+						label: '&deg;F Ambient',
+						lines: {
+							show: true,
+							fill: true,
+							lineWidth: 1
+						},
+						data: ambients.map(function (point) { return [point.plotAt, point.ambient]; })
+					}, {
+						label: '&deg;F Fermentation',
+						lines: {
+							show: true,
+							lineWidth: 3
+						},
+						points: {
+							show: true,
+							lineWidth: 3,
+							radius: 4
+						},
+						data: temps.map(function (point) { return [point.plotAt, point.temp]; })
+					}
+				]);
+			};
+			
+			/*
+			draw
+			
+			draw all elements of flot chart
+			
+			@param {Array} series
+			*/
+			module.draw = function (series) {
+				var offsets = {};
+				
+				// resize chart on mobile
+				if (view.mobile) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
+				
+				// draw flot chart
+				module.flot = jQuery.plot(jQuery("#flot"), series, module.options);
+				
+				if (!view.mobile) {
+					// get offsets for label locations
+					offsets.lag = module.flot.pointOffset({ x: 1, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above and 1 hour right of ferment temp 0
+					offsets.growth = module.flot.pointOffset({ x: 16, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					offsets.stationary = module.flot.pointOffset({ x: 97, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					offsets.conditioning = module.flot.pointOffset({ x: 241, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					// apply labels to flot chart
+					document.id('flot').adopt([
+						new Element('div.label', {
+							text: 'Lag',
+							styles: {
+								position: 'absolute',
+								left: offsets.lag.left + 'px',
+								top: offsets.lag.top + 'px'
+							}
+						}),
+						new Element('div.label.label-warning', {
+							text: 'Growth (Esters)',
+							styles: {
+								position: 'absolute',
+								left: offsets.growth.left + 'px',
+								top: offsets.growth.top + 'px'
+							}
+						}),
+						new Element('div.label.label-info', {
+							text: 'Stationary (Cleanup)',
+							styles: {
+								position: 'absolute',
+								left: offsets.stationary.left + 'px',
+								top: offsets.stationary.top + 'px'
+							}
+						}),
+						new Element('div.label.label-success', {
+							text: 'Conditioning',
+							styles: {
+								position: 'absolute',
+								left: offsets.conditioning.left + 'px',
+								top: offsets.conditioning.top + 'px'
+							}
+						})
+					]);
+				}
+				
+				// apply axis label
+				document.getElement('.container').grab(new Element('div.volatile.xaxis', {
+					text: 'Hours Elapsed vs Pitch',
+					styles: {
+						position: 'absolute',
+						top: document.id('flot').getPosition().y + document.id('flot').getSize().y + 10 + 'px'
+					}
+				}));
+				document.getElement('.volatile.xaxis').setStyle('left', (window.getSize().x / 2) - (document.getElement('.volatile.xaxis').getSize().x / 2));
+			};
+			
+			/*
+			cleanup
+			
+			clean up generated elements
+			*/
+			module.cleanup = function () {
+				document.getElements('.volatile').destroy();
+			};
+		}(view.plot = new view.Module());
+		
 		// Router
-		routes = {
+		view.routes = {
 			'/': function () {
 				setTimeout(function () {
 					// set active tab
@@ -113,11 +312,11 @@ window.addEvent('domready', function () {
 			'/batch': function () {
 				var form = document.getElement('#batch form[action="/updateBatch"]'),
 					points = document.getElement('#batch table tbody'),
-					batch = context.active,
-					descriptions = ampl.descriptions,
+					batch = view.active,
+					descriptions = ampl.get('descriptions'),
 					offsetFrom;
 				
-				if (!context.active) return window.location.hash = '#/';
+				if (!view.active) return window.location.hash = '#/';
 				setTimeout(function () {
 					// set active tab
 					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
@@ -162,7 +361,7 @@ window.addEvent('domready', function () {
 										req = new Request({
 											url: '/deleteDataPoint',
 											data: {
-												beer: ampl._id,
+												beer: ampl.get('_id'),
 												batch: batch._id,
 												point: point._id
 											},
@@ -343,55 +542,23 @@ window.addEvent('domready', function () {
 				form.getElements('.control-group').removeClass('error');
 			}
 		};
-		router = Router(routes);
-		router.configure({
+		view.router = Router(view.routes);
+		view.router.configure({
 			on: function () {
 				var route = window.location.hash.slice(2),
 					areas = document.getElements('.area');
-
+				
 				areas.hide();
 				if (document.id(route)) {
 					document.id(route).show();
 					try {
-						if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
+						if (!view.mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
 					} catch (e) {}
 				} else {
 					document.id('content').show();
 				}
 			}
 		});
-		router.init();
-	}({});
+		view.router.init();
+	}(ampl.set('view', new ampl.View()));
 });
-
-/*
-offset
-
-Calulate the offset between two Date objects, and return the
-result as a number.
-
-offset(from, to, as='days','hours')
-*/
-
-var offset = function (from, to, as) {
-	var start, end,
-		seconds, minutes, hours, days;
-	
-	// get ms
-	start = (new Date(from)).getTime();
-	end = (new Date(to)).getTime();
-	
-	// create values
-	seconds = (end - start) / 1000;
-	minutes = seconds / 60;
-	hours = minutes / 60;
-	days = hours / 24;
-	
-	if (as === 'hours') {
-		return hours.round();
-	} if (as === 'days') {
-		return days.round(1);
-	} else {
-		return 'Invalid offset "as" type.';
-	}
-};
