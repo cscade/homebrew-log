@@ -1,3 +1,13 @@
+## 0.4.0 - 2012-11-07
+
+* open project
+* remove ssl
+* remove from internet
+* use ampl.View framework
+* temperature charting
+* remove branding
+* many mobile optimizations
+
 ## 0.2.3 - 2012-11-04
 
 * mobile improvements
