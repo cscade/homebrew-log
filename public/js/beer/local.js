@@ -42,12 +42,11 @@ window.addEvent('domready', function () {
 	View
 	*/
 	!function (view) {
-		var routes, router,
-			mobile = Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos;
+		view.mobile = (Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos) || false;
 	
 		// scroll away from url bar for mobile
 		setTimeout(function () {
-			if (mobile) window.scrollTo(0, 1);
+			if (view.mobile) window.scrollTo(0, 1);
 		}, 10);
 		
 		// form validation
@@ -101,7 +100,7 @@ window.addEvent('domready', function () {
 		
 		// delete batch
 		document.getElement('#batch a.btn-danger').addEvent('click', function (e) {
-			if (mobile) setTimeout(function () {
+			if (view.mobile) setTimeout(function () {
 				window.scrollTo(0, 0);
 			}, 250);
 		});
@@ -134,7 +133,7 @@ window.addEvent('domready', function () {
 		});
 		
 		// Router
-		routes = {
+		view.routes = {
 			'/': function () {
 				setTimeout(function () {
 					// set active tab
@@ -198,7 +197,7 @@ window.addEvent('domready', function () {
 										req = new Request({
 											url: '/deleteDataPoint',
 											data: {
-												beer: ampl._id,
+												beer: ampl.get('_id'),
 												batch: batch._id,
 												point: point._id
 											},
@@ -379,23 +378,23 @@ window.addEvent('domready', function () {
 				form.getElements('.control-group').removeClass('error');
 			}
 		};
-		router = Router(routes);
-		router.configure({
+		view.router = Router(view.routes);
+		view.router.configure({
 			on: function () {
 				var route = window.location.hash.slice(2),
 					areas = document.getElements('.area');
-
+				
 				areas.hide();
 				if (document.id(route)) {
 					document.id(route).show();
 					try {
-						if (!mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
+						if (!view.mobile) document.id(route).getElement('.firstFocus, input[type=text]').focus();
 					} catch (e) {}
 				} else {
 					document.id('content').show();
 				}
 			}
 		});
-		router.init();
+		view.router.init();
 	}(ampl.set('view', new ampl.View()));
 });
