@@ -15,7 +15,7 @@ block content
 			small(style="margin-left:70px;")
 				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
 	.visible-phone
-		div(style="width:60px;height:85px;position:relative;float:right;")
+		div.beerGlass(style="width:60px;height:85px;position:relative;float:right;top:-16px;-webkit-transform:scale(0.65);")
 			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + color + ")")
 			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
 		h3(style="margin:-10px 0 15px 0;line-height:30px;")= beer.name + ' '
@@ -27,7 +27,8 @@ block content
 			li
 				a(href="#batches") Batches
 			li
-				a(href="#beer") Beer Details
+				a.hidden-phone(href="#beer") Beer Details
+				a.visible-phone(href="#beer") Details
 		.tab-content
 			.tab-pane#batches
 				.hidden-phone
@@ -112,11 +113,13 @@ block content
 	.area#batch
 		ul.nav.nav-tabs
 			li
-				a(href="#batchPoints") Data Points
+				a.hidden-phone(href="#batchPoints") Data Points
+				a.visible-phone(href="#batchPoints") Points
 			li
 				a(href="#batchPlot") Plot
 			li
-				a(href="#batchDetails") Batch Details
+				a.hidden-phone(href="#batchDetails") Batch Details
+				a.visible-phone(href="#batchDetails") Details
 		.tab-content
 			.tab-pane#batchPoints
 				.hidden-phone

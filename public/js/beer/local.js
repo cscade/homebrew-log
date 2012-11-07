@@ -47,7 +47,7 @@ window.addEvent('domready', function () {
 		// scroll away from url bar for mobile
 		setTimeout(function () {
 			if (view.mobile) window.scrollTo(0, 1);
-		}, 10);
+		}, 100);
 		
 		// form validation
 		!function (module) {
@@ -87,6 +87,7 @@ window.addEvent('domready', function () {
 			} else {
 				view.plot.cleanup();
 			}
+			if (view.mobile) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		
 		// times
@@ -225,50 +226,54 @@ window.addEvent('domready', function () {
 			module.draw = function (series) {
 				var offsets = {};
 				
+				// resize chart on mobile
+				if (view.mobile) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
+				
 				// draw flot chart
 				module.flot = jQuery.plot(jQuery("#flot"), series, module.options);
 				
-				// get offsets for label locations
-				offsets.lag = module.flot.pointOffset({ x: 1, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above and 1 hour right of ferment temp 0
-				offsets.growth = module.flot.pointOffset({ x: 16, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
-				offsets.stationary = module.flot.pointOffset({ x: 97, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
-				offsets.conditioning = module.flot.pointOffset({ x: 241, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
-				
-				// apply labels to flot chart
-				document.id('flot').adopt([
-					new Element('div.label', {
-						text: 'Lag',
-						styles: {
-							position: 'absolute',
-							left: offsets.lag.left + 'px',
-							top: offsets.lag.top + 'px'
-						}
-					}),
-					new Element('div.label.label-warning', {
-						text: 'Growth (Esters)',
-						styles: {
-							position: 'absolute',
-							left: offsets.growth.left + 'px',
-							top: offsets.growth.top + 'px'
-						}
-					}),
-					new Element('div.label.label-info', {
-						text: 'Stationary (Cleanup)',
-						styles: {
-							position: 'absolute',
-							left: offsets.stationary.left + 'px',
-							top: offsets.stationary.top + 'px'
-						}
-					}),
-					new Element('div.label.label-success', {
-						text: 'Conditioning',
-						styles: {
-							position: 'absolute',
-							left: offsets.conditioning.left + 'px',
-							top: offsets.conditioning.top + 'px'
-						}
-					})
-				]);
+				if (!view.mobile) {
+					// get offsets for label locations
+					offsets.lag = module.flot.pointOffset({ x: 1, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above and 1 hour right of ferment temp 0
+					offsets.growth = module.flot.pointOffset({ x: 16, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					offsets.stationary = module.flot.pointOffset({ x: 97, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					offsets.conditioning = module.flot.pointOffset({ x: 241, y: module.flot.getData()[1].data[0][1] + 0.5 }); // .5 degree above ferment temp 0, and 1 hour right of phase start
+					// apply labels to flot chart
+					document.id('flot').adopt([
+						new Element('div.label', {
+							text: 'Lag',
+							styles: {
+								position: 'absolute',
+								left: offsets.lag.left + 'px',
+								top: offsets.lag.top + 'px'
+							}
+						}),
+						new Element('div.label.label-warning', {
+							text: 'Growth (Esters)',
+							styles: {
+								position: 'absolute',
+								left: offsets.growth.left + 'px',
+								top: offsets.growth.top + 'px'
+							}
+						}),
+						new Element('div.label.label-info', {
+							text: 'Stationary (Cleanup)',
+							styles: {
+								position: 'absolute',
+								left: offsets.stationary.left + 'px',
+								top: offsets.stationary.top + 'px'
+							}
+						}),
+						new Element('div.label.label-success', {
+							text: 'Conditioning',
+							styles: {
+								position: 'absolute',
+								left: offsets.conditioning.left + 'px',
+								top: offsets.conditioning.top + 'px'
+							}
+						})
+					]);
+				}
 				
 				// apply axis label
 				document.getElement('.container').grab(new Element('div.volatile.xaxis', {
