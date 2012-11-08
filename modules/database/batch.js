@@ -1,39 +1,31 @@
 // 
-//  beer.js
+//  batch.js
 //  seeker-brewing
 //  
-//  Created by Carson S. Christian on 2012-11-04.
+//  Created by Carson S. Christian on 2012-11-07.
 //  Copyright 2012 (ampl)EGO. All rights reserved.
 // 
 
 exports.tweak = function (doc, next) {
-	var create;
-	
-	if (doc.resource === 'beer') {
-		if (doc.batches && doc.batches.length > 0) {
-			create = doc.batches.shift();
-			create.beer = doc._id;
-			create.resource = 'batch';
-			delete create._id;
-			return next(doc, create);
-		} else if (doc.batches) {
-			delete doc.batches;
-			return next(doc);
-		}
+	if (doc.resource === 'batch') {
+		
 	}
 	// no-change endpoint
 	next();
 };
 
 exports.design = {
-	_id:"_design/beers",
+	_id:"_design/batches",
 	language: "javascript",
 	views: {
-		byName: {
+		byBeer: {
 			map: function (doc) {
-				if (doc.resource === 'beer') {
-					emit(doc.name, null);
+				if (doc.resource === 'batch') {
+					emit(doc.beer, 1);
 				}
+			},
+			reduce: function (keys, values) {
+				return sum(values);
 			}
 		}
 	},
@@ -66,40 +58,75 @@ exports.design = {
 			}
 		};
 		
-		// Beer
-		if (resource === 'beer') {
+		// Batch of Beer
+		if (resource === 'batch') {
 			/*
-			name - String
+			beer - string
+			
+			couch _id of the beer this is a batch of.
+			*/
+			require('beer', 'string');
+			
+			/*
+			number - string
+			
+			Batch index number, server-style.
+			*/
+			require('number', 'string');
+			
+			/*
+			name - string
+			
+			Batch name.
 			*/
 			require('name', 'string');
 			
 			/*
-			properties - Object
+			brewed - number (Date)
 			
-			Beer properties (color, bitterness, etc)
+			The "brewed" date for the batch. User arbitrary, has no effect on data points.
 			*/
-			require('properties', 'object');
+			require('brewed', 'number');
 			
 			/*
-			data - Object
+			equipment - string
 			
-			BeerXML data.
+			Equipment identifier string.
 			*/
-			optional('data', 'object');
+			require('equipment', 'string');
 			
 			/*
-			mtime - Number
+			yeastMethod - string
 			
-			Modified time.
+			The yeast method identifier string, ex; "starter-stir"
 			*/
-			require('mtime', 'number');
+			require('yeastMethod', 'string');
 			
 			/*
-			ctime - Number
+			fermentor - string
 			
-			Created time.
+			Fermentor identifier string.
 			*/
-			require('ctime', 'number');
+			require('fermentor', 'string');
+			
+			/*
+			control - string
+			
+			Control type identifier string.
+			*/
+			require('control', 'string');
+			
+			/*
+			points - array
+			
+			The data points for the batch.
+			*/
+			require('points', 'array');
+			
+			/*
+			notes - string
+			*/
+			optional('notes', 'string');
 		}
 	}
 };

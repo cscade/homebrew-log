@@ -37,12 +37,19 @@ module.exports = function (app) {
 	var db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
-		db.view('beers/byName', { include_docs: true }, function (e, rows) {
+		db.view('beers/byName', { include_docs: true }, function (e, beers) {
 			if (e) return app.log.error(e.message || e.reason);
-			render.dashboard.call(res, {
-				beers: rows.map(function (beer) {
-					return beer;
-				})
+			// get batches per beer
+			db.view('batches/byBeer', { group: true }, function (e, rows) {
+				var batches = {};
+				
+				rows.forEach(function (beer, count) {
+					batches[beer] = count;
+				});
+				render.dashboard.call(res, {
+					beers: beers.map(function (key, doc) { return doc; }),
+					batches: batches
+				});
 			});
 		});
 	});
@@ -57,16 +64,11 @@ module.exports = function (app) {
 			var color = convert.round.call(beer.properties.color, 1);
 			
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			if (extension) {
-				if (extension === 'json') {
-					res.writeHeader('content-type', 'application/json');
-					res.end(JSON.stringify(beer));
-				} else {
-					res.writeHead(400);
-					res.end();
-				}
-			} else {
-				beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
+			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
+			// get batches
+			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
+				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				beer.batches = rows.map(function (key, doc) { return doc; });
 				render.beer.call(res, {
 					beer: {
 						_id: beer._id,
@@ -80,7 +82,7 @@ module.exports = function (app) {
 					},
 					color: color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255'
 				});
-			}
+			});
 		});
 	});
 	

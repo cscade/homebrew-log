@@ -24,8 +24,8 @@ block content
 					tr.interactive(data-id=beer._id)
 						td= beer.name
 						td
-							- if (beer.batches.length)
-								span.badge.badge-info= beer.batches.length
+							- if (batches[beer._id])
+								span.badge.badge-info= batches[beer._id]
 							- else
 								span.badge 0
 						td.hidden-phone(data-mtime=beer.mtime)
