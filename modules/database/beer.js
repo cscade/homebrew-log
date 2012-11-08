@@ -18,7 +18,7 @@ exports.design = {
 	_id:"_design/beers",
 	language: "javascript",
 	views: {
-		all: {
+		byName: {
 			map: function (doc) {
 				if (doc.resource === 'beer') {
 					emit(doc.name, null);
@@ -55,7 +55,7 @@ exports.design = {
 			}
 		};
 		
-		// Recipe
+		// Beer
 		if (resource === 'beer') {
 			/*
 			name - String

@@ -37,7 +37,7 @@ module.exports = function (app) {
 	var db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
-		db.view('beers/all', { include_docs: true }, function (e, rows) {
+		db.view('beers/byName', { include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason);
 			render.dashboard.call(res, {
 				beers: rows.map(function (beer) {
