@@ -21,12 +21,10 @@ exports.design = {
 		byBeer: {
 			map: function (doc) {
 				if (doc.resource === 'batch') {
-					emit(doc.beer, 1);
+					emit(doc.beer, null);
 				}
 			},
-			reduce: function (keys, values) {
-				return sum(values);
-			}
+			reduce: "_count"
 		}
 	},
 	validate_doc_update: function (n, o) {
