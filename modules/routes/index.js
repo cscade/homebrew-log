@@ -97,7 +97,11 @@ module.exports = function (app) {
 			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				beer.batches = rows.map(function (key, doc) { return doc; });
-				next();
+				db.view('batches/numbers', function (e, numbers) {
+					if (e) return next(e);
+					req.data.numbers = numbers.map(function (key, value) { return value; })[0];
+					next();
+				});
 			});
 		});
 	});
@@ -115,7 +119,8 @@ module.exports = function (app) {
 					// sort by newest batch first
 					return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
 				})
-			}
+			},
+			numbers: req.data.numbers
 		});
 	});
 	

@@ -119,11 +119,11 @@ block content
 					.control-group
 						label.control-label Batch Number
 						.controls
-							input.span1.firstFocus(type="number", name="number", data-validators="required validate-numeric", value="New Batch")
+							input.span1(type="number", name="number", step="any", data-validators="required validate-numeric", value=Math.floor(numbers.max + 1))
 					.control-group
 						label.control-label Batch Name
 						.controls
-							input.span3(type="text", name="name", data-validators="required", value="New Batch")
+							input.span3.firstFocus(type="text", name="name", data-validators="required", placeholder="New Batch")
 					.control-group
 						label.control-label Brewed
 						.controls
@@ -167,7 +167,7 @@ block content
 					.control-group
 						label.control-label Ferment Control Method
 						.controls
-							select.span4(name="control", data-validators="required")
+							select.span3(name="control", data-validators="required")
 								option(value="none")= descriptions['none']
 								option(value="manual")= descriptions['manual']
 								option(value="auto-enclosed")= descriptions['auto-enclosed']
