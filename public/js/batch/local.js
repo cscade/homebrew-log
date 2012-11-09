@@ -155,10 +155,10 @@ window.addEvent('domready', function () {
 			module.generate = function () {
 				var points = ampl.get('batch').points, pitch, temps, ambients;
 				
-				if (!points.length) return;
+				if (!points.length) return module.cleanup();
 				// find pitch
 				points.each(function (point) { if (point.action === 'pitch') pitch = point; });
-				if (!pitch) return;
+				if (!pitch) return module.cleanup();
 				// use pitch as zero
 				pitch.plotTime = (((pitch.at / 1000) / 60) / 60).round();
 				pitch.plotAt = 0;
@@ -275,6 +275,7 @@ window.addEvent('domready', function () {
 			*/
 			module.cleanup = function () {
 				document.getElements('.volatile').destroy();
+				document.id('flot').empty();
 			};
 		}(view.plot = new view.Module());
 		
@@ -325,6 +326,7 @@ window.addEvent('domready', function () {
 											},
 											onSuccess: function (res) {
 												that.getParent('tbody').getElements('tr[data-point=' + point._id + ']').destroy();
+												batch.points = batch.points.filter(function (p) { return p._id !== point._id; });
 											}
 										});
 										req.send();
