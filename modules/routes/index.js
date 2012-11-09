@@ -136,50 +136,30 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createBatch', function (req, res) {
-		var beer = req.body._id;
-		
-		delete req.body._id;
-		app.create.batch(beer, req.body, function (e) {
+		app.create.batch(req.body, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-			res.redirect('/beer/' + beer + '/#/');
+			res.redirect('/beer/' + batch.beer + '/#/');
 		});
 	});
 	
 	app.post('/updateBatch', function (req, res) {
-		var parent = req.body.parent;
-		
-		db.get(parent, function (e, beer) {
-			var batch;
-			
+		db.get(req.body._id, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			batch = beer.batches.filter(function (batch) {
-				// find batch
-				return batch._id === req.body._id;
-			})[0];
-			if (!batch) return app.log.error('No batch with id ' + req.body._id + ' in ' + parent), res.writeHead(404), res.end();
 			batch.name = req.body.name;
 			batch.notes = req.body.notes;
-			beer.mtime = Date.now();
-			db.save(beer._id, beer._rev, beer, function (e) {
+			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-				res.redirect('/beer/' + beer._id + '#/');
+				res.redirect('/beer/' + batch.beer + '#/');
 			});
 		});
 	});
 	
 	app.post('/deleteBatch', function (req, res) {
-		var parent = req.body.parent;
-		
-		db.get(parent, function (e, beer) {
+		db.get(req.body._id, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			beer.batches = beer.batches.filter(function (batch) {
-				// discard prior batch version
-				return batch._id !== req.body._id;
-			});
-			beer.mtime = Date.now();
-			db.save(beer._id, beer._rev, beer, function (e) {
+			db.remove(batch._id, batch._rev, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
-				res.redirect('/beer/' + beer._id + '#/');
+				res.redirect('/beer/' + batch.beer + '#/');
 			});
 		});
 	});

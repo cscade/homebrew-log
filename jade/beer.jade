@@ -148,7 +148,6 @@ block content
 				#flot(style="width:100%;height:500px;margin:auto;")
 			.tab-pane#batchDetails
 				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
-					input(type="hidden", name="parent", value=beer._id)
 					input(type="hidden", name="_id", value="")
 					fieldset
 						.control-group
@@ -302,7 +301,7 @@ block content
 		h3 New Batch
 		p
 			form.form-horizontal(action="/createBatch", method="post", accept-charset="utf-8")
-				input(type="hidden", name="_id", value=beer._id)
+				input(type="hidden", name="beer", value=beer._id)
 				fieldset
 					.control-group
 						label.control-label Batch Number
