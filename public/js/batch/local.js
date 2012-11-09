@@ -158,6 +158,7 @@ window.addEvent('domready', function () {
 				if (!points.length) return;
 				// find pitch
 				points.each(function (point) { if (point.action === 'pitch') pitch = point; });
+				if (!pitch) return;
 				// use pitch as zero
 				pitch.plotTime = (((pitch.at / 1000) / 60) / 60).round();
 				pitch.plotAt = 0;
