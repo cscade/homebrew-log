@@ -7,8 +7,19 @@
 // 
 
 exports.tweak = function (doc, next) {
+	var create;
+	
 	if (doc.resource === 'beer') {
-		
+		if (doc.batches && doc.batches.length > 0) {
+			create = doc.batches.shift();
+			create.beer = doc._id;
+			create.resource = 'batch';
+			delete create._id;
+			return next(doc, create);
+		} else if (doc.batches) {
+			delete doc.batches;
+			return next(doc);
+		}
 	}
 	// no-change endpoint
 	next();
@@ -18,7 +29,7 @@ exports.design = {
 	_id:"_design/beers",
 	language: "javascript",
 	views: {
-		all: {
+		byName: {
 			map: function (doc) {
 				if (doc.resource === 'beer') {
 					emit(doc.name, null);
@@ -55,7 +66,7 @@ exports.design = {
 			}
 		};
 		
-		// Recipe
+		// Beer
 		if (resource === 'beer') {
 			/*
 			name - String
@@ -75,13 +86,6 @@ exports.design = {
 			BeerXML data.
 			*/
 			optional('data', 'object');
-			
-			/*
-			batches - Array
-			
-			Batches of this beer.
-			*/
-			require('batches', 'array');
 			
 			/*
 			mtime - Number

@@ -1,8 +1,16 @@
 {
-	"watch": {
-		"homebrew-log": {
-			"resource": "beers",
-			"path": "../../modules/database/beer"
+	"watch": [
+		{
+			"database": "homebrew-log",
+			"resources": [
+				{
+					"name": "batches",
+					"path": "../../modules/database/batch"
+				}, {
+					"name": "beers",
+					"path": "../../modules/database/beer"
+				}
+			]
 		}
-	}
+	]
 }
