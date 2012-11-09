@@ -175,6 +175,7 @@ window.addEvent('domready', function () {
 			module.generate = function () {
 				var points = view.active.points, pitch, temps, ambients;
 				
+				if (!points.length) return;
 				// find pitch
 				points.each(function (point) { if (point.action === 'pitch') pitch = point; });
 				// use pitch as zero
