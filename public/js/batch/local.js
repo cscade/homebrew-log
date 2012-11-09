@@ -280,8 +280,7 @@ window.addEvent('domready', function () {
 		// Router
 		view.routes = {
 			'/': function () {
-				var form = document.getElement('#batch form[action="/updateBatch"]'),
-					points = document.getElement('#batch table tbody'),
+				var points = document.getElement('#batch table tbody'),
 					batch = ampl.get('batch'),
 					descriptions = ampl.get('descriptions'),
 					offsetFrom;
@@ -291,17 +290,7 @@ window.addEvent('domready', function () {
 					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
 				}, 10);
 				document.getElements('#batch .name').set('text', batch.name);
-				form.getElement('input[name=_id]').set('value', batch._id);
 				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
-				
-				form.getElement('.fixed[data-name=number]').set('text', batch.number);
-				form.getElement('input[name=name]').set('value', batch.name);
-				form.getElement('.fixed[data-name=brewed]').set('text', Date.parse(batch.brewed).format('%m/%d/%Y'));
-				form.getElement('.fixed[data-name=equipment]').set('text', descriptions[batch.equipment]);
-				form.getElement('.fixed[data-name=yeastMethod]').set('text', descriptions[batch.yeastMethod]);
-				form.getElement('.fixed[data-name=fermentor]').set('text', descriptions[batch.fermentor]);
-				form.getElement('.fixed[data-name=control]').set('text', descriptions[batch.control]);
-				form.getElement('textarea[name=notes]').set('value', batch.notes);
 				
 				points.empty();
 				if (batch.points.length) {

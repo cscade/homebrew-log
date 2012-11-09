@@ -65,23 +65,23 @@ block content
 						.control-group
 							label.control-label Batch Number
 							.controls
-								.fixed(data-name="number")
+								.fixed(data-name="number")= batch.number
 						.control-group
 							label.control-label Batch Name
 							.controls
-								input.span3(type="text", name="name", value="")
+								input.span3(type="text", name="name", value=batch.name)
 						.control-group
 							label.control-label Notes
 							.controls
-								textarea.span3(name="notes", value="")
+								textarea.span3(name="notes", value=batch.notes)
 						.control-group
 							label.control-label Brewed
 							.controls
-								.fixed(data-name="brewed")
+								.fixed(data-name="brewed")= new Date(batch.brewed).toLocaleDateString()
 						.control-group
 							label.control-label Equipment Type
 							.controls
-								.fixed(data-name="equipment")
+								.fixed(data-name="equipment")= descriptions[batch.equipment]
 						.control-group
 							label.control-label Yeast Strain
 							.controls
@@ -89,15 +89,15 @@ block content
 						.control-group
 							label.control-label Yeast Method
 							.controls
-								.fixed(data-name="yeastMethod")
+								.fixed(data-name="yeastMethod")= descriptions[batch.yeastMethod]
 						.control-group
 							label.control-label Fermented In
 							.controls
-								.fixed(data-name="fermentor")
+								.fixed(data-name="fermentor")= descriptions[batch.fermentor]
 						.control-group
 							label.control-label Ferment Control Method
 							.controls
-								.fixed(data-name="control")
+								.fixed(data-name="control")= descriptions[batch.control]
 						.form-actions
 							button.btn.btn-primary(type="submit") Update Batch
 							| &nbsp;
