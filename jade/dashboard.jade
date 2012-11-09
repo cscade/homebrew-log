@@ -10,19 +10,19 @@ block content
 			a.btn.btn-primary.pull-right(href="/#/createBeer") New Beer
 			h1.page-header Beers
 			p.well.well-small There are 
-				strong #{numbers.count}
+				strong #{numbers.numbers.count}
 				|  batches tracked, with 
-				a(href="#", style="font-size:18px;")= '#' + numbers.max
+				a(href="/beer/" + numbers.beer + "/" + numbers.numbers.max + "/#/", style="font-size:18px;")= '#' + numbers.numbers.max
 				|  being most recent.
 		.visible-phone
 			a.btn.btn-primary.pull-right(href="/#/createBeer")
 				i.icon-file.icon-white
 			h3(style="margin:-10px 0 15px 0;line-height:30px;") Beers
 			p.well.well-small(style="text-align:center;") There are 
-				strong #{numbers.count}
+				strong #{numbers.numbers.count}
 				|  batches tracked, with 
 				br
-				a(href="#", style="font-size:18px;")= '#' + numbers.max
+				a(href="/beer/" + numbers.beer + "/" + numbers.numbers.max + "/#/", style="font-size:18px;")= '#' + numbers.numbers.max
 				|  being most recent.
 		table.table.table-striped.table-hover
 			thead

@@ -1,0 +1,216 @@
+//- Batch
+extends _base
+
+append head
+	title= batch.name
+
+block content
+	.hidden-phone
+		h1.page-header
+			div(style="width:60px;height:85px;position:relative;display:inline-block;margin-bottom:-45px;margin-right:10px;")
+				div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + beer.properties.colorRGB + ")")
+				a(href="/beer/" + batch.beer + "/#/")
+					img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
+			| #{beer.name + ' '}
+			br
+			small(style="margin-left:70px;")
+				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+	.visible-phone
+		div.beerGlass(style="width:60px;height:85px;position:relative;float:right;top:-16px;-webkit-transform:scale(0.65);")
+			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + beer.properties.colorRGB + ")")
+			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
+		h3(style="margin:-10px 0 15px 0;line-height:30px;")= beer.name + ' '
+			br
+			small
+				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+	.area#batch
+		ul.nav.nav-tabs
+			li
+				a.hidden-phone(href="#batchPoints") Data Points
+				a.visible-phone(href="#batchPoints") Points
+			li
+				a(href="#batchPlot") Plot
+			li
+				a.hidden-phone(href="#batchDetails") Batch Details
+				a.visible-phone(href="#batchDetails") Details
+		.tab-content
+			.tab-pane#batchPoints
+				.hidden-phone
+					a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
+					h3
+						a.btn(href="/beer/" + batch.beer + "/#/")
+							i.icon-backward
+						span.name(style="margin-left:13px;")
+				.visible-phone
+					h4.name
+					div(style="float:left;margin:0 0 15px 0;width:100%;")
+						a.btn(href="/beer/" + batch.beer + "/#/", style="float:left;")
+							i.icon-backward
+						a.btn.btn-primary(href="#/createDataPoint", style="float:right;")
+							i.icon-plus.icon-white
+				table.table.table-condensed.table-bordered
+					thead
+						tr
+							th Timing
+							th Action
+					tbody
+						tr
+							td(colspan="2") No data Points.
+			.tab-pane#batchPlot
+				#flot(style="width:100%;height:500px;margin:auto;")
+			.tab-pane#batchDetails
+				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
+					input(type="hidden", name="_id", value=batch._id)
+					fieldset
+						.control-group
+							label.control-label Batch Number
+							.controls
+								.fixed(data-name="number")
+						.control-group
+							label.control-label Batch Name
+							.controls
+								input.span3(type="text", name="name", value="")
+						.control-group
+							label.control-label Notes
+							.controls
+								textarea.span3(name="notes", value="")
+						.control-group
+							label.control-label Brewed
+							.controls
+								.fixed(data-name="brewed")
+						.control-group
+							label.control-label Equipment Type
+							.controls
+								.fixed(data-name="equipment")
+						.control-group
+							label.control-label Yeast Strain
+							.controls
+								.fixed= beer.properties.yeast
+						.control-group
+							label.control-label Yeast Method
+							.controls
+								.fixed(data-name="yeastMethod")
+						.control-group
+							label.control-label Fermented In
+							.controls
+								.fixed(data-name="fermentor")
+						.control-group
+							label.control-label Ferment Control Method
+							.controls
+								.fixed(data-name="control")
+						.form-actions
+							button.btn.btn-primary(type="submit") Update Batch
+							| &nbsp;
+							a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteBatchModal") Delete
+				.modal.hide#deleteBatchModal
+					.modal-header
+						a.close(href="#", data-dismiss="modal") ×
+						h3 Delete 
+							small.name
+					.modal-body
+						p
+							strong This is an irreversible operation.
+						p The batch 
+							em.name
+							|  will be permanently destroyed.
+					.modal-footer
+						a.btn(href="#", data-dismiss="modal") Cancel
+						a.btn.btn-danger(href="#") Confirm Delete
+	.area#createDataPoint
+		h3 New Data Point
+		form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8")
+			input(type="hidden", name="batch", value=batch._id)
+			fieldset
+				.control-group
+					label.control-label At
+					.controls
+						.input-prepend
+							button.btn.now(type="button", tabindex="-1")
+								i.icon.icon-time
+								|  Now
+							input.span2(type="text", name="at", data-validators="required validate-dateWithTime", value="")
+				.control-group
+					label.control-label Action
+					.controls
+						select.span2(name="action", data-validators="required")
+							option(value='', selected) ---
+							option(value="pitch")= descriptions['pitch']
+							option(value="temp")= descriptions['temp']
+							option(value="gravity")= descriptions['gravity']
+							option(value="addition")= descriptions['addition']
+							option(value="dryHop")= descriptions['dryHop']
+							option(value="rack")= descriptions['rack']
+							option(value="package")= descriptions['package']
+							option(value="note")= descriptions['note']
+							option(value="tasting")= descriptions['tasting']
+				.control-group.hide.pitch.temp.addition.dryHop
+					label.control-label Temperature
+					.controls
+						.input-append
+							input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
+							span.add-on &deg;F
+				.control-group.hide.pitch.temp
+					label.control-label Ambient
+					.controls
+						.input-append
+							input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
+							span.add-on &deg;F
+				.control-group.hide.pitch.gravity.rack
+					label.control-label Gravity
+					.controls
+						.input-prepend.input-append
+							span.add-on 1.
+							input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
+							span.add-on SG
+				.control-group.hide.rack
+					label.control-label To
+					.controls
+						select.span2(name="to", data-validators="required")
+							option(value="keg", selected) Keg
+							option(value="secondary") Secondary
+				.control-group.hide.package
+					label.control-label In
+					.controls
+						select.span2(name="in", data-validators="required")
+							option(value="bottle") Bottle
+							option(value="keg", selected) Keg
+				.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
+					label.control-label Notes
+					.controls
+						textarea.span3(name="notes", value="", rows="6")
+				.control-group.hide.tasting
+					label.control-label From
+					.controls
+						select.span2(name="from", data-validators="required")
+							option(value="keg", selected) Keg
+							option(value="bottle") Bottle
+				.control-group.hide.tasting
+					label.control-label Aroma
+					.controls
+						textarea.span3(name="aroma", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Appearance
+					.controls
+						textarea.span3(name="appearance", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Flavor
+					.controls
+						textarea.span3(name="flavor", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Mouthfeel
+					.controls
+						textarea.span3(name="mouthfeel", value="", rows="3")
+				.control-group.hide.tasting
+					label.control-label Overall
+					.controls
+						textarea.span3(name="overall", value="", rows="3")
+			.form-actions
+				button.btn.btn-primary(type="submit") Create
+				| &nbsp;
+				a.btn(href="#/") Cancel
+
+block localJS
+	script(src='/js/batch/local.js')
+	script(type='text/javascript')
+		ampl.set('batch', !{JSON.stringify(batch)});
+		ampl.set('descriptions', !{JSON.stringify(descriptions)});

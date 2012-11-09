@@ -32,7 +32,7 @@ exports.design = {
 				
 				if (doc.resource === 'batch') {
 					number = parseFloat(doc.number);
-					emit(isFinite(number) ? number : 0, null);
+					emit(isFinite(number) ? number : 0, doc.beer);
 				}
 			}
 		},

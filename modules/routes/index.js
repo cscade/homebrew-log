@@ -9,8 +9,8 @@
 var async = require('async'),
 	bjcp,
 	colorMap,
-	connect = require('connect'),
 	convert = require('../lib/convert'),
+	extend = require('xtend'),
 	fs = require('fs'),
 	path = require('path'),
 	xml2js = require('xml2js');
@@ -59,7 +59,17 @@ module.exports = function (app) {
 			numbers: function (next) {
 				db.view('batches/numbers', function (e, numbers) {
 					if (e) return next(e);
-					next(null, numbers.map(function (key, value) { return value; })[0]);
+					numbers = numbers.map(function (key, value) { return value; })[0];
+					db.view('batches/byNumber', { key: numbers.max }, function (e, rows) {
+						var beer;
+						
+						if (e) return next(e);
+						beer = rows.map(function (key, value) { return value; })[0];
+						next(null, {
+							numbers: numbers,
+							beer: beer
+						});
+					})
 				});
 			}
 		}, function (e, results) {
@@ -72,35 +82,57 @@ module.exports = function (app) {
 		});
 	});
 	
-	app.get('/beer/:beer', function (req, res) {
-		var extension = req.params.beer.split('.')[1];
-		
-		if (extension) {
-			req.params.beer = req.params.beer.split('.')[0];
-		}
+	/*
+	/beer namespace
+	*/
+	app.all('/beer/:beer*', function (req, res, next) {
 		db.get(req.params.beer, function (e, beer) {
-			var color = convert.round.call(beer.properties.color, 1);
+			var color;
 			
-			if (e) return app.log.error(e.message || e.reason), res.send(404);
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			color = convert.round.call(beer.properties.color, 1);
+			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
 			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
-			// get batches
+			req.data = { beer: beer };
 			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				beer.batches = rows.map(function (key, doc) { return doc; });
-				render.beer.call(res, {
-					beer: {
-						_id: beer._id,
-						name: beer.name,
-						bjcp: beer.properties.bjcp,
-						properties: beer.properties,
-						batches: beer.batches.sort(function (a, b) {
-							// sort by newest batch first
-							return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
-						})
-					},
-					color: color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255'
-				});
+				next();
 			});
+		});
+	});
+	
+	app.get('/beer/:beer', function (req, res) {
+		var beer = req.data.beer;
+		
+		render.beer.call(res, {
+			beer: {
+				_id: beer._id,
+				name: beer.name,
+				bjcp: beer.properties.bjcp,
+				properties: beer.properties,
+				batches: beer.batches.sort(function (a, b) {
+					// sort by newest batch first
+					return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
+				})
+			}
+		});
+	});
+	
+	app.get('/beer/:beer/:batch', function (req, res) {
+		var beer = req.data.beer, batch;
+		
+		if (req.params.batch.length !== 32) {
+			// lookup batch by number
+			batch = beer.batches.filter(function (batch) { return batch.number == req.params.batch; })[0];
+		} else {
+			// lookup batch by id
+			batch = beer.batches.filter(function (batch) { return batch._id === req.params.batch; })[0];
+		}
+		if (!batch) return app.log.error('no batch ' + req.params.batch), res.send(400);
+		render.batch.call(res, {
+			beer: beer,
+			batch: batch
 		});
 	});
 	
@@ -167,7 +199,7 @@ module.exports = function (app) {
 			batch.notes = req.body.notes;
 			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
-				res.redirect('/beer/' + batch.beer + '#/');
+				res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
 			});
 		});
 	});
@@ -177,7 +209,7 @@ module.exports = function (app) {
 			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			db.remove(batch._id, batch._rev, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
-				res.redirect('/beer/' + batch.beer + '#/');
+				res.redirect('/beer/' + batch.beer + '/#/');
 			});
 		});
 	});
@@ -202,7 +234,7 @@ module.exports = function (app) {
 			} : undefined
 		}, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
-			res.redirect('/beer/' + batch.beer + '#/');
+			res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
 		});
 	});
 	
@@ -223,48 +255,21 @@ module.exports = function (app) {
 	// renderers
 	var render = {
 		beer: function (data) {
-			this.render('beer.jade', connect.utils.merge({
-				convert: convert,
+			this.render('beer.jade', extend({
 				message: '',
-				descriptions: {
-					"stovetop": 'Stovetop / Extract / Partial Mash',
-					"ag-biab": 'All Grain, BIAB',
-					"ag-insulated": 'All Grain, Insulated',
-					"ag-direct": 'All Grain, Direct Fire',
-					"ag-rims": 'All Grain, RIMS',
-					"ag-herms": 'All Grain, HERMS',
-					"rehydrate-water": 'Dry, Rehydrate in water',
-					"rehydrate-wort": 'Dry, Rehydrate in wort',
-					"starter": 'Liquid, Starter, simple',
-					"starter-O2": 'Liquid, Starter, simple w/ O2',
-					"starter-shaken": 'Liquid, Starter, shaken',
-					"starter-aerated": 'Liquid, Starter, aerated',
-					"starter-stir": 'Liquid, Starter, stir plate',
-					"bucket": 'Bucket',
-					"carboy-5": 'Carboy, 5 gal',
-					"carboy-6": 'Carboy, 6 gal',
-					"conical-plastic": 'Conical, Plastic',
-					"conical-stainless": 'Conical, Stainless',
-					"none": 'No Control; Let it run wild',
-					"manual": 'Manual; Wet towels, swamp cooling, etc',
-					"auto-enclosed": 'Auto Space; Temperature controlled space',
-					"auto-wort": 'Auto in Wort; Temperature controlled wort',
-					"pitch": 'Pitch',
-					"temp": 'Temperature',
-					"gravity": 'Gravity',
-					"addition": 'Addition',
-					"dryHop": 'Dry Hop',
-					"rack": 'Rack',
-					"package": 'Package',
-					"note": 'Notes',
-					"tasting": 'Tasting Notes'
-				}
+				descriptions: descriptions
+			}, data || {}));
+		},
+		batch: function (data) {
+			this.render('batch.jade', extend({
+				message: '',
+				descriptions: descriptions
 			}, data || {}));
 		},
 		dashboard: function (data) {
 			var locals;
 			
-			locals = connect.utils.merge({
+			locals = extend({
 				message: '',
 				categories: bjcp.categories
 			}, data || {});
@@ -275,5 +280,38 @@ module.exports = function (app) {
 			});
 			this.render('dashboard.jade', locals);
 		}
+	};
+	var descriptions = {
+		"stovetop": 'Stovetop / Extract / Partial Mash',
+		"ag-biab": 'All Grain, BIAB',
+		"ag-insulated": 'All Grain, Insulated',
+		"ag-direct": 'All Grain, Direct Fire',
+		"ag-rims": 'All Grain, RIMS',
+		"ag-herms": 'All Grain, HERMS',
+		"rehydrate-water": 'Dry, Rehydrate in water',
+		"rehydrate-wort": 'Dry, Rehydrate in wort',
+		"starter": 'Liquid, Starter, simple',
+		"starter-O2": 'Liquid, Starter, simple w/ O2',
+		"starter-shaken": 'Liquid, Starter, shaken',
+		"starter-aerated": 'Liquid, Starter, aerated',
+		"starter-stir": 'Liquid, Starter, stir plate',
+		"bucket": 'Bucket',
+		"carboy-5": 'Carboy, 5 gal',
+		"carboy-6": 'Carboy, 6 gal',
+		"conical-plastic": 'Conical, Plastic',
+		"conical-stainless": 'Conical, Stainless',
+		"none": 'No Control; Let it run wild',
+		"manual": 'Manual; Wet towels, swamp cooling, etc',
+		"auto-enclosed": 'Auto Space; Temperature controlled space',
+		"auto-wort": 'Auto in Wort; Temperature controlled wort',
+		"pitch": 'Pitch',
+		"temp": 'Temperature',
+		"gravity": 'Gravity',
+		"addition": 'Addition',
+		"dryHop": 'Dry Hop',
+		"rack": 'Rack',
+		"package": 'Package',
+		"note": 'Notes',
+		"tasting": 'Tasting Notes'
 	};
 };
