@@ -18,13 +18,35 @@ exports.design = {
 	_id:"_design/batches",
 	language: "javascript",
 	views: {
+		// all batches by parent beer id, reduced to counts
 		byBeer: {
 			map: function (doc) {
-				if (doc.resource === 'batch') {
-					emit(doc.beer, null);
-				}
+				if (doc.resource === 'batch') { emit(doc.beer, null); }
 			},
 			reduce: "_count"
+		},
+		// all batches keyed by batch number
+		byNumber: {
+			map: function (doc) {
+				var number;
+				
+				if (doc.resource === 'batch') {
+					number = parseFloat(doc.number);
+					emit(isFinite(number) ? number : 0, null);
+				}
+			}
+		},
+		// aggregate batch number stats
+		numbers: {
+			map: function (doc) {
+				var number;
+				
+				if (doc.resource === 'batch') {
+					number = parseFloat(doc.number);
+					emit(null, isFinite(number) ? number : 0);
+				}
+			},
+			reduce: "_stats"
 		}
 	},
 	validate_doc_update: function (n, o) {

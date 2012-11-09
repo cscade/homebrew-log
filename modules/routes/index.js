@@ -6,7 +6,8 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var bjcp,
+var async = require('async'),
+	bjcp,
 	colorMap,
 	connect = require('connect'),
 	convert = require('../lib/convert'),
@@ -37,19 +38,36 @@ module.exports = function (app) {
 	var db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
-		db.view('beers/byName', { include_docs: true }, function (e, beers) {
-			if (e) return app.log.error(e.message || e.reason);
-			// get batches per beer
-			db.view('batches/byBeer', { group: true }, function (e, rows) {
-				var batches = {};
-				
-				rows.forEach(function (beer, count) {
-					batches[beer] = count;
+		async.parallel({
+			beers: function (next) {
+				db.view('beers/byName', { include_docs: true }, function (e, beers) {
+					if (e) return next(e);
+					next(null, beers.map(function (key, doc) { return doc; }));
 				});
-				render.dashboard.call(res, {
-					beers: beers.map(function (key, doc) { return doc; }),
-					batches: batches
+			},
+			batches: function (next) {
+				db.view('batches/byBeer', { group: true }, function (e, rows) {
+					var batches = {};
+					
+					if (e) return next(e);
+					rows.forEach(function (beer, count) {
+						batches[beer] = count;
+					});
+					next(null, batches);
 				});
+			},
+			numbers: function (next) {
+				db.view('batches/numbers', function (e, numbers) {
+					if (e) return next(e);
+					next(null, numbers.map(function (key, value) { return value; })[0]);
+				});
+			}
+		}, function (e, results) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			render.dashboard.call(res, {
+				beers: results.beers,
+				batches: results.batches,
+				numbers: results.numbers
 			});
 		});
 	});
@@ -63,11 +81,11 @@ module.exports = function (app) {
 		db.get(req.params.beer, function (e, beer) {
 			var color = convert.round.call(beer.properties.color, 1);
 			
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
 			// get batches
 			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				beer.batches = rows.map(function (key, doc) { return doc; });
 				render.beer.call(res, {
 					beer: {
@@ -108,7 +126,7 @@ module.exports = function (app) {
 		};
 		next = function () {
 			app.create.beer(beer, function (e, beer) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.redirect('/beer/' + beer._id + '/#/');
 			});
 		};
@@ -137,18 +155,18 @@ module.exports = function (app) {
 	
 	app.post('/createBatch', function (req, res) {
 		app.create.batch(req.body, function (e, batch) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			res.redirect('/beer/' + batch.beer + '/#/');
 		});
 	});
 	
 	app.post('/updateBatch', function (req, res) {
 		db.get(req.body._id, function (e, batch) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			batch.name = req.body.name;
 			batch.notes = req.body.notes;
 			db.save(batch._id, batch._rev, batch, function (e) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.redirect('/beer/' + batch.beer + '#/');
 			});
 		});
@@ -156,9 +174,9 @@ module.exports = function (app) {
 	
 	app.post('/deleteBatch', function (req, res) {
 		db.get(req.body._id, function (e, batch) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			db.remove(batch._id, batch._rev, function (e) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.redirect('/beer/' + batch.beer + '#/');
 			});
 		});
@@ -190,13 +208,13 @@ module.exports = function (app) {
 	
 	app.post('/deleteDataPoint', function (req, res) {
 		db.get(req.body.batch, function (e, batch) {
-			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
+			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			// filter out point
 			batch.points = batch.points.filter(function (point) {
 				return point._id !== req.body.point;
 			});
 			db.save(batch._id, batch._rev, batch, function (e) {
-				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.end();
 			});
 		});

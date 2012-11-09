@@ -13,6 +13,11 @@ block content
 			a.btn.btn-primary.pull-right(href="/#/createBeer")
 				i.icon-file.icon-white
 			h3(style="margin:-10px 0 15px 0;line-height:30px;") Beers
+		p There are 
+			strong #{numbers.count}
+			|  batches tracked, with 
+			a(href="#")= '#' + numbers.max
+			|  being most recent.
 		table.table.table-striped.table-hover
 			thead
 				tr
