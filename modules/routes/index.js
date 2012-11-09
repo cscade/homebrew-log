@@ -165,7 +165,7 @@ module.exports = function (app) {
 	});
 	
 	app.post('/createDataPoint', function (req, res) {
-		app.create.datapoint(req.body.parent, req.body.batch, {
+		app.create.datapoint(req.body.batch, {
 			at: req.body.at,
 			action: req.body.action,
 			temp: Number.from(req.body.temp) || undefined,
@@ -182,28 +182,20 @@ module.exports = function (app) {
 				mouthfeel: req.body.mouthfeel,
 				overall: req.body.overall
 			} : undefined
-		}, function (e) {
+		}, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
-			res.redirect('/beer/' + req.body.parent + '#/');
+			res.redirect('/beer/' + batch.beer + '#/');
 		});
 	});
 	
 	app.post('/deleteDataPoint', function (req, res) {
-		db.get(req.body.beer, function (e, beer) {
-			var batch;
-			
+		db.get(req.body.batch, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(404), res.end();
-			// locate batch
-			batch = beer.batches.filter(function (batch) {
-				return batch._id === req.body.batch;
-			})[0];
-			if (!batch) return app.log.error('No batch with id ' + req.body.batch + ' in ' + req.body.beer), res.writeHead(404), res.end();
 			// filter out point
 			batch.points = batch.points.filter(function (point) {
 				return point._id !== req.body.point;
 			});
-			beer.mtime = Date.now();
-			db.save(beer._id, beer._rev, beer, function (e) {
+			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.writeHead(500), res.end();
 				res.end();
 			});

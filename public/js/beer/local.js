@@ -362,7 +362,6 @@ window.addEvent('domready', function () {
 										req = new Request({
 											url: '/deleteDataPoint',
 											data: {
-												beer: ampl.get('_id'),
 												batch: batch._id,
 												point: point._id
 											},
