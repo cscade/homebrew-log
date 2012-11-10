@@ -11,18 +11,18 @@ block content
 				div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + beer.properties.colorRGB + ")")
 				a(href="/beer/" + batch.beer + "/#/")
 					img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
-			| #{beer.name + ' '}
+			| #{batch.name + ' '}
+			span(style="font-weight:normal;")= ' - #' + batch.number
 			br
-			small(style="margin-left:70px;")
-				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+			small(style="margin-left:70px;")= beer.name
 	.visible-phone
 		div.beerGlass(style="width:60px;height:85px;position:relative;float:right;top:-16px;-webkit-transform:scale(0.65);")
 			div(style="position:absolute;top:2px;left:2px;width:56px;height:81px;background-color:rgb(" + beer.properties.colorRGB + ")")
-			img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
-		h3(style="margin:-10px 0 15px 0;line-height:30px;")= beer.name + ' '
-			br
-			small
-				a(href='http://www.bjcp.org/styles04/Category' + beer.properties.bjcp.number + '.php#style' + beer.properties.bjcp.number + beer.properties.bjcp.letter)= beer.properties.bjcp.number + beer.properties.bjcp.letter + ' - ' + beer.properties.bjcp.name
+			a(href="/beer/" + batch.beer + "/#/")
+				img(src="/img/beer-glass.png", style="position:absolute;top:0px;left:0px;")
+		h3(style="margin:-10px 0 15px 0;line-height:30px;")= batch.name
+			span(style="font-weight:normal;")= ' - #' + batch.number + ' '
+			small(style="display:block;")= beer.name
 	.area#batch
 		ul.nav.nav-tabs
 			li
@@ -36,16 +36,10 @@ block content
 		.tab-content
 			.tab-pane#batchPoints
 				.hidden-phone
-					a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
-					h3
-						a.btn(href="/beer/" + batch.beer + "/#/")
-							i.icon-backward
-						span.name(style="margin-left:13px;")
-				.visible-phone
-					h4.name
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
-						a.btn(href="/beer/" + batch.beer + "/#/", style="float:left;")
-							i.icon-backward
+						a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
+				.visible-phone
+					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn.btn-primary(href="#/createDataPoint", style="float:right;")
 							i.icon-plus.icon-white
 				table.table.table-condensed.table-bordered
@@ -73,7 +67,7 @@ block content
 						.control-group
 							label.control-label Notes
 							.controls
-								textarea.span3(name="notes", value=batch.notes)
+								textarea.span3(name="notes", rows="10")=batch.notes
 						.control-group
 							label.control-label Brewed
 							.controls
