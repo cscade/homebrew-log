@@ -1,6 +1,6 @@
 /*!
  * routes
- * seeker-brewing
+ * homebrew-log
  * 
  * Created by Carson Christian on 2012-06-12.
  * Copyright 2012 (ampl)EGO. All rights reserved.
@@ -139,6 +139,13 @@ module.exports = function (app) {
 			beer: beer,
 			batch: batch
 		});
+	});
+	
+	/*
+	/bcs namespace
+	*/
+	app.get('/bcs', function (req, res) {
+		res.render('bcs.jade');
 	});
 	
 	app.post('/createBeer', function (req, res) {

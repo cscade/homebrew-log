@@ -1,5 +1,5 @@
 // 
-//  batch.js
+//  bcs.js
 //  homebrew-log
 //  
 //  Created by Carson S. Christian on 2012-11-07.

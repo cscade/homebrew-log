@@ -16,7 +16,7 @@
     "engines": {
         "node": "*"
     },
-    "name": "seeker-brewing",
+    "name": "homebrew-log",
     "optionalDependencies": {},
     "version": "0.4.0"
 }
