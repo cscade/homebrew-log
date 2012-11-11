@@ -174,16 +174,43 @@ module.exports = function (app) {
 	});
 	
 	app.get('/bcs/:id', function (req, res) {
-		var bcs, device;
+		var bcs, device, sensors;
 		
+		// find device by id
 		bcs = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
 		if (!bcs) return app.log.error('Device not found.'), res.send(500);
+		// connect
 		device = new Device(bcs.host, bcs.port, function (e, state) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			bcs.state = state;
-			res.render('bcs/device.jade', {
-				bcs: bcs
-			});
+			if (state.ready) {
+				// get sensor information
+				async.map([0,1,2,3], function (i, next) {
+					var sensor = {};
+						
+					device.read('temp.name' + i, function (e, name) {
+						if (e) return next(e);
+						sensor.name = name;
+						device.read('temp.value' + i, function (e, value) {
+							if (e) return next(e);
+							sensor.value = value;
+							next(null, sensor);
+						});
+					});
+				}, function (e, sensors) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					res.render('bcs/device.jade', {
+						bcs: bcs,
+						sensors: sensors
+					});
+				});
+			} else {
+				// render as is
+				res.render('bcs/device.jade', {
+					bcs: bcs,
+					sensors: false
+				});
+			}
 		});
 	});
 	

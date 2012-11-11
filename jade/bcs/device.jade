@@ -8,7 +8,27 @@ block content
 	h1.page-header= bcs.name
 	.area#content
 		h3 Temperature Sensors
-		
+		- if (sensors.length)
+			table.table.table-striped(style="width:auto;margin:auto;")
+				thead
+					tr
+						th= sensors[0].name
+						th= sensors[1].name
+						th= sensors[2].name
+						th= sensors[3].name
+				tbody
+					tr#temps
+						td(style="width:220px;height:220px;", data-value=sensors[0].value)
+						td(style="width:220px;height:220px;", data-value=sensors[1].value)
+						td(style="width:220px;height:220px;", data-value=sensors[2].value)
+						td(style="width:220px;height:220px;", data-value=sensors[3].value)
+					tr
+						td #{sensors[0].value}&deg;F, #{Math.round((sensors[0].value - 32) * (5 / 9))}&deg;C
+						td #{sensors[1].value}&deg;F, #{Math.round((sensors[1].value - 32) * (5 / 9))}&deg;C
+						td #{sensors[2].value}&deg;F, #{Math.round((sensors[2].value - 32) * (5 / 9))}&deg;C
+						td #{sensors[3].value}&deg;F, #{Math.round((sensors[3].value - 32) * (5 / 9))}&deg;C
+		- else
+			p No sensors could be read.
 		hr
 		h3 Edit Device
 		p
