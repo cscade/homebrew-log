@@ -7,7 +7,7 @@
 // 
 
 exports.tweak = function (doc, next) {
-	if (doc.resource === 'batch') {
+	if (doc.resource === 'bcs-controller') {
 		
 	}
 	// no-change endpoint
@@ -15,38 +15,13 @@ exports.tweak = function (doc, next) {
 };
 
 exports.design = {
-	_id:"_design/batches",
+	_id:"_design/bcs-controllers",
 	language: "javascript",
 	views: {
-		// all batches by parent beer id, reduced to counts
-		byBeer: {
+		byName: {
 			map: function (doc) {
-				if (doc.resource === 'batch') { emit(doc.beer, null); }
-			},
-			reduce: "_count"
-		},
-		// all batches keyed by batch number
-		byNumber: {
-			map: function (doc) {
-				var number;
-				
-				if (doc.resource === 'batch') {
-					number = parseFloat(doc.number);
-					emit(isFinite(number) ? number : 0, doc.beer);
-				}
+				if (doc.resource === 'bcs-controller') emit(doc.name, null);
 			}
-		},
-		// aggregate batch number stats
-		numbers: {
-			map: function (doc) {
-				var number;
-				
-				if (doc.resource === 'batch') {
-					number = parseFloat(doc.number);
-					emit(null, isFinite(number) ? number : 0);
-				}
-			},
-			reduce: "_stats"
 		}
 	},
 	validate_doc_update: function (n, o) {
@@ -78,75 +53,45 @@ exports.design = {
 			}
 		};
 		
-		// Batch of Beer
-		if (resource === 'batch') {
-			/*
-			beer - string
-			
-			couch _id of the beer this is a batch of.
-			*/
-			require('beer', 'string');
-			
-			/*
-			number - string
-			
-			Batch index number, server-style.
-			*/
-			require('number', 'string');
-			
+		// BCS Device
+		if (resource === 'bcs-controller') {
 			/*
 			name - string
-			
-			Batch name.
 			*/
 			require('name', 'string');
 			
 			/*
-			brewed - number (Date)
-			
-			The "brewed" date for the batch. User arbitrary, has no effect on data points.
+			host - string
 			*/
-			require('brewed', 'number');
+			require('host', 'string');
 			
 			/*
-			equipment - string
-			
-			Equipment identifier string.
+			port - number
 			*/
-			require('equipment', 'string');
+			optional('port', 'number');
 			
 			/*
-			yeastMethod - string
+			target - string
 			
-			The yeast method identifier string, ex; "starter-stir"
+			Target batch _id to log to. Absence causes inactivity.
 			*/
-			require('yeastMethod', 'string');
+			optional('target', 'string');
 			
 			/*
-			fermentor - string
+			sensors - object
 			
-			Fermentor identifier string.
+			Assigned temp sensors for ferment/ambient.
+			
+			ex. { ferment: 0, ambient: 1 }
 			*/
-			require('fermentor', 'string');
+			optional('sensors', 'object');
 			
 			/*
-			control - string
+			interval - number
 			
-			Control type identifier string.
+			Polling interval, in ms
 			*/
-			require('control', 'string');
-			
-			/*
-			points - array
-			
-			The data points for the batch.
-			*/
-			require('points', 'array');
-			
-			/*
-			notes - string
-			*/
-			optional('notes', 'string');
+			optional('interval', 'number');
 		}
 	}
 };

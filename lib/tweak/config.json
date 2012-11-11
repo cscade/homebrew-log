@@ -9,6 +9,9 @@
 				}, {
 					"name": "beers",
 					"path": "../../modules/database/beer"
+				}, {
+					"name": "bcs",
+					"path": "../../modules/database/bcs"
 				}
 			]
 		}

@@ -10,6 +10,7 @@ var async = require('async'),
 	bjcp,
 	colorMap,
 	convert = require('../lib/convert'),
+	Device = require('bcs.client'),
 	extend = require('xtend'),
 	fs = require('fs'),
 	path = require('path'),
@@ -144,8 +145,39 @@ module.exports = function (app) {
 	/*
 	/bcs namespace
 	*/
+	app.all('/bcs*', function (req, res, next) {
+		db.view('bcs-controllers/byName', { include_docs: true }, function (e, rows) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			req.data = {
+				bcss: rows.map(function (key, doc) { return doc; })
+			}
+			next();
+		});
+	});
+	
 	app.get('/bcs', function (req, res) {
-		res.render('bcs.jade');
+		// request state of each BCS device
+		async.map(req.data.bcss, function (bcs, next) {
+			var device;
+			
+			device = new Device(bcs.host, bcs.port, function (e, state) {
+				if (e) next(e);
+				bcs.state = state;
+				next(null, bcs);
+			});
+		}, function (e, bcss) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			res.render('bcs.jade', {
+				bcss: bcss
+			});
+		});
+	});
+	
+	app.post('/bcs/create', function (req, res) {
+		app.create.bcs(req.body, function (e, bcs) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			res.redirect('/bcs/#/');
+		});
 	});
 	
 	app.post('/createBeer', function (req, res) {
