@@ -180,6 +180,31 @@ module.exports = function (app) {
 		});
 	});
 	
+	app.post('/bcs/edit', function (req, res) {
+		if (req.body.delete === 'true') {
+			// delete
+			db.get(req.body._id, function (e, bcs) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				db.remove(bcs._id, bcs._rev, function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					res.redirect('/bcs/#/');
+				});
+			});
+		} else {
+			// edit
+			db.get(req.body._id, function (e, bcs) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				delete req.body.delete;
+				req.body.port = Number.from(req.body.port) || 80;
+				extend(bcs, req.body);
+				db.save(bcs._id, bcs._rev, bcs, function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					res.redirect('/bcs/#/');
+				});
+			});
+		}
+	});
+	
 	app.post('/createBeer', function (req, res) {
 		var body = req.body, beer,
 			parser = new xml2js.Parser(),

@@ -13,6 +13,8 @@ window.addEvent('domready', function () {
 	!function (view) {
 		view.mobile = (Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos) || false;
 		
+		if (!window.location.hash || window.location.hash === '#') window.location.hash = '#/';
+		
 		// form validation
 		!function (module) {
 			// rules
@@ -22,15 +24,39 @@ window.addEvent('domready', function () {
 			};
 			// forms
 			module.forms = {
-				createDevice: new Form.Validator(document.getElement('form[action="/bcs/create"]'), module.rules)
+				createDevice: new Form.Validator(document.getElement('form[action="/bcs/create"]'), module.rules),
+				editDevice: new Form.Validator(document.getElement('form[action="/bcs/edit"]'), module.rules)
 			};
 		}(view.validation = new view.Module());
+		
+		!function (module) {
+			// edit device
+			document.getElements('#content table tbody tr').addEvent('click', function () {
+				module.active = JSON.parse(this.get('data-device'));
+				window.location.hash = '#/editDevice';
+			});
+			// delete device
+			document.getElement('#deleteModal .btn-danger').addEvent('click', function () {
+				document.getElement('form[action="/bcs/edit"]').getElement('input[name=delete]').set('value', 'true');
+				document.getElement('form[action="/bcs/edit"]').submit();
+			});
+		}(view.devices = new view.Module());
 		
 		// Router
 		view.routes = {
 			'/': function () {},
 			'/createDevice': function () {
 				document.getElement('form[action="/bcs/create"]').reset();
+			},
+			'/editDevice': function () {
+				var form = document.getElement('form[action="/bcs/edit"]');
+				
+				if (!view.devices.active) return window.location.hash = '#/';
+				form.reset();
+				form.getElement('input[name=_id]').set('value', view.devices.active._id);
+				form.getElement('input[name=name]').set('value', view.devices.active.name);
+				form.getElement('input[name=host]').set('value', view.devices.active.host);
+				form.getElement('input[name=port]').set('value', view.devices.active.port);
 			}
 		};
 		view.router = Router(view.routes);

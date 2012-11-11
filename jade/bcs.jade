@@ -22,7 +22,7 @@ block content
 						th Target
 				tbody
 					each bcs in bcss
-						tr.interactive(data-id=bcs._id)
+						tr.interactive(data-device=JSON.stringify(bcs))
 							td= bcs.name
 							td= bcs.host
 								span(style="color:grey;")= ':' + bcs.port
@@ -51,6 +51,40 @@ block content
 						input(type="submit", class="btn btn-primary", value="Save")
 						| &nbsp;
 						a.btn(href="#/") Cancel
+	.area#editDevice
+		h3 Edit Device
+		p
+			form.form-horizontal(action="/bcs/edit", method="post", accept-charset="utf-8")
+				input(type="hidden", name="delete", value="false")
+				input(type="hidden", name="_id", value="")
+				fieldset
+					.control-group
+						label.control-label Device Name
+						.controls
+							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller")
+					.control-group
+						label.control-label Host
+						.controls
+							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1")
+					.control-group
+						label.control-label Port
+						.controls
+							input.span1(type="text", name="port", data-validators="required validate-numeric", value="80")
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Save")
+						| &nbsp;
+						a.btn(href="#/") Cancel
+						| &nbsp;
+						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteModal") Delete
+		.modal.hide#deleteModal
+			.modal-header
+				a.close(href="#", data-dismiss="modal") ×
+				h3 Delete Device
+			.modal-body
+				p This BCS device will no longer be available for temperature recording.
+			.modal-footer
+				a.btn(href="#", data-dismiss="modal") Cancel
+				a.btn.btn-danger(href="#") Confirm Delete
 
 block localJS
 	script(type='text/javascript', src="/js/bcs/local.js")
