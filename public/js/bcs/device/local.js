@@ -24,22 +24,23 @@ window.addEvent('domready', function () {
 			};
 			// forms
 			module.forms = {
-				createDevice: new Form.Validator(document.getElement('form[action="/bcs/create"]'), module.rules)
+				editDevice: new Form.Validator(document.getElement('form[action="/bcs/edit"]'), module.rules)
 			};
 		}(view.validation = new view.Module());
 		
 		!function (module) {
-			// edit device
-			document.getElements('#content table tbody tr').addEvent('click', function () {
-				window.location = '/bcs/' + this.get('data-id') + '/#/';
+			// delete device
+			document.getElement('#deleteModal .btn-danger').addEvent('click', function () {
+				document.getElement('form[action="/bcs/edit"]').getElement('input[name=delete]').set('value', 'true');
+				document.getElement('form[action="/bcs/edit"]').submit();
 			});
-		}(view.devices = new view.Module());
+		}(view.device = new view.Module());
 		
 		// Router
 		view.routes = {
 			'/': function () {},
-			'/createDevice': function () {
-				document.getElement('form[action="/bcs/create"]').reset();
+			'/editDevice': function () {
+				document.getElement('form[action="/bcs/edit"]').reset();
 			}
 		};
 		view.router = Router(view.routes);

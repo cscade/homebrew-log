@@ -167,8 +167,22 @@ module.exports = function (app) {
 			});
 		}, function (e, bcss) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			res.render('bcs.jade', {
+			res.render('bcs/index.jade', {
 				bcss: bcss
+			});
+		});
+	});
+	
+	app.get('/bcs/:id', function (req, res) {
+		var bcs, device;
+		
+		bcs = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
+		if (!bcs) return app.log.error('Device not found.'), res.send(500);
+		device = new Device(bcs.host, bcs.port, function (e, state) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			bcs.state = state;
+			res.render('bcs/device.jade', {
+				bcs: bcs
 			});
 		});
 	});
@@ -199,7 +213,7 @@ module.exports = function (app) {
 				extend(bcs, req.body);
 				db.save(bcs._id, bcs._rev, bcs, function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.send(500);
-					res.redirect('/bcs/#/');
+					res.redirect('/bcs/' + bcs._id + '/#/');
 				});
 			});
 		}
