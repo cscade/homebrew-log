@@ -23,10 +23,26 @@ block content
 						td(style="width:220px;height:220px;", data-value=sensors[2].value)
 						td(style="width:220px;height:220px;", data-value=sensors[3].value)
 					tr
-						td #{sensors[0].value}&deg;F, #{Math.round((sensors[0].value - 32) * (5 / 9))}&deg;C
-						td #{sensors[1].value}&deg;F, #{Math.round((sensors[1].value - 32) * (5 / 9))}&deg;C
-						td #{sensors[2].value}&deg;F, #{Math.round((sensors[2].value - 32) * (5 / 9))}&deg;C
-						td #{sensors[3].value}&deg;F, #{Math.round((sensors[3].value - 32) * (5 / 9))}&deg;C
+						td
+							span(style="font-weight:bold;")= sensors[0].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((sensors[0].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= sensors[1].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((sensors[1].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= sensors[2].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((sensors[2].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= sensors[3].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((sensors[3].value - 32) * (5 / 9))
+							| &deg;C
 		- else
 			p No sensors could be read.
 		hr
