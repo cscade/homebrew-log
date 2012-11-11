@@ -54,6 +54,7 @@ window.addEvent('domready', function () {
 				if (!view.devices.active) return window.location.hash = '#/';
 				form.reset();
 				form.getElement('input[name=_id]').set('value', view.devices.active._id);
+				form.getElement('[data-name=device]').set('text', view.devices.active.state.ready ? view.devices.active.state.firmware : '- offline -');
 				form.getElement('input[name=name]').set('value', view.devices.active.name);
 				form.getElement('input[name=host]').set('value', view.devices.active.host);
 				form.getElement('input[name=port]').set('value', view.devices.active.port);
