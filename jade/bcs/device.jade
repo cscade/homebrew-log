@@ -2,10 +2,10 @@
 extends ../_base
 
 append head
-	title= device.name
+	title= bcs.name
 
 block content
-	h1.page-header= device.name
+	h1.page-header= bcs.name
 	.area#content
 		h3 Temperature Sensors
 		- if (temps.length)
@@ -50,24 +50,24 @@ block content
 		p
 			form.form-horizontal(action="/bcs/edit", method="post", accept-charset="utf-8")
 				input(type="hidden", name="delete", value="false")
-				input(type="hidden", name="_id", value=device._id)
+				input(type="hidden", name="_id", value=bcs._id)
 				fieldset
 					.control-group
 						label.control-label Device
 						.controls
-							.fixed= device.device.info.ready ? device.device.info.firmware : (device.device.info.error.message + ' [' + device.device.info.error.code + ']')
+							.fixed= bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']')
 					.control-group
 						label.control-label Device Name
 						.controls
-							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller", value=device.name)
+							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller", value=bcs.name)
 					.control-group
 						label.control-label Host
 						.controls
-							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1", value=device.host)
+							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1", value=bcs.host)
 					.control-group
 						label.control-label Port
 						.controls
-							input.span1(type="text", name="port", data-validators="required validate-numeric", value=device.port)
+							input.span1(type="text", name="port", data-validators="required validate-numeric", value=bcs.port)
 					.form-actions
 						input(type="submit", class="btn btn-primary", value="Save")
 						| &nbsp;

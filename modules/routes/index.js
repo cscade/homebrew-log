@@ -170,17 +170,17 @@ module.exports = function (appRef) {
 	});
 	
 	app.get('/bcs/:id', function (req, res) {
-		var device;
+		var bcs;
 		
 		// find device by id
-		device = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
-		if (!device) return app.log.error('Device not found.'), res.send(500);
-		if (device.device.info.ready) {
+		bcs = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
+		if (!bcs) return app.log.error('Device not found.'), res.send(500);
+		if (bcs.device.info.ready) {
 			// get sensor information
 			async.map([0,1,2,3], function (i, next) {
 				var sensor = {};
 						
-				device.device.read('temp.value' + i, function (e, value) {
+				bcs.device.read('temp.value' + i, function (e, value) {
 					if (e) return next(e);
 					sensor.value = value;
 					next(null, sensor);
@@ -188,14 +188,14 @@ module.exports = function (appRef) {
 			}, function (e, sensors) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.render('bcs/device.jade', {
-					device: device,
+					bcs: bcs,
 					temps: sensors
 				});
 			});
 		} else {
 			// render as is
 			res.render('bcs/device.jade', {
-				device: device,
+				bcs: bcs,
 				temps: false
 			});
 		}
