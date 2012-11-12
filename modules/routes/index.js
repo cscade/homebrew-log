@@ -255,42 +255,38 @@ module.exports = function (appRef) {
 			});
 		};
 		// remove monitoring of this batch from all devices
-		async.forEach(req.data.bcss, function (bcs, next) {
-			if (bcs.targets[req.body.batch]) {
-				db.get(bcs._id, function (e, bcs) {
-					if (e) return next(e);
-					delete bcs.targets[req.body.batch];
-					db.save(bcs._id, bcs._rev, bcs, next);
-				});
-			} else {
-				next();
-			}
-		}, function (e) {
+		db.view('bcs-controllers/byTarget', { key: req.body.batch, include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			// add to a device?
-			if (req.body.device !== '-1') {
-				// lookup device
-				db.get(JSON.parse(req.body.device)._id, function (e, bcs) {
-					if (e) return app.log.error(e.message || e.reason), res.send(500);
-					if ((Number.from(req.body.process) >= 0 || Number.from(req.body.ambient) >= 0)) {
-						// monitor batch
-						bcs.targets[req.body.batch] = {
-							process: Number.from(req.body.process) >= 0 ? Number.from(req.body.process) : undefined,
-							ambient: Number.from(req.body.ambient) >= 0 ? Number.from(req.body.ambient) : undefined,
-							interval: Number.from(req.body.interval)
-						};
-					} else {
-						// stop monitoring batch
-						delete bcs.targets[req.body.batch];
-					}
-					db.save(bcs._id, bcs._rev, bcs, function (e) {
+			async.forEach(rows, function (bcs, next) {
+				delete bcs.targets[req.body.batch];
+				db.save(bcs._id, bcs._rev, bcs, next);
+			}, function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				// add to a device?
+				if (req.body.device !== '-1') {
+					// lookup device
+					db.get(JSON.parse(req.body.device)._id, function (e, bcs) {
 						if (e) return app.log.error(e.message || e.reason), res.send(500);
-						next();
+						if ((Number.from(req.body.process) >= 0 || Number.from(req.body.ambient) >= 0)) {
+							// monitor batch
+							bcs.targets[req.body.batch] = {
+								process: Number.from(req.body.process) >= 0 ? Number.from(req.body.process) : undefined,
+								ambient: Number.from(req.body.ambient) >= 0 ? Number.from(req.body.ambient) : undefined,
+								interval: Number.from(req.body.interval)
+							};
+						} else {
+							// stop monitoring batch
+							delete bcs.targets[req.body.batch];
+						}
+						db.save(bcs._id, bcs._rev, bcs, function (e) {
+							if (e) return app.log.error(e.message || e.reason), res.send(500);
+							next();
+						});
 					});
-				});
-			} else {
-				next();
-			}
+				} else {
+					next();
+				}
+			});
 		});
 	});
 	

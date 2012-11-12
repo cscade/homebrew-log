@@ -22,6 +22,15 @@ exports.design = {
 			map: function (doc) {
 				if (doc.resource === 'bcs-controller') emit(doc.name, null);
 			}
+		},
+		byTarget: {
+			map: function (doc) {
+				if (doc.resource === 'bcs-controller') {
+					Object.keys(doc.targets).forEach(function (key) {
+						emit(key, doc.targets[key]);
+					});
+				}
+			}
 		}
 	},
 	validate_doc_update: function (n, o) {
