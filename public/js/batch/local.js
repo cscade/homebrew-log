@@ -314,22 +314,18 @@ window.addEvent('domready', function () {
 					});
 				}
 			});
+			// include points
+			document.id('showAuto').addEvent('change', function () {
+				view.points.draw(!this.get('checked'));
+			});
 		}(view.intregration = new view.Module());
 		
-		// Router
-		view.routes = {
-			'/': function () {
+		!function (module) {
+			module.draw = function (excludeAuto) {
 				var points = document.getElement('#batch table tbody'),
 					batch = ampl.get('batch'),
 					descriptions = ampl.get('descriptions'),
 					offsetFrom;
-				
-				setTimeout(function () {
-					// set active tab
-					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
-				}, 10);
-				document.getElements('#batch .name').set('text', batch.name);
-				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
 				
 				points.empty();
 				if (batch.points.length) {
@@ -403,7 +399,7 @@ window.addEvent('domready', function () {
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
 							})));
-						} else if (point.action === 'temp' || point.action === 'auto-temp') {
+						} else if (point.action === 'temp' || (!excludeAuto && point.action === 'auto-temp')) {
 							// temp
 							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
 							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
@@ -530,11 +526,19 @@ window.addEvent('domready', function () {
 						}
 					});
 				}
-				
+			};
+		}(view.points = new view.Module());
+		
+		// Router
+		view.routes = {
+			'/': function () {
 				setTimeout(function () {
 					// set active tab
-					jQuery('#content ul.nav.nav-tabs li a:first').trigger('click');
+					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
 				}, 10);
+				document.getElements('#batch .name').set('text', batch.name);
+				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
+				view.points.draw();
 			},
 			'/createDataPoint': function () {
 				var form = document.getElement('#createDataPoint form');
