@@ -403,10 +403,11 @@ window.addEvent('domready', function () {
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
 							})));
-						} else if (point.action === 'temp') {
+						} else if (point.action === 'temp' || point.action === 'auto-temp') {
 							// temp
 							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
 							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							if (point.action === 'auto-temp') detailContent = detailContent + '<p>(auto)</p>';
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,

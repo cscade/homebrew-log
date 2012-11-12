@@ -459,6 +459,7 @@ module.exports = function (appRef) {
 		"auto-enclosed": 'Auto Space; Temperature controlled space',
 		"auto-wort": 'Auto in Wort; Temperature controlled wort',
 		"pitch": 'Pitch',
+		"auto-temp": 'Temperature',
 		"temp": 'Temperature',
 		"gravity": 'Gravity',
 		"addition": 'Addition',
