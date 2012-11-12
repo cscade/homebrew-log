@@ -80,13 +80,18 @@ block content
 							label.control-label Log Every
 							.controls
 								select.span2(name="interval")
-									option(value=(1000 * 60 * 5)) 5 Minutes
-									option(value=(1000 * 60 * 10)) 10 Minutes
-									option(value=(1000 * 60 * 15)) 15 Minutes
-									option(value=(1000 * 60 * 30)) 30 Minutes
-									option(value=(1000 * 60 * 60 * 1)) 1 Hour
-									option(value=(1000 * 60 * 60 * 2)) 2 Hours
-									option(value=(1000 * 60 * 60 * 6)) 6 Hours
+									option(value="-1", disabled) - Very Detailed
+									option(value=(1000 * 60 * 5)) &nbsp;5 Minutes
+									option(value=(1000 * 60 * 10)) &nbsp;10 Minutes
+									option(value=(1000 * 60 * 15)) &nbsp;15 Minutes
+									option(value=(1000 * 60 * 30)) &nbsp;30 Minutes
+									option(value="-1", disabled) - Detailed
+									option(value=(1000 * 60 * 60 * 1), selected) &nbsp;1 Hour
+									option(value=(1000 * 60 * 60 * 2)) &nbsp;2 Hours
+									option(value=(1000 * 60 * 60 * 6)) &nbsp;6 Hours
+									option(value="-1", disabled) - Coarse
+									option(value=(1000 * 60 * 60 * 12)) &nbsp;12 Hours
+									option(value=(1000 * 60 * 60 * 24)) &nbsp;24 Hours
 						.form-actions
 							button.btn.btn-primary(type="submit") Save
 			.tab-pane#batchDetails
