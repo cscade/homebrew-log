@@ -134,7 +134,7 @@ window.addEvent('domready', function () {
 					// max: 80,
 					tickSize: 1
 				},
-				colors: ["#3F9FCF", "#3c3c3c"],
+				colors: ["#3F9FCF", "#3c3c3c", "#3c3c3c", "#3c3c3c"],
 				grid: {
 					markings: [
 						// lag
@@ -186,14 +186,23 @@ window.addEvent('domready', function () {
 						label: '&deg;F Fermentation',
 						lines: {
 							show: true,
-							lineWidth: 3
+							lineWidth: 2
 						},
+						data: temps.map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
 						points: {
 							show: true,
 							lineWidth: 3,
 							radius: 4
 						},
-						data: temps.map(function (point) { return [point.plotAt, point.temp]; })
+						data: temps.filter(function (point) { return point.action === 'temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
+						points: {
+							show: true,
+							lineWidth: 1,
+							radius: 4
+						},
+						data: temps.filter(function (point) { return point.action === 'auto-temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
 					}
 				]);
 			};
