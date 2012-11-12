@@ -397,7 +397,7 @@ module.exports = function (appRef) {
 			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			// filter out point
 			batch.points = batch.points.filter(function (point) {
-				return point._id !== req.body.point;
+				return point._id.toString() !== req.body.point;
 			});
 			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
