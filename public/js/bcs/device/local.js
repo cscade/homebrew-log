@@ -103,7 +103,7 @@ window.addEvent('domready', function () {
 			};
 			
 			document.getElements('#temps td').forEach(function (td) {
-				module.draw(td, Number.from(td.get('data-value')));
+				if (Number.from(td.get('data-value'))) module.draw(td, Number.from(td.get('data-value')));
 			});
 			document.getElements('#content table th, #content table td').setStyle('text-align', 'center');
 		}(view.gauges = new view.Module());

@@ -68,30 +68,28 @@ exports.design = {
 			/*
 			port - number
 			*/
-			optional('port', 'number');
+			require('port', 'number');
 			
 			/*
-			target - string
+			targets - object
 			
-			Target batch _id to log to. Absence causes inactivity.
+			Each "target" is keyed to a batch object with options.
+			
+			ex. 
+			
+			targets = {
+				3b9283fb28ff9554c8400d7d5a00349e: {
+					ambient: 'temp.value0',
+					process: 'temp.value1',
+					interval: 1000 * 60 * 15 // 15 minutes
+				}
+			}
+			
+			This targets object would cause this BCS device
+			to record the values of temp0, temp1 to ambient and process respectively
+			to batch 3b9283... every 15 minutes.
 			*/
-			optional('target', 'string');
-			
-			/*
-			sensors - object
-			
-			Assigned temp sensors for ferment/ambient.
-			
-			ex. { ferment: 0, ambient: 1 }
-			*/
-			optional('sensors', 'object');
-			
-			/*
-			interval - number
-			
-			Polling interval, in ms
-			*/
-			optional('interval', 'number');
+			require('targets', 'object');
 		}
 	}
 };

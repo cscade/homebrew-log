@@ -19,7 +19,7 @@ block content
 						th Name
 						th Location
 						th Device
-						th Target
+						th Targets
 				tbody
 					each bcs in bcss
 						tr.interactive(data-id=bcs._id)
@@ -27,7 +27,7 @@ block content
 							td= bcs.host
 								span(style="color:grey;")= ':' + bcs.port
 							td= bcs.state.ready ? bcs.state.firmware : (bcs.state.error.message + ' [' + bcs.state.error.code + ']')
-							td= bcs.target || '- inactive -'
+							td= Object.keys(bcs.targets).length + ' target batches'
 		- else
 			p No BCS devices configured.
 	.area#createDevice
