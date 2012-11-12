@@ -242,6 +242,39 @@ module.exports = function (appRef) {
 		}
 	});
 	
+	app.post('/bcs/setTarget', function (req, res) {
+		// remove monitoring of this batch from all devices
+		
+		// add to a device?
+		if (req.body.device !== '-1') {
+			// lookup device
+			db.get(JSON.parse(req.body.device)._id, function (e, bcs) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				if ((Number.from(req.body.process) >= 0 || Number.from(req.body.ambient) >= 0)) {
+					// monitor batch
+					bcs.targets[req.body.batch] = {
+						process: Number.from(req.body.process) >= 0 ? Number.from(req.body.process) : undefined,
+						ambient: Number.from(req.body.ambient) >= 0 ? Number.from(req.body.ambient) : undefined,
+						interval: Number.from(req.body.interval)
+					};
+				} else {
+					// stop monitoring batch
+					delete bcs.targets[req.body.batch];
+				}
+				db.save(bcs._id, bcs._rev, bcs, function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					app.get('controllers').refresh(function (e) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						db.get(req.body.batch, function (e, batch) {
+							if (e) return app.log.error(e.message || e.reason), res.send(500);
+							res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
+						});
+					});
+				});
+			});
+		}
+	});
+	
 	app.post('/createBeer', function (req, res) {
 		var body = req.body, beer,
 			parser = new xml2js.Parser(),

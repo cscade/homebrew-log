@@ -279,6 +279,34 @@ window.addEvent('domready', function () {
 			};
 		}(view.plot = new view.Module());
 		
+		// device integration
+		!function (module) {
+			// populate probes
+			document.getElement('#batchDevice select[name=device]').addEvent('change', function () {
+				var sensors = JSON.parse(this.get('value')).sensors,
+					process = document.getElement('#batchDevice select[name=process]'),
+					ambient = document.getElement('#batchDevice select[name=ambient]');
+				
+				if (sensors) {
+					[process, ambient].each(function (select) {
+						select.set('value', '-1').getElements('option[value!=-1]').destroy();
+						select.adopt(sensors.map(function (sensor, index) {
+							return new Element('option', {
+								html: '&nbsp;&nbsp;' + index + ': ' + sensor.name,
+								value: index
+							});
+						}));
+						select.set('disabled', false);
+					});
+				} else {
+					[process, ambient].each(function (select) {
+						select.set('value', '-1').getElements('option[value!=-1]').destroy();
+						select.set('disabled', true);
+					});
+				}
+			});
+		}(view.intregration = new view.Module());
+		
 		// Router
 		view.routes = {
 			'/': function () {
