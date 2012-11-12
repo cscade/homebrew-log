@@ -26,7 +26,7 @@ block content
 							td= bcs.name
 							td= bcs.host
 								span(style="color:grey;")= ':' + bcs.port
-							td= bcs.state.ready ? bcs.state.firmware : (bcs.state.error.message + ' [' + bcs.state.error.code + ']')
+							td= bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']')
 							td= Object.keys(bcs.targets).length + ' target batches'
 		- else
 			p No BCS devices configured.

@@ -6,10 +6,12 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var async = require('async'),
+var app,
+	async = require('async'),
 	bjcp,
 	colorMap,
 	convert = require('../lib/convert'),
+	db,
 	Device = require('bcs.client'),
 	extend = require('xtend'),
 	fs = require('fs'),
@@ -33,12 +35,44 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 	});
 }(fs.readFileSync(path.join(__dirname, '..', 'lib', 'colors.xml'), 'utf-8'));
 
-module.exports = function (app) {
+// re-usable loaders
+module.load = {
+	devices: function (req, res, next) {
+		req.data = req.data || {};
+		extend(req.data, { bcss: app.get('controllers').map(function (bcs) { return bcs; }) });
+		next();
+	},
+	// load a single beer including it's batches and batch numbers
+	beer: function (req, res, next) {
+		req.data = req.data || {};
+		db.get(req.params.beer, function (e, beer) {
+			var color;
+			
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			color = convert.round.call(beer.properties.color, 1);
+			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
+			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
+			extend(req.data, { beer: beer });
+			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				beer.batches = rows.map(function (key, doc) { return doc; });
+				db.view('batches/numbers', function (e, numbers) {
+					if (e) return next(e);
+					extend(req.data, { numbers: numbers.map(function (key, value) { return value; })[0] });
+					next();
+				});
+			});
+		});
+	}
+};
+
+module.exports = function (appRef) {
+	app = appRef;
 	
-	// locals
-	var db = app.couch.database(app.get('config').couch.database);
+	db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
+		// not module.load here, custom load pattern
 		async.parallel({
 			beers: function (next) {
 				db.view('beers/byName', { include_docs: true }, function (e, beers) {
@@ -86,26 +120,7 @@ module.exports = function (app) {
 	/*
 	/beer namespace
 	*/
-	app.all('/beer/:beer*', function (req, res, next) {
-		db.get(req.params.beer, function (e, beer) {
-			var color;
-			
-			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			color = convert.round.call(beer.properties.color, 1);
-			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
-			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
-			req.data = { beer: beer };
-			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
-				if (e) return app.log.error(e.message || e.reason), res.send(500);
-				beer.batches = rows.map(function (key, doc) { return doc; });
-				db.view('batches/numbers', function (e, numbers) {
-					if (e) return next(e);
-					req.data.numbers = numbers.map(function (key, value) { return value; })[0];
-					next();
-				});
-			});
-		});
-	});
+	app.all('/beer/:beer*', module.load.beer);
 	
 	app.get('/beer/:beer', function (req, res) {
 		var beer = req.data.beer;
@@ -125,7 +140,7 @@ module.exports = function (app) {
 		});
 	});
 	
-	app.get('/beer/:beer/:batch', function (req, res) {
+	app.get('/beer/:beer/:batch', module.load.devices, function (req, res) {
 		var beer = req.data.beer, batch;
 		
 		if (req.params.batch.length !== 32) {
@@ -138,86 +153,61 @@ module.exports = function (app) {
 		if (!batch) return app.log.error('no batch ' + req.params.batch), res.send(400);
 		render.batch.call(res, {
 			beer: beer,
-			batch: batch
+			batch: batch,
+			bcss: req.data.bcss
 		});
 	});
 	
 	/*
 	/bcs namespace
 	*/
-	app.all('/bcs*', function (req, res, next) {
-		db.view('bcs-controllers/byName', { include_docs: true }, function (e, rows) {
-			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			req.data = {
-				bcss: rows.map(function (key, doc) { return doc; })
-			}
-			next();
-		});
-	});
+	app.all('/bcs*', module.load.devices);
 	
 	app.get('/bcs', function (req, res) {
-		// request state of each BCS device
-		async.map(req.data.bcss, function (bcs, next) {
-			var device;
-			
-			device = new Device(bcs.host, bcs.port, function (e, state) {
-				if (e) next(e);
-				bcs.state = state;
-				next(null, bcs);
-			});
-		}, function (e, bcss) {
-			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			res.render('bcs/index.jade', {
-				bcss: bcss
-			});
+		res.render('bcs/index.jade', {
+			bcss: req.data.bcss
 		});
 	});
 	
 	app.get('/bcs/:id', function (req, res) {
-		var bcs, device, sensors;
+		var device;
 		
 		// find device by id
-		bcs = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
-		if (!bcs) return app.log.error('Device not found.'), res.send(500);
-		// connect
-		device = new Device(bcs.host, bcs.port, function (e, state) {
-			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			bcs.state = state;
-			if (state.ready) {
-				// get sensor information
-				async.map([0,1,2,3], function (i, next) {
-					var sensor = {};
+		device = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
+		if (!device) return app.log.error('Device not found.'), res.send(500);
+		if (device.device.info.ready) {
+			// get sensor information
+			async.map([0,1,2,3], function (i, next) {
+				var sensor = {};
 						
-					device.read('temp.name' + i, function (e, name) {
-						if (e) return next(e);
-						sensor.name = name;
-						device.read('temp.value' + i, function (e, value) {
-							if (e) return next(e);
-							sensor.value = value;
-							next(null, sensor);
-						});
-					});
-				}, function (e, sensors) {
-					if (e) return app.log.error(e.message || e.reason), res.send(500);
-					res.render('bcs/device.jade', {
-						bcs: bcs,
-						sensors: sensors
-					});
+				device.device.read('temp.value' + i, function (e, value) {
+					if (e) return next(e);
+					sensor.value = value;
+					next(null, sensor);
 				});
-			} else {
-				// render as is
+			}, function (e, sensors) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.render('bcs/device.jade', {
-					bcs: bcs,
-					sensors: false
+					device: device,
+					temps: sensors
 				});
-			}
-		});
+			});
+		} else {
+			// render as is
+			res.render('bcs/device.jade', {
+				device: device,
+				temps: false
+			});
+		}
 	});
 	
 	app.post('/bcs/create', function (req, res) {
 		app.create.bcs(req.body, function (e, bcs) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			res.redirect('/bcs/#/');
+			app.get('controllers').refresh(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				res.redirect('/bcs/#/');
+			});
 		});
 	});
 	
@@ -228,7 +218,10 @@ module.exports = function (app) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				db.remove(bcs._id, bcs._rev, function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.send(500);
-					res.redirect('/bcs/#/');
+					app.get('controllers').refresh(function (e) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						res.redirect('/bcs/#/');
+					});
 				});
 			});
 		} else {
@@ -240,7 +233,10 @@ module.exports = function (app) {
 				extend(bcs, req.body);
 				db.save(bcs._id, bcs._rev, bcs, function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.send(500);
-					res.redirect('/bcs/' + bcs._id + '/#/');
+					app.get('controllers').refresh(function (e) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						res.redirect('/bcs/' + bcs._id + '/#/');
+					});
 				});
 			});
 		}

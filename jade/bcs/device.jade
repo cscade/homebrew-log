@@ -2,46 +2,46 @@
 extends ../_base
 
 append head
-	title= bcs.name
+	title= device.name
 
 block content
-	h1.page-header= bcs.name
+	h1.page-header= device.name
 	.area#content
 		h3 Temperature Sensors
-		- if (sensors.length)
+		- if (temps.length)
 			table.table.table-striped(style="width:auto;margin:auto;")
 				thead
 					tr
-						th= sensors[0].name
-						th= sensors[1].name
-						th= sensors[2].name
-						th= sensors[3].name
+						th= temps[0].name
+						th= temps[1].name
+						th= temps[2].name
+						th= temps[3].name
 				tbody
 					tr#temps
-						td(style="width:220px;height:220px;", data-value=sensors[0].value)
-						td(style="width:220px;height:220px;", data-value=sensors[1].value)
-						td(style="width:220px;height:220px;", data-value=sensors[2].value)
-						td(style="width:220px;height:220px;", data-value=sensors[3].value)
+						td(style="width:220px;height:220px;", data-value=temps[0].value)
+						td(style="width:220px;height:220px;", data-value=temps[1].value)
+						td(style="width:220px;height:220px;", data-value=temps[2].value)
+						td(style="width:220px;height:220px;", data-value=temps[3].value)
 					tr
 						td
-							span(style="font-weight:bold;")= sensors[0].value
+							span(style="font-weight:bold;")= temps[0].value
 							| &deg;F&nbsp;&nbsp;&nbsp;
-							span(style="font-weight:bold;")= Math.round((sensors[0].value - 32) * (5 / 9))
+							span(style="font-weight:bold;")= Math.round((temps[0].value - 32) * (5 / 9))
 							| &deg;C
 						td
-							span(style="font-weight:bold;")= sensors[1].value
+							span(style="font-weight:bold;")= temps[1].value
 							| &deg;F&nbsp;&nbsp;&nbsp;
-							span(style="font-weight:bold;")= Math.round((sensors[1].value - 32) * (5 / 9))
+							span(style="font-weight:bold;")= Math.round((temps[1].value - 32) * (5 / 9))
 							| &deg;C
 						td
-							span(style="font-weight:bold;")= sensors[2].value
+							span(style="font-weight:bold;")= temps[2].value
 							| &deg;F&nbsp;&nbsp;&nbsp;
-							span(style="font-weight:bold;")= Math.round((sensors[2].value - 32) * (5 / 9))
+							span(style="font-weight:bold;")= Math.round((temps[2].value - 32) * (5 / 9))
 							| &deg;C
 						td
-							span(style="font-weight:bold;")= sensors[3].value
+							span(style="font-weight:bold;")= temps[3].value
 							| &deg;F&nbsp;&nbsp;&nbsp;
-							span(style="font-weight:bold;")= Math.round((sensors[3].value - 32) * (5 / 9))
+							span(style="font-weight:bold;")= Math.round((temps[3].value - 32) * (5 / 9))
 							| &deg;C
 		- else
 			p No sensors could be read.
@@ -50,24 +50,24 @@ block content
 		p
 			form.form-horizontal(action="/bcs/edit", method="post", accept-charset="utf-8")
 				input(type="hidden", name="delete", value="false")
-				input(type="hidden", name="_id", value=bcs._id)
+				input(type="hidden", name="_id", value=device._id)
 				fieldset
 					.control-group
 						label.control-label Device
 						.controls
-							.fixed= bcs.state.ready ? bcs.state.firmware : (bcs.state.error.message + ' [' + bcs.state.error.code + ']')
+							.fixed= device.device.info.ready ? device.device.info.firmware : (device.device.info.error.message + ' [' + device.device.info.error.code + ']')
 					.control-group
 						label.control-label Device Name
 						.controls
-							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller", value=bcs.name)
+							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller", value=device.name)
 					.control-group
 						label.control-label Host
 						.controls
-							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1", value=bcs.host)
+							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1", value=device.host)
 					.control-group
 						label.control-label Port
 						.controls
-							input.span1(type="text", name="port", data-validators="required validate-numeric", value=bcs.port)
+							input.span1(type="text", name="port", data-validators="required validate-numeric", value=device.port)
 					.form-actions
 						input(type="submit", class="btn btn-primary", value="Save")
 						| &nbsp;

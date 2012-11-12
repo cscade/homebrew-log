@@ -55,6 +55,9 @@ require('./lib/cradle').initialize(app);
 // tweak
 tweak.check(app);
 
+// bcs-controllers
+require('./lib/controllers').initialize(app);
+
 // routes
 require('./modules/routes')(app);
 
