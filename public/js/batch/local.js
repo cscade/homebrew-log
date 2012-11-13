@@ -544,8 +544,6 @@ window.addEvent('domready', function () {
 					// set active tab
 					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
 				}, 10);
-				document.getElements('#batch .name').set('text', batch.name);
-				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
 				view.points.draw();
 			},
 			'/createDataPoint': function () {

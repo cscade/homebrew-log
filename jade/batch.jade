@@ -162,12 +162,12 @@ block content
 					.modal-header
 						a.close(href="#", data-dismiss="modal") ×
 						h3 Delete 
-							small.name
+							small= batch.name
 					.modal-body
 						p
 							strong This is an irreversible operation.
 						p The batch 
-							em.name
+							em= batch.name
 							|  will be permanently destroyed.
 					.modal-footer
 						a.btn(href="#", data-dismiss="modal") Cancel
