@@ -82,6 +82,12 @@ window.addEvent('domready', function () {
 			} else {
 				view.plot.cleanup();
 			}
+			if (document.id(this).get('href') === '#batchDevice') {
+				var time = jQuery.timeago(Date.parse(document.getElement('[data-nextEdge]').get('data-nextEdge')));
+				
+				time = time.slice(0, time.indexOf(' ago'));
+				document.getElement('[data-nextEdge]').set('text', time);
+			}
 			if (view.mobile && window.getSize().y < 600) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		

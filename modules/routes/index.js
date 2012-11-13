@@ -37,6 +37,7 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 
 // re-usable loaders
 module.load = {
+	// load all devices from application controllers
 	devices: function (req, res, next) {
 		req.data = req.data || {};
 		extend(req.data, { bcss: app.get('controllers').map(function (bcs) { return bcs; }) });
@@ -151,10 +152,18 @@ module.exports = function (appRef) {
 			batch = beer.batches.filter(function (batch) { return batch._id === req.params.batch; })[0];
 		}
 		if (!batch) return app.log.error('no batch ' + req.params.batch), res.send(400);
-		render.batch.call(res, {
-			beer: beer,
-			batch: batch,
-			bcss: req.data.bcss
+		db.view('bcs-controllers/byTarget', { key: batch._id, include_docs: true }, function (e, rows) {
+			var bcs;
+			
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			bcs = rows.map(function (doc) { return doc; })[0];
+			render.batch.call(res, {
+				beer: beer,
+				batch: batch,
+				bcss: req.data.bcss,
+				targetedBy: bcs,
+				target: require('../../lib/controllers').activeTargets().filter(function (target) { return target.batch === batch._id; })[0]
+			});
 		});
 	});
 	

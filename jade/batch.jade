@@ -41,6 +41,12 @@ block content
 				.hidden-phone
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
+						- if (targetedBy)
+							.pull-left(style="margin:5px 0 0 20px;")
+								i.icon-info-sign
+								|  The BCS device "
+								span= targetedBy.name
+								| " is currently logging to this batch.
 				.visible-phone
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn.btn-primary(href="#/createDataPoint", style="float:right;")
@@ -52,7 +58,7 @@ block content
 				table.table.table-condensed.table-bordered
 					thead
 						tr
-							th Timing
+							th(style="width:120px;") Timing
 							th Action
 					tbody
 						tr
@@ -60,6 +66,16 @@ block content
 			.tab-pane#batchPlot
 				#flot(style="width:100%;height:500px;margin:auto;")
 			.tab-pane#batchDevice
+				- if (targetedBy)
+					div(style="margin:5px 0 25px 20px;")
+						i.icon-info-sign
+						|  The BCS device "
+						span= targetedBy.name
+						| " is currently logging to this batch.
+						br
+						span(style="margin-left:18px;") The next log will occur in about 
+						span(data-nextEdge=target.nextEdge)
+						| .
 				form.form-horizontal(action="/bcs/setTarget", method="post", accept-charset="utf-8")
 					input(type="hidden", name="batch", value=batch._id)
 					fieldset
