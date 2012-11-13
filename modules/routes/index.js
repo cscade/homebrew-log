@@ -1,15 +1,18 @@
 /*!
  * routes
- * seeker-brewing
+ * homebrew-log
  * 
  * Created by Carson Christian on 2012-06-12.
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var async = require('async'),
+var app,
+	async = require('async'),
 	bjcp,
 	colorMap,
 	convert = require('../lib/convert'),
+	db,
+	Device = require('bcs.client'),
 	extend = require('xtend'),
 	fs = require('fs'),
 	path = require('path'),
@@ -32,12 +35,45 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 	});
 }(fs.readFileSync(path.join(__dirname, '..', 'lib', 'colors.xml'), 'utf-8'));
 
-module.exports = function (app) {
+// re-usable loaders
+module.load = {
+	// load all devices from application controllers
+	devices: function (req, res, next) {
+		req.data = req.data || {};
+		extend(req.data, { bcss: app.get('controllers').map(function (bcs) { return bcs; }) });
+		next();
+	},
+	// load a single beer including it's batches and batch numbers
+	beer: function (req, res, next) {
+		req.data = req.data || {};
+		db.get(req.params.beer, function (e, beer) {
+			var color;
+			
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			color = convert.round.call(beer.properties.color, 1);
+			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
+			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
+			extend(req.data, { beer: beer });
+			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				beer.batches = rows.map(function (key, doc) { return doc; });
+				db.view('batches/numbers', function (e, numbers) {
+					if (e) return next(e);
+					extend(req.data, { numbers: numbers.map(function (key, value) { return value; })[0] });
+					next();
+				});
+			});
+		});
+	}
+};
+
+module.exports = function (appRef) {
+	app = appRef;
 	
-	// locals
-	var db = app.couch.database(app.get('config').couch.database);
+	db = app.couch.database(app.get('config').couch.database);
 	
 	app.get('/', function (req, res) {
+		// not module.load here, custom load pattern
 		async.parallel({
 			beers: function (next) {
 				db.view('beers/byName', { include_docs: true }, function (e, beers) {
@@ -85,26 +121,7 @@ module.exports = function (app) {
 	/*
 	/beer namespace
 	*/
-	app.all('/beer/:beer*', function (req, res, next) {
-		db.get(req.params.beer, function (e, beer) {
-			var color;
-			
-			if (e) return app.log.error(e.message || e.reason), res.send(500);
-			color = convert.round.call(beer.properties.color, 1);
-			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
-			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
-			req.data = { beer: beer };
-			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
-				if (e) return app.log.error(e.message || e.reason), res.send(500);
-				beer.batches = rows.map(function (key, doc) { return doc; });
-				db.view('batches/numbers', function (e, numbers) {
-					if (e) return next(e);
-					req.data.numbers = numbers.map(function (key, value) { return value; })[0];
-					next();
-				});
-			});
-		});
-	});
+	app.all('/beer/:beer*', module.load.beer);
 	
 	app.get('/beer/:beer', function (req, res) {
 		var beer = req.data.beer;
@@ -124,7 +141,7 @@ module.exports = function (app) {
 		});
 	});
 	
-	app.get('/beer/:beer/:batch', function (req, res) {
+	app.get('/beer/:beer/:batch', module.load.devices, function (req, res) {
 		var beer = req.data.beer, batch;
 		
 		if (req.params.batch.length !== 32) {
@@ -135,9 +152,150 @@ module.exports = function (app) {
 			batch = beer.batches.filter(function (batch) { return batch._id === req.params.batch; })[0];
 		}
 		if (!batch) return app.log.error('no batch ' + req.params.batch), res.send(400);
-		render.batch.call(res, {
-			beer: beer,
-			batch: batch
+		db.view('bcs-controllers/byTarget', { key: batch._id, include_docs: true }, function (e, rows) {
+			var bcs;
+			
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			bcs = rows.map(function (doc) { return doc; })[0];
+			render.batch.call(res, {
+				beer: beer,
+				batch: batch,
+				bcss: req.data.bcss,
+				targetedBy: bcs,
+				target: require('../../lib/controllers').activeTargets().filter(function (target) { return target.batch === batch._id; })[0]
+			});
+		});
+	});
+	
+	/*
+	/bcs namespace
+	*/
+	app.all('/bcs*', module.load.devices);
+	
+	app.get('/bcs', function (req, res) {
+		res.render('bcs/index.jade', {
+			bcss: req.data.bcss
+		});
+	});
+	
+	app.get('/bcs/:id', function (req, res) {
+		var bcs;
+		
+		// find device by id
+		bcs = req.data.bcss.filter(function (bcs) { return bcs._id === req.params.id; })[0];
+		if (!bcs) return app.log.error('Device not found.'), res.send(500);
+		if (bcs.device.info.ready) {
+			// get sensor information
+			async.map([0,1,2,3], function (i, next) {
+				var sensor = {};
+						
+				bcs.device.read('temp.value' + i, function (e, value) {
+					if (e) return next(e);
+					sensor.value = value;
+					next(null, sensor);
+				});
+			}, function (e, sensors) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				res.render('bcs/device.jade', {
+					bcs: bcs,
+					temps: sensors
+				});
+			});
+		} else {
+			// render as is
+			res.render('bcs/device.jade', {
+				bcs: bcs,
+				temps: false
+			});
+		}
+	});
+	
+	app.post('/bcs/create', function (req, res) {
+		app.create.bcs(req.body, function (e, bcs) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			app.get('controllers').refresh(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				res.redirect('/bcs/#/');
+			});
+		});
+	});
+	
+	app.post('/bcs/edit', function (req, res) {
+		if (req.body.delete === 'true') {
+			// delete
+			db.get(req.body._id, function (e, bcs) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				db.remove(bcs._id, bcs._rev, function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					app.get('controllers').refresh(function (e) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						res.redirect('/bcs/#/');
+					});
+				});
+			});
+		} else {
+			// edit
+			db.get(req.body._id, function (e, bcs) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				delete req.body.delete;
+				req.body.port = Number.from(req.body.port) || 80;
+				extend(bcs, req.body);
+				db.save(bcs._id, bcs._rev, bcs, function (e) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					app.get('controllers').refresh(function (e) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						res.redirect('/bcs/' + bcs._id + '/#/');
+					});
+				});
+			});
+		}
+	});
+	
+	app.post('/bcs/setTarget', function (req, res) {
+		var next;
+		
+		next = function () {
+			app.get('controllers').refresh(function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				db.get(req.body.batch, function (e, batch) {
+					if (e) return app.log.error(e.message || e.reason), res.send(500);
+					res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
+				});
+			});
+		};
+		// remove monitoring of this batch from all devices
+		db.view('bcs-controllers/byTarget', { key: req.body.batch, include_docs: true }, function (e, rows) {
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			async.forEach(rows, function (bcs, next) {
+				delete bcs.targets[req.body.batch];
+				db.save(bcs._id, bcs._rev, bcs, next);
+			}, function (e) {
+				if (e) return app.log.error(e.message || e.reason), res.send(500);
+				// add to a device?
+				if (req.body.device !== '-1') {
+					// lookup device
+					db.get(JSON.parse(req.body.device)._id, function (e, bcs) {
+						if (e) return app.log.error(e.message || e.reason), res.send(500);
+						if ((Number.from(req.body.process) >= 0 || Number.from(req.body.ambient) >= 0)) {
+							// monitor batch
+							bcs.targets[req.body.batch] = {
+								process: Number.from(req.body.process) >= 0 ? Number.from(req.body.process) : undefined,
+								ambient: Number.from(req.body.ambient) >= 0 ? Number.from(req.body.ambient) : undefined,
+								interval: Number.from(req.body.interval)
+							};
+						} else {
+							// stop monitoring batch
+							delete bcs.targets[req.body.batch];
+						}
+						db.save(bcs._id, bcs._rev, bcs, function (e) {
+							if (e) return app.log.error(e.message || e.reason), res.send(500);
+							next();
+						});
+					});
+				} else {
+					next();
+				}
+			});
 		});
 	});
 	
@@ -248,7 +406,7 @@ module.exports = function (app) {
 			if (e) return app.log.error(e.message || e.reason), res.send(404);
 			// filter out point
 			batch.points = batch.points.filter(function (point) {
-				return point._id !== req.body.point;
+				return point._id.toString() !== req.body.point;
 			});
 			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
@@ -310,6 +468,7 @@ module.exports = function (app) {
 		"auto-enclosed": 'Auto Space; Temperature controlled space',
 		"auto-wort": 'Auto in Wort; Temperature controlled wort',
 		"pitch": 'Pitch',
+		"auto-temp": 'Temperature',
 		"temp": 'Temperature',
 		"gravity": 'Gravity',
 		"addition": 'Addition',

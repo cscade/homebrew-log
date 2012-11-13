@@ -1,0 +1,56 @@
+//- BCS Integration
+extends ../_base
+
+append head
+	title BCS Integration
+
+block content
+	h1.page-header BCS Integration
+	.area#content
+		.hidden-phone
+			a.pull-right(href="#/createDevice").btn.btn-primary.new New Device
+		.visible-phone
+			a.pull-right.btn.btn-primary(href="#/createDevice")
+				i.icon-plus.icon-white
+		- if (bcss.length)
+			table.table.table-striped.table-hover
+				thead
+					tr
+						th Name
+						th Location
+						th Device
+						th Targets
+				tbody
+					each bcs in bcss
+						tr.interactive(data-id=bcs._id)
+							td= bcs.name
+							td= bcs.host
+								span(style="color:grey;")= ':' + bcs.port
+							td= bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']')
+							td= Object.keys(bcs.targets).length + ' target batches'
+		- else
+			p No BCS devices configured.
+	.area#createDevice
+		h3 New Device
+		p
+			form.form-horizontal(action="/bcs/create", method="post", accept-charset="utf-8")
+				fieldset
+					.control-group
+						label.control-label Device Name
+						.controls
+							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller")
+					.control-group
+						label.control-label Host
+						.controls
+							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1")
+					.control-group
+						label.control-label Port
+						.controls
+							input.span1(type="text", name="port", data-validators="required validate-numeric", value="80")
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Save")
+						| &nbsp;
+						a.btn(href="#/") Cancel
+
+block localJS
+	script(type='text/javascript', src="/js/bcs/local.js")

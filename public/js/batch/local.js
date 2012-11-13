@@ -1,6 +1,6 @@
 // 
 //  local.js
-//  seeker-brewing
+//  homebrew-log
 //  
 //  Created by Carson Christian on 2012-06-13.
 //  Copyright 2012 Carson Christian. All rights reserved.
@@ -82,7 +82,13 @@ window.addEvent('domready', function () {
 			} else {
 				view.plot.cleanup();
 			}
-			if (view.mobile) window.scrollTo(0, document.id(this).getPosition().y);
+			if (document.id(this).get('href') === '#batchDevice') {
+				var time = jQuery.timeago(Date.parse(document.getElement('[data-nextEdge]').get('data-nextEdge')));
+				
+				time = time.slice(0, time.indexOf(' ago'));
+				document.getElement('[data-nextEdge]').set('text', time);
+			}
+			if (view.mobile && window.getSize().y < 600) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		
 		// delete batch
@@ -134,7 +140,7 @@ window.addEvent('domready', function () {
 					// max: 80,
 					tickSize: 1
 				},
-				colors: ["#3F9FCF", "#3c3c3c"],
+				colors: ["#3F9FCF", "#3c3c3c", "#3c3c3c", "#3c3c3c"],
 				grid: {
 					markings: [
 						// lag
@@ -186,14 +192,23 @@ window.addEvent('domready', function () {
 						label: '&deg;F Fermentation',
 						lines: {
 							show: true,
-							lineWidth: 3
+							lineWidth: 2
 						},
+						data: temps.map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
 						points: {
 							show: true,
 							lineWidth: 3,
 							radius: 4
 						},
-						data: temps.map(function (point) { return [point.plotAt, point.temp]; })
+						data: temps.filter(function (point) { return point.action === 'temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
+						points: {
+							show: true,
+							lineWidth: 1,
+							radius: 4
+						},
+						data: temps.filter(function (point) { return point.action === 'auto-temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
 					}
 				]);
 			};
@@ -208,8 +223,10 @@ window.addEvent('domready', function () {
 			module.draw = function (series) {
 				var offsets = {};
 				
+				module.cleanup();
+				
 				// resize chart on mobile
-				if (view.mobile) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
+				if (view.mobile && window.getSize().y < 600) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
 				
 				// draw flot chart
 				module.flot = jQuery.plot(jQuery("#flot"), series, module.options);
@@ -279,20 +296,44 @@ window.addEvent('domready', function () {
 			};
 		}(view.plot = new view.Module());
 		
-		// Router
-		view.routes = {
-			'/': function () {
+		// device integration
+		!function (module) {
+			// populate probes
+			document.getElement('#batchDevice select[name=device]').addEvent('change', function () {
+				var sensors = JSON.parse(this.get('value')).sensors,
+					process = document.getElement('#batchDevice select[name=process]'),
+					ambient = document.getElement('#batchDevice select[name=ambient]');
+				
+				if (sensors) {
+					[process, ambient].each(function (select) {
+						select.set('value', '-1').getElements('option[value!=-1]').destroy();
+						select.adopt(sensors.map(function (sensor, index) {
+							return new Element('option', {
+								html: '&nbsp;&nbsp;' + index + ': ' + sensor.name,
+								value: index
+							});
+						}));
+						select.set('disabled', false);
+					});
+				} else {
+					[process, ambient].each(function (select) {
+						select.set('value', '-1').getElements('option[value!=-1]').destroy();
+						select.set('disabled', true);
+					});
+				}
+			});
+			// include points
+			document.id('showAuto').addEvent('change', function () {
+				view.points.draw(!this.get('checked'));
+			});
+		}(view.intregration = new view.Module());
+		
+		!function (module) {
+			module.draw = function (excludeAuto) {
 				var points = document.getElement('#batch table tbody'),
 					batch = ampl.get('batch'),
 					descriptions = ampl.get('descriptions'),
 					offsetFrom;
-				
-				setTimeout(function () {
-					// set active tab
-					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
-				}, 10);
-				document.getElements('#batch .name').set('text', batch.name);
-				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
 				
 				points.empty();
 				if (batch.points.length) {
@@ -366,10 +407,11 @@ window.addEvent('domready', function () {
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
 							})));
-						} else if (point.action === 'temp') {
+						} else if (point.action === 'temp' || (!excludeAuto && point.action === 'auto-temp')) {
 							// temp
 							if (point.ambient) detailContent = detailContent + '<h5>Ambient Temp</h5><p>' + (point.ambient ? (point.ambient + '&deg;F') : '-') + '</p>';
 							if (point.notes) detailContent = detailContent + '<h5>Notes</h5><p>' + point.notes + '</p>';
+							if (point.action === 'auto-temp') detailContent = detailContent + '<p>(auto)</p>';
 							points.adopt(new Element('tr', { 'data-point': point._id }).adopt(
 								new Element('td', {
 									rowspan: 2,
@@ -492,11 +534,19 @@ window.addEvent('domready', function () {
 						}
 					});
 				}
-				
+			};
+		}(view.points = new view.Module());
+		
+		// Router
+		view.routes = {
+			'/': function () {
 				setTimeout(function () {
 					// set active tab
-					jQuery('#content ul.nav.nav-tabs li a:first').trigger('click');
+					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
 				}, 10);
+				document.getElements('#batch .name').set('text', batch.name);
+				document.getElement('#createDataPoint form input[name=batch]').set('value', batch._id);
+				view.points.draw();
 			},
 			'/createDataPoint': function () {
 				var form = document.getElement('#createDataPoint form');

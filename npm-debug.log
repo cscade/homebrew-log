@@ -1,0 +1,18 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'show', 'page.js' ]
+2 info using npm@1.1.62
+3 info using node@v0.8.11
+4 error 404 'page.js' is not in the npm registry.
+4 error 404 You should bug the author to publish it
+4 error 404
+4 error 404 Maybe try 'npm search page'
+4 error 404
+4 error 404 Note that you can also install from a
+4 error 404 tarball, folder, or http url, or git url.
+5 error System Darwin 12.2.0
+6 error command "node" "/usr/local/bin/npm" "show" "page.js"
+7 error cwd /Users/cscade/Projects/seeker-brewing
+8 error node -v v0.8.11
+9 error npm -v 1.1.62
+10 error code E404
+11 verbose exit [ 1, true ]

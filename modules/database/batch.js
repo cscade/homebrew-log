@@ -1,6 +1,6 @@
 // 
 //  batch.js
-//  seeker-brewing
+//  homebrew-log
 //  
 //  Created by Carson S. Christian on 2012-11-07.
 //  Copyright 2012 (ampl)EGO. All rights reserved.

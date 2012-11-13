@@ -1,6 +1,6 @@
 // 
 //	app.js
-//	seeker-brewing
+//	homebrew-log
 //	
 //	Created by Carson Christian on 2012-06-11.
 //	Copyright 2012 Carson Christian. All rights reserved.
@@ -54,6 +54,9 @@ require('./lib/cradle').initialize(app);
 
 // tweak
 tweak.check(app);
+
+// bcs-controllers
+require('./lib/controllers').initialize(app);
 
 // routes
 require('./modules/routes')(app);

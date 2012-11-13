@@ -30,6 +30,9 @@ block content
 				a.visible-phone(href="#batchPoints") Points
 			li
 				a(href="#batchPlot") Plot
+			- if (bcss.length > 0)
+				li
+					a(href="#batchDevice") Log Device
 			li
 				a.hidden-phone(href="#batchDetails") Batch Details
 				a.visible-phone(href="#batchDetails") Details
@@ -38,20 +41,79 @@ block content
 				.hidden-phone
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn.btn-primary.pull-right(href="#/createDataPoint") New Data Point
+						- if (targetedBy)
+							.pull-left(style="margin:5px 0 0 20px;")
+								i.icon-info-sign
+								|  The BCS device "
+								span= targetedBy.name
+								| " is currently logging to this batch.
 				.visible-phone
 					div(style="float:left;margin:0 0 15px 0;width:100%;")
 						a.btn.btn-primary(href="#/createDataPoint", style="float:right;")
 							i.icon-plus.icon-white
+				div
+					label
+						input#showAuto(style="margin: 0 3px 0 6px;", type="checkbox", checked)
+						|  Include automatically generated points
 				table.table.table-condensed.table-bordered
 					thead
 						tr
-							th Timing
+							th(style="width:120px;") Timing
 							th Action
 					tbody
 						tr
 							td(colspan="2") No data Points.
 			.tab-pane#batchPlot
 				#flot(style="width:100%;height:500px;margin:auto;")
+			.tab-pane#batchDevice
+				- if (targetedBy)
+					div(style="margin:5px 0 25px 20px;")
+						i.icon-info-sign
+						|  The BCS device "
+						span= targetedBy.name
+						| " is currently logging to this batch.
+						br
+						span(style="margin-left:18px;") The next log will occur in about 
+						span(data-nextEdge=target.nextEdge)
+						| .
+				form.form-horizontal(action="/bcs/setTarget", method="post", accept-charset="utf-8")
+					input(type="hidden", name="batch", value=batch._id)
+					fieldset
+						.control-group
+							label.control-label Logging Device
+							.controls
+								select.span3(name="device")
+									option(value="-1", selected) None
+									each bcs in bcss
+										option(value=JSON.stringify({ _id: bcs._id, sensors: bcs.sensors }))= '&nbsp;&nbsp;' + bcs.name + ' - ' + (bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']'))
+						.control-group
+							label.control-label Temperature Probe
+							.controls
+								select.span3(name="process", disabled)
+									option(value="-1", selected) None
+						.control-group
+							label.control-label Ambient Probe
+							.controls
+								select.span3(name="ambient", disabled)
+									option(value="-1", selected) None
+						.control-group
+							label.control-label Log Every
+							.controls
+								select.span2(name="interval")
+									option(value="-1", disabled) - Very Detailed
+									option(value=(1000 * 60 * 5)) &nbsp;5 Minutes
+									option(value=(1000 * 60 * 10)) &nbsp;10 Minutes
+									option(value=(1000 * 60 * 15)) &nbsp;15 Minutes
+									option(value=(1000 * 60 * 30)) &nbsp;30 Minutes
+									option(value="-1", disabled) - Detailed
+									option(value=(1000 * 60 * 60 * 1), selected) &nbsp;1 Hour
+									option(value=(1000 * 60 * 60 * 2)) &nbsp;2 Hours
+									option(value=(1000 * 60 * 60 * 6)) &nbsp;6 Hours
+									option(value="-1", disabled) - Coarse
+									option(value=(1000 * 60 * 60 * 12)) &nbsp;12 Hours
+									option(value=(1000 * 60 * 60 * 24)) &nbsp;24 Hours
+						.form-actions
+							button.btn.btn-primary(type="submit") Save
 			.tab-pane#batchDetails
 				form.form-horizontal(action="/updateBatch", method="post", accept-charset="utf-8")
 					input(type="hidden", name="_id", value=batch._id)

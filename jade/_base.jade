@@ -30,6 +30,9 @@ html(lang='en')
 			.navbar-inner
 				.container
 					a.brand(href="/#/") Home Brew Log
+					ul.nav.pull-right
+						li
+							a(href="/bcs/#/") BCS Integration
 		.container
 			block content
 		
@@ -39,4 +42,6 @@ html(lang='en')
 		script(type='text/javascript')
 			jQuery.noConflict();
 		script(src='/js/lib/jquery.flot.js')
+		script(src="/js/lib/highcharts/highcharts.js")
+		script(src="/js/lib/highcharts/highcharts-more.js")
 		block localJS
