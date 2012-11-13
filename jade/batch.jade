@@ -203,20 +203,20 @@ block content
 					label.control-label Temperature
 					.controls
 						.input-append
-							input.span1(type="number", name="temp", data-validators="required validate-numeric", value="")
+							input.span1(type="number", name="temp", step="any", data-validators="validate-numeric", value="")
 							span.add-on &deg;F
 				.control-group.hide.pitch.temp
 					label.control-label Ambient
 					.controls
 						.input-append
-							input.span1(type="number", name="ambient", data-validators="validate-numeric", value="")
+							input.span1(type="number", name="ambient", step="any", data-validators="validate-numeric", value="")
 							span.add-on &deg;F
 				.control-group.hide.pitch.gravity.rack
 					label.control-label Gravity
 					.controls
 						.input-prepend.input-append
 							span.add-on 1.
-							input.span1(type="text", name="gravity", data-validators="required validate-numeric", value="000")
+							input.span1(type="text", name="gravity", data-validators="validate-numeric", value="000")
 							span.add-on SG
 				.control-group.hide.rack
 					label.control-label To
