@@ -82,7 +82,7 @@ window.addEvent('domready', function () {
 			} else {
 				view.plot.cleanup();
 			}
-			if (view.mobile) window.scrollTo(0, document.id(this).getPosition().y);
+			if (view.mobile && window.getSize().y < 600) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		
 		// delete batch
@@ -217,8 +217,10 @@ window.addEvent('domready', function () {
 			module.draw = function (series) {
 				var offsets = {};
 				
+				module.cleanup();
+				
 				// resize chart on mobile
-				if (view.mobile) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
+				if (view.mobile && window.getSize().y < 600) document.id('flot').setStyle('height', '180px').setStyle('width', '98%');
 				
 				// draw flot chart
 				module.flot = jQuery.plot(jQuery("#flot"), series, module.options);
