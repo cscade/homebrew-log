@@ -46,7 +46,7 @@ window.addEvent('domready', function () {
 	
 		// scroll away from url bar for mobile
 		setTimeout(function () {
-			if (view.mobile) window.scrollTo(0, 1);
+			if (view.mobile && window.getSize().y < 600) window.scrollTo(0, 1);
 		}, 100);
 		
 		// form validation
@@ -88,15 +88,9 @@ window.addEvent('domready', function () {
 				time = time.slice(0, time.indexOf(' ago'));
 				document.getElement('[data-nextEdge]').set('text', time);
 			}
-			if (view.mobile && window.getSize().y < 600) window.scrollTo(0, document.id(this).getPosition().y);
 		});
 		
 		// delete batch
-		document.getElement('#batch a.btn-danger').addEvent('click', function (e) {
-			if (view.mobile) setTimeout(function () {
-				window.scrollTo(0, 0);
-			}, 250);
-		});
 		document.getElement('#deleteBatchModal a.btn-danger').addEvent('click', function (e) {
 			e.stop();
 			document.getElement('#batch form[action="/updateBatch"]').set('action', '/deleteBatch').submit();
