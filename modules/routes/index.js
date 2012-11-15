@@ -96,6 +96,7 @@ module.exports = function (appRef) {
 				db.view('batches/numbers', function (e, numbers) {
 					if (e) return next(e);
 					numbers = numbers.map(function (key, value) { return value; })[0];
+					if (!numbers) numbers = { count: 0, max: 0 }; // only on fresh installs
 					db.view('batches/byNumber', { key: numbers.max }, function (e, rows) {
 						var beer;
 						
@@ -137,7 +138,7 @@ module.exports = function (appRef) {
 					return a.brewed > b.brewed ? -1 : (a.brewed < b.brewed ? 1 : 0);
 				})
 			},
-			numbers: req.data.numbers
+			numbers: req.data.numbers || { max: 0 }
 		});
 	});
 	
