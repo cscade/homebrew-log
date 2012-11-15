@@ -192,17 +192,17 @@ window.addEvent('domready', function () {
 					}, {
 						points: {
 							show: true,
-							lineWidth: 3,
-							radius: 4
-						},
-						data: temps.filter(function (point) { return point.action === 'temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
-					}, {
-						points: {
-							show: true,
 							lineWidth: 1,
 							radius: 4
 						},
 						data: temps.filter(function (point) { return point.action === 'auto-temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
+						points: {
+							show: true,
+							lineWidth: 3,
+							radius: 4
+						},
+						data: temps.filter(function (point) { return point.action === 'temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
 					}
 				]);
 			};
