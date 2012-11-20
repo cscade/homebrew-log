@@ -12,7 +12,7 @@
 		"name": "homebrew-log",
 		"listen": 8081,
 		"couch": {
-			"url": "http://localhost",
+			"url": "http://mini.local",
 			"port": 5984,
 			"database": "homebrew-log"
 		}
