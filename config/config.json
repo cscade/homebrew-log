@@ -4,8 +4,8 @@
 		"domain": "localhost",
 		"listen": 80,
 		"couch": {
-			"url": "http://fire-dev",
-			"port": 80,
+			"url": "http://mini.local",
+			"port": 5984,
 			"database": "homebrew-log"
 		}
 	},
@@ -14,7 +14,7 @@
 		"domain": "log.seekerbeer.com",
 		"listen": 8081,
 		"couch": {
-			"url": "http://localhost",
+			"url": "http://mini.local",
 			"port": 5984,
 			"database": "homebrew-log"
 		}
