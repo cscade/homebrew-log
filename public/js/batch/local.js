@@ -127,13 +127,18 @@ window.addEvent('domready', function () {
 					show: true,
 					position: 'bottom'
 				},
-				yaxis: {
-					show: true,
-					position: 'left',
-					// min: 55, 
-					// max: 80,
-					tickSize: 1
-				},
+				yaxes: [
+					{
+						show: true,
+						position: 'left',
+						tickSize: 1
+					}, {
+						show: true,
+						position: 'right',
+						min: 1.0,
+						max: 1.1
+					}
+				],
 				colors: ["#3F9FCF", "#3c3c3c", "#3c3c3c", "#3c3c3c"],
 				grid: {
 					markings: [
@@ -153,7 +158,7 @@ window.addEvent('domready', function () {
 			format data and generate chart
 			*/
 			module.generate = function () {
-				var points = ampl.get('batch').points, pitch, temps, ambients;
+				var points = ampl.get('batch').points, pitch, temps, ambients, gravities;
 				
 				if (!points.length) return module.cleanup();
 				// find pitch
@@ -165,13 +170,12 @@ window.addEvent('domready', function () {
 				
 				// sort by time, asc
 				points.sort(function (a, b) { return a.at > b.at ? 1 : (a.at < b.at ? -1 : 0); });
+				points.each(function (point) { point.plotAt = (((point.at / 1000) / 60) / 60).round() - pitch.plotTime; });
 				
-				// find temps & ambients
+				// find series
 				temps = points.filter(function (point) { return point.temp !== undefined; });
 				ambients = points.filter(function (point) { return point.ambient !== undefined; });
-				// develop plotAt for all points vs pitch (in hours)
-				temps.each(function (point) { point.plotAt = (((point.at / 1000) / 60) / 60).round() - pitch.plotTime; });
-				ambients.each(function (point) { point.plotAt = (((point.at / 1000) / 60) / 60).round() - pitch.plotTime; });
+				gravities = points.filter(function (point) { return point.gravity !== undefined; });
 				
 				module.draw([
 					{
@@ -203,6 +207,16 @@ window.addEvent('domready', function () {
 							radius: 4
 						},
 						data: temps.filter(function (point) { return point.action === 'temp'; }).map(function (point) { return [point.plotAt, point.temp]; })
+					}, {
+						label: 'Gravity (SG)',
+						points: {
+							show: true
+						},
+						lines: {
+							show: true
+						},
+						data: gravities.map(function (point) { return [point.plotAt, Number.from(point.gravity)]; }),
+						yaxis: 2
 					}
 				]);
 			};
