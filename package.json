@@ -6,16 +6,17 @@
         "jade": "0.27.x",
         "winston": "0.5.x",
         "xml2js": "0.1.x",
-        "connect": "2.4.x",
         "semver": "*",
-        "async": "*"
+        "async": "*",
+        "xtend": "*",
+        "bcs.client": "*"
     },
     "description": "Live data software for seeker brewing co.",
     "devDependencies": {},
     "engines": {
         "node": "*"
     },
-    "name": "seeker-brewing",
+    "name": "homebrew-log",
     "optionalDependencies": {},
-    "version": "0.4.0"
+    "version": "0.5.0"
 }

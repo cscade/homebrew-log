@@ -1,0 +1,86 @@
+//- BCS Device
+extends ../_base
+
+append head
+	title= bcs.name
+
+block content
+	h1.page-header= bcs.name
+	.area#content
+		h3 Temperature Sensors
+		- if (temps.length)
+			table.table.table-striped(style="width:auto;margin:auto;")
+				thead
+					tr
+						th= temps[0].name
+						th= temps[1].name
+						th= temps[2].name
+						th= temps[3].name
+				tbody
+					tr#temps
+						td(style="width:220px;height:220px;", data-value=temps[0].value)
+						td(style="width:220px;height:220px;", data-value=temps[1].value)
+						td(style="width:220px;height:220px;", data-value=temps[2].value)
+						td(style="width:220px;height:220px;", data-value=temps[3].value)
+					tr
+						td
+							span(style="font-weight:bold;")= temps[0].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((temps[0].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= temps[1].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((temps[1].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= temps[2].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((temps[2].value - 32) * (5 / 9))
+							| &deg;C
+						td
+							span(style="font-weight:bold;")= temps[3].value
+							| &deg;F&nbsp;&nbsp;&nbsp;
+							span(style="font-weight:bold;")= Math.round((temps[3].value - 32) * (5 / 9))
+							| &deg;C
+		- else
+			p No sensors could be read.
+		hr
+		h3 Edit Device
+		p
+			form.form-horizontal(action="/bcs/edit", method="post", accept-charset="utf-8")
+				input(type="hidden", name="delete", value="false")
+				input(type="hidden", name="_id", value=bcs._id)
+				fieldset
+					.control-group
+						label.control-label Device
+						.controls
+							.fixed= bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']')
+					.control-group
+						label.control-label Device Name
+						.controls
+							input.span3(type="text", name="name", data-validators="required", placeholder="Ferment Controller", value=bcs.name)
+					.control-group
+						label.control-label Host
+						.controls
+							input.span3(type="text", name="host", data-validators="required", placeholder="192.168.1.1", value=bcs.host)
+					.control-group
+						label.control-label Port
+						.controls
+							input.span1(type="text", name="port", data-validators="required validate-numeric", value=bcs.port)
+					.form-actions
+						input(type="submit", class="btn btn-primary", value="Save")
+						| &nbsp;
+						a.btn.btn-danger.pull-right.delete(href="#", tabindex="-1", data-toggle="modal", data-target="#deleteModal") Delete
+		.modal.hide#deleteModal
+			.modal-header
+				a.close(href="#", data-dismiss="modal") ×
+				h3 Delete Device
+			.modal-body
+				p This BCS device will no longer be available for temperature recording.
+			.modal-footer
+				a.btn(href="#", data-dismiss="modal") Cancel
+				a.btn.btn-danger(href="#") Confirm Delete
+
+block localJS
+	script(type='text/javascript', src="/js/bcs/device/local.js")

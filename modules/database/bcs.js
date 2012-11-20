@@ -1,38 +1,34 @@
 // 
-//  beer.js
+//  bcs.js
 //  homebrew-log
 //  
-//  Created by Carson S. Christian on 2012-11-04.
+//  Created by Carson S. Christian on 2012-11-07.
 //  Copyright 2012 (ampl)EGO. All rights reserved.
 // 
 
 exports.tweak = function (doc, next) {
-	var create;
-	
-	if (doc.resource === 'beer') {
-		if (doc.batches && doc.batches.length > 0) {
-			create = doc.batches.shift();
-			create.beer = doc._id;
-			create.resource = 'batch';
-			delete create._id;
-			return next(doc, create);
-		} else if (doc.batches) {
-			delete doc.batches;
-			return next(doc);
-		}
+	if (doc.resource === 'bcs-controller') {
+		
 	}
 	// no-change endpoint
 	next();
 };
 
 exports.design = {
-	_id:"_design/beers",
+	_id:"_design/bcs-controllers",
 	language: "javascript",
 	views: {
 		byName: {
 			map: function (doc) {
-				if (doc.resource === 'beer') {
-					emit(doc.name, null);
+				if (doc.resource === 'bcs-controller') emit(doc.name, null);
+			}
+		},
+		byTarget: {
+			map: function (doc) {
+				if (doc.resource === 'bcs-controller') {
+					Object.keys(doc.targets).forEach(function (key) {
+						emit(key, doc.targets[key]);
+					});
 				}
 			}
 		}
@@ -66,40 +62,43 @@ exports.design = {
 			}
 		};
 		
-		// Beer
-		if (resource === 'beer') {
+		// BCS Device
+		if (resource === 'bcs-controller') {
 			/*
-			name - String
+			name - string
 			*/
 			require('name', 'string');
 			
 			/*
-			properties - Object
-			
-			Beer properties (color, bitterness, etc)
+			host - string
 			*/
-			require('properties', 'object');
+			require('host', 'string');
 			
 			/*
-			data - Object
-			
-			BeerXML data.
+			port - number
 			*/
-			optional('data', 'object');
+			require('port', 'number');
 			
 			/*
-			mtime - Number
+			targets - object
 			
-			Modified time.
+			Each "target" is keyed to a batch object with options.
+			
+			ex. 
+			
+			targets = {
+				3b9283fb28ff9554c8400d7d5a00349e: {
+					ambient: 'temp.value0',
+					process: 'temp.value1',
+					interval: 1000 * 60 * 15 // 15 minutes
+				}
+			}
+			
+			This targets object would cause this BCS device
+			to record the values of temp0, temp1 to ambient and process respectively
+			to batch 3b9283... every 15 minutes.
 			*/
-			require('mtime', 'number');
-			
-			/*
-			ctime - Number
-			
-			Created time.
-			*/
-			require('ctime', 'number');
+			require('targets', 'object');
 		}
 	}
 };

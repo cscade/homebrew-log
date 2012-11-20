@@ -12,11 +12,8 @@ window.addEvent('domready', function () {
 	*/
 	!function (view) {
 		view.mobile = (Browser.Platform.ios || Browser.Platform.android || Browser.Platform.webos) || false;
-	
-		// scroll away from url bar for mobile
-		setTimeout(function () {
-			if (view.mobile) window.scrollTo(0, 1);
-		}, 100);
+		
+		if (!window.location.hash || window.location.hash === '#') window.location.hash = '#/';
 		
 		// form validation
 		!function (module) {
@@ -27,39 +24,23 @@ window.addEvent('domready', function () {
 			};
 			// forms
 			module.forms = {
-				createBatch: new Form.Validator(document.getElement('form[action="/createBatch"]'), module.rules)
+				createDevice: new Form.Validator(document.getElement('form[action="/bcs/create"]'), module.rules)
 			};
 		}(view.validation = new view.Module());
 		
-		// nav tabs
-		jQuery('#content ul.nav.nav-tabs a').click(function (e) {
-			if (e) e.preventDefault();
-			jQuery(this).tab('show');
-		});
-		
-		// times
-		document.getElements('td span[data-mtime]').each(function (el) {
-			el.set('text', jQuery.timeago(Date.parse(el.get('data-mtime'))));
-		});
-		
-		// batch detail
-		document.getElements('#batches tr.interactive').addEvent('click', function () {
-			window.location = '/beer/' + ampl.get('_id') + '/' + this.get('data-id') + '/#/';
-		});
+		!function (module) {
+			// edit device
+			document.getElements('#content table tbody tr').addEvent('click', function () {
+				window.location = '/bcs/' + this.get('data-id') + '/#/';
+			});
+		}(view.devices = new view.Module());
 		
 		// Router
 		view.routes = {
-			'/': function () {
-				setTimeout(function () {
-					// set active tab
-					jQuery('#content ul.nav.nav-tabs li a:first').trigger('click');
-				}, 10);
-			},
-			'/createBatch': function () {
-				document.getElement('#createBatch form').reset();
-				document.getElement('#createBatch form input[name=brewed]').set('value', (new Date()).format('%m/%d/%Y'));
-				document.getElement('#createBatch form').getElements('.control-group').removeClass('error');
-			},
+			'/': function () {},
+			'/createDevice': function () {
+				document.getElement('form[action="/bcs/create"]').reset();
+			}
 		};
 		view.router = Router(view.routes);
 		view.router.configure({
@@ -79,5 +60,10 @@ window.addEvent('domready', function () {
 			}
 		});
 		view.router.init();
+		
+		// scroll away from url bar for mobile
+		setTimeout(function () {
+			if (view.mobile) window.scrollTo(0, 1);
+		}, 100);
 	}(ampl.set('view', new ampl.View()));
 });
