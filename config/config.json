@@ -1,7 +1,6 @@
 {
 	"development": {
 		"name": "homebrew-log",
-		"domain": "localhost",
 		"listen": 80,
 		"couch": {
 			"url": "http://mini.local",
@@ -11,10 +10,9 @@
 	},
 	"production": {
 		"name": "homebrew-log",
-		"domain": "log.seekerbeer.com",
 		"listen": 8081,
 		"couch": {
-			"url": "http://mini.local",
+			"url": "http://localhost",
 			"port": 5984,
 			"database": "homebrew-log"
 		}

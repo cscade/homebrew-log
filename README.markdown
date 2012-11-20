@@ -2,9 +2,13 @@
 
 This project is my ongoing quest to create a web-based, authorative, simple, and complete logging system for all my home brews. It's for my own use, but free to use for others who may find it useful.
 
+![Main Screen][img]
+
 ## Usage
 
 The software is designed to run on a local node.js server with a local copy of couchdb. It can easily be configured to run on a virtual server out on the internet, with a free couch provider like iris couch for example.
+
+Clone the repository to your server environment, then run `npm install` to install dependencies.
 
 ## Features
 
@@ -28,7 +32,8 @@ The software is designed to run on a local node.js server with a local copy of c
 	* Packaging
 	* General Notes
 	* Tasting Notes
-* Review batch data after the fact, both in data view and with overlay temperature graphs
+* Review batch data after the fact, both in [data view][data-view] and with [overlay temperature graphs][graph-view]
+* Integration with [BCS-460 & BCS-462][ecc] automation controllers to automatically record temperature data for batches
 
 ### License 
 
@@ -54,3 +59,8 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[img]: http://seekerbeer.com/shared-images/homebrew-log/01.png "01.png (1107×1051)"
+[data-view]: http://seekerbeer.com/shared-images/homebrew-log/05.png "05.png (1107×1049)"
+[graph-view]: http://seekerbeer.com/shared-images/homebrew-log/06.png "06.png (1107×1049)"
+[ecc]: http://www.embeddedcontrolconcepts.com/ "Welcome to Embedded Control Concepts"
