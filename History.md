@@ -1,3 +1,15 @@
+## 0.5.0 - 2012-11-20
+
+* improved navigation
+* improved database model (to upgrade, restart multiple times until tweak indicates no changes)
+* batch numbers, batch number based navigation
+* BCS-460 automation controller support
+	* auto-log temperatures to any number of batches on user-defined interval
+	* logging begins automatically on application restart
+	* logs occur on even intervals
+* improved user experience for iPhone/iPad
+* include SG in plots
+
 ## 0.4.0 - 2012-11-07
 
 * open project
