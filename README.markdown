@@ -32,8 +32,8 @@ Clone the repository to your server environment, then run `npm install` to insta
 	* Packaging
 	* General Notes
 	* Tasting Notes
-* Review batch data after the fact, both in data view and with overlay temperature graphs
-* Integration with BCS-460 & BCS-462 automation controllers to automatically record temperature data for batches
+* Review batch data after the fact, both in [data view][data-view] and with [overlay temperature graphs][graph-view]
+* Integration with [BCS-460 & BCS-462][ecc] automation controllers to automatically record temperature data for batches
 
 ### License 
 
@@ -61,3 +61,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [img]: http://seekerbeer.com/shared-images/homebrew-log/01.png "01.png (1107×1051)"
+[data-view]: http://seekerbeer.com/shared-images/homebrew-log/05.png "05.png (1107×1049)"
+[graph-view]: http://seekerbeer.com/shared-images/homebrew-log/06.png "06.png (1107×1049)"
+[ecc]: http://www.embeddedcontrolconcepts.com/ "Welcome to Embedded Control Concepts"
