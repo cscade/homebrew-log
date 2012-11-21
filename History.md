@@ -1,3 +1,8 @@
+## 0.5.3 - 2012-11-21
+
+* fix temp probe 0 being ignored
+* fix database interference on simultaneous bcs logs
+
 ## 0.5.0 - 2012-11-20
 
 * improved navigation
