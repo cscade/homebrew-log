@@ -317,7 +317,7 @@ module.exports = function (appRef) {
 				efficiency: convert.round.call(Number.from(body.efficiency), 1, true).toString(),
 				attenuation: convert.round.call(Number.from(body.attenuation), 1, true).toString(),
 				yeast: body.yeast.name + ' (' + body.yeast.type + ')',
-				abv: convert.round.call(((Number.from(body.og) - Number.from(body.fg)) * 131) / 1000, 1, true).toString()
+				abv: convert.abv(Number.from(body.og), Number.from(body.fg)).toString()
 			}
 		};
 		next = function () {
