@@ -168,6 +168,23 @@ module.exports = function (appRef) {
 		});
 	});
 	
+	app.get('/beer/:beer/:batch/:attachment', function (req, res) {
+		// endpoint for PDF attachments
+		if (req.params.batch.length !== 32) {
+			// lookup batch by number
+			req.params.batch = req.data.beer.batches.filter(function (batch) { return batch.number == req.params.batch; });
+			if (!req.params.batch.length) return app.log.error('no batch'), res.send(404);
+			req.params.batch = req.params.batch[0]._id;
+		}
+		if (!req.params.batch) return app.log.error('no batch'), res.send(404);
+		db.get(req.params.batch, function (e, batch) {
+			if (e && e.reason === 'missing') return app.log.error('batch not in db'), res.send(404);
+			if (e) return app.log.error(e.message || e.reason), res.send(500);
+			if (!batch._attachments[req.params.attachment]) return app.log.error('no attachment named', req.params.attachment), res.send(404);
+			db.getAttachment(req.params.batch, req.params.attachment).pipe(res);
+		});
+	});
+	
 	/*
 	/bcs namespace
 	*/
@@ -402,6 +419,32 @@ module.exports = function (appRef) {
 		});
 	});
 	
+	app.post('/uploadAttachment', function (req, res) {
+		if (req.files && req.files.attachment && req.files.attachment.size) {
+			db.get(req.body.batch, function (e, batch) {
+				if (e) return res.send(e.reason === 'missing' ? 404 : 500);
+				fs.readFile(req.files.attachment.path, function(e, data) {
+					fs.unlink(req.files.attachment.path);
+					if (e) return res.send(500);
+					db.saveAttachment(
+						batch,
+						{
+							name: req.files.attachment.name,
+							'content-type': req.files.attachment.type,
+							body: data
+						},
+						function (e, data) {
+							if (e) return res.send(500);
+							res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
+						}
+					);
+				});
+			});
+		} else {
+			res.send(400);
+		}
+	});
+	
 	app.post('/deleteDataPoint', function (req, res) {
 		db.get(req.body.batch, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.send(404);
@@ -412,6 +455,16 @@ module.exports = function (appRef) {
 			db.save(batch._id, batch._rev, batch, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.end();
+			});
+		});
+	});
+	
+	app.post('/deleteAttachment', function (req, res) {
+		db.get(req.body.batch, function (e, batch) {
+			if (e) return res.send(e.reason === 'missing' ? 404 : 500);
+			db.removeAttachment(batch, req.body.name, function (e, data) {
+				if (e) return res.send(500);
+				res.send(200);
 			});
 		});
 	});

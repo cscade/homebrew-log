@@ -68,7 +68,8 @@ window.addEvent('domready', function () {
 			});
 			// forms
 			module.forms = {
-				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules)
+				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules),
+				uploadAttachment: new Form.Validator(document.getElement('form[action="/uploadAttachment"]'), module.rules)
 			};
 		}(view.validation = new view.Module());
 		
@@ -572,6 +573,31 @@ window.addEvent('domready', function () {
 			};
 		}(view.points = new view.Module());
 		
+		// batch attachments
+		!function (module) {
+			var batch = ampl.get('batch');
+			
+			document.getElements('#attachments table tbody tr a.close').addEvent('click', function (e) {
+				var req,
+					that = this;
+				
+				if (e) e.stop();
+				if (confirm('Delete the attachment ' + this.get('data-name') + '?')) {
+					req = new Request({
+						url: '/deleteAttachment',
+						data: {
+							name: this.get('data-name'),
+							batch: this.get('data-batch')
+						},
+						onSuccess: function () {
+							that.getParent('tr').destroy();
+						}
+					});
+					req.send();
+				}
+			});
+		}(view.attachments = new view.Module());
+		
 		// Router
 		view.routes = {
 			'/': function () {
@@ -587,6 +613,12 @@ window.addEvent('domready', function () {
 				form.reset();
 				document.getElement('#createDataPoint form select[name=action]').fireEvent('change');
 				form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
+				form.getElements('.control-group').removeClass('error');
+			},
+			'/uploadAttachment': function () {
+				var form = document.getElement('#uploadAttachment form');
+			
+				form.reset();
 				form.getElements('.control-group').removeClass('error');
 			}
 		};
