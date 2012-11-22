@@ -1,3 +1,8 @@
+## 0.5.4 - 2012-11-22
+
+* added display of gravities, calculated attenuation, and calculated abv to batch details tab
+* support for file attachments to batches
+
 ## 0.5.3 - 2012-11-21
 
 * fix temp probe 0 being ignored
