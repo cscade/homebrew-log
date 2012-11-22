@@ -68,7 +68,8 @@ window.addEvent('domready', function () {
 			});
 			// forms
 			module.forms = {
-				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules)
+				createDataPoint: new Form.Validator(document.getElement('form[action="/createDataPoint"]'), module.rules),
+				uploadAttachment: new Form.Validator(document.getElement('form[action="/uploadAttachment"]'), module.rules)
 			};
 		}(view.validation = new view.Module());
 		
@@ -336,12 +337,13 @@ window.addEvent('domready', function () {
 			});
 		}(view.intregration = new view.Module());
 		
+		// batch points
 		!function (module) {
 			module.draw = function (excludeAuto) {
 				var points = document.getElement('#batch table tbody'),
 					batch = ampl.get('batch'),
 					descriptions = ampl.get('descriptions'),
-					offsetFrom;
+					offsetFrom, gravities, og, fg = Infinity;
 				
 				points.empty();
 				if (batch.points.length) {
@@ -354,6 +356,7 @@ window.addEvent('domready', function () {
 					// find "start" point. Use "pitch" if only one is available, otherwise use batch "brewed" date
 					offsetFrom = batch.points.filter(function (point) { return point.action === 'pitch'; }).length === 1 ? batch.points.filter(function (point) { return point.action === 'pitch'; })[0].at : batch.brewed;
 					
+					// draw points rows
 					batch.points.each(function (point) {
 						var detailContent = '', deleteControl, offsetValue, timeDisplay;
 						
@@ -541,9 +544,59 @@ window.addEvent('domready', function () {
 							})));
 						}
 					});
+					
+					// gravity, attenuation, and abv for details
+					gravities = batch.points.filter(function (point) { return !!point.gravity; });
+					gravities.forEach(function (point) {
+						if (point.action === 'pitch') return og = Number.from(point.gravity);
+						if (Number.from(point.gravity) < fg) fg = Number.from(point.gravity);
+					});
+					if (og) {
+						!function (element) {
+							element.empty();
+							element.grab(new Element('span', { text: 'OG:' }));
+							element.grab(new Element('strong', { text: og }));
+							if (fg) {
+								element.grab(new Element('span', { text: 'FG:' }));
+								element.grab(new Element('strong', { text: fg }));
+								element.grab(new Element('br'));
+								element.grab(new Element('span', { text: 'Apparent:' }));
+								element.grab(new Element('strong', { text: (((og - fg) / (og - 1)) * 100).round(1) + '%' }));
+								element.grab(new Element('span', { text: 'ABV:' }));
+								element.grab(new Element('strong', { text: ((og - fg) * 131).round(1) + '%' }));
+							}
+							element.setStyle('font-weight', 'normal');
+							element.getElements('*').setStyle('margin-right', '5px');
+						}(document.getElement('[data-name=attenuation]'));
+					}
 				}
 			};
 		}(view.points = new view.Module());
+		
+		// batch attachments
+		!function (module) {
+			var batch = ampl.get('batch');
+			
+			document.getElements('#attachments table tbody tr a.close').addEvent('click', function (e) {
+				var req,
+					that = this;
+				
+				if (e) e.stop();
+				if (confirm('Delete the attachment ' + this.get('data-name') + '?')) {
+					req = new Request({
+						url: '/deleteAttachment',
+						data: {
+							name: this.get('data-name'),
+							batch: this.get('data-batch')
+						},
+						onSuccess: function () {
+							that.getParent('tr').destroy();
+						}
+					});
+					req.send();
+				}
+			});
+		}(view.attachments = new view.Module());
 		
 		// Router
 		view.routes = {
@@ -560,6 +613,12 @@ window.addEvent('domready', function () {
 				form.reset();
 				document.getElement('#createDataPoint form select[name=action]').fireEvent('change');
 				form.getElement('input[name=at]').set('value', (new Date()).format('%x %X'));
+				form.getElements('.control-group').removeClass('error');
+			},
+			'/uploadAttachment': function () {
+				var form = document.getElement('#uploadAttachment form');
+			
+				form.reset();
 				form.getElements('.control-group').removeClass('error');
 			}
 		};

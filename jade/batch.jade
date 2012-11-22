@@ -36,6 +36,8 @@ block content
 			li
 				a.hidden-phone(href="#batchDetails") Batch Details
 				a.visible-phone(href="#batchDetails") Details
+			li
+				a(href="#attachments") Attachments
 		.tab-content
 			.tab-pane#batchPoints
 				.hidden-phone
@@ -123,6 +125,11 @@ block content
 							.controls
 								.fixed(data-name="number")= batch.number
 						.control-group
+							label.control-label Batch Attenuation
+							.controls
+								.fixed(data-name="attenuation", style="display:inline-block;")
+								p.help-block Lowest recorded gravity considered FG.
+						.control-group
 							label.control-label Batch Name
 							.controls
 								input.span3(type="text", name="name", value=batch.name)
@@ -172,6 +179,22 @@ block content
 					.modal-footer
 						a.btn(href="#", data-dismiss="modal") Cancel
 						a.btn.btn-danger(href="#") Confirm Delete
+			.tab-pane#attachments
+				div(style="float:left;margin:0 0 15px 0;width:100%;")
+					a.btn.btn-primary.pull-right(href="#/uploadAttachment") Upload Attachment
+				- if (batch._attachments)
+					table.table.table-bordered
+						thead
+							tr
+								th Attachment
+								th(style="width:1px;")
+						tbody
+							each name, index in Object.keys(batch._attachments)
+								tr
+									td
+										a(href=name, title=name)= name
+									td
+										a.close(href="#", data-batch=batch._id, data-name=name) ×
 	.area#createDataPoint
 		h3 New Data Point
 		form.form-horizontal(action="/createDataPoint", method="post", accept-charset="utf-8")
@@ -262,6 +285,19 @@ block content
 						textarea.span3(name="overall", value="", rows="3")
 			.form-actions
 				button.btn.btn-primary(type="submit") Create
+				| &nbsp;
+				a.btn(href="#/") Cancel
+	.area#uploadAttachment
+		h3 Upload a new Attachment
+		form.form-horizontal(action="/uploadAttachment", method="post", accept-charset="utf-8", enctype="multipart/form-data")
+			input(type="hidden", name="batch", value=batch._id)
+			fieldset
+				.control-group
+					label.control-label Attachment
+					.controls
+						input(type="file", name="attachment", data-validators="required")
+			.form-actions
+				button.btn.btn-primary(type="submit") Upload
 				| &nbsp;
 				a.btn(href="#/") Cancel
 

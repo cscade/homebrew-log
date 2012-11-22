@@ -42,3 +42,17 @@ exports.round = function (precision, pad) {
 	}
 	return result;
 };
+
+/*
+abv
+
+Calculate the ABV from two gravities.
+
+@param {Number} og
+@param {Number} fg
+
+@return {Number} abv
+*/
+exports.abv = function (og, fg) {
+	return exports.round.call(((og - fg) * 131) / 1000, 1, true);
+};
