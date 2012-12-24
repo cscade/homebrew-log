@@ -1,3 +1,7 @@
+## 0.5.5 - 2012-12-24
+
+* default to off for automatically generated points in details
+
 ## 0.5.4 - 2012-11-22
 
 * added display of gravities, calculated attenuation, and calculated abv to batch details tab

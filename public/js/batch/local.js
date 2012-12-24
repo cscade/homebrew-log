@@ -605,7 +605,7 @@ window.addEvent('domready', function () {
 					// set active tab
 					jQuery('#batch ul.nav.nav-tabs li a:first').trigger('click');
 				}, 10);
-				view.points.draw();
+				view.points.draw(true);
 			},
 			'/createDataPoint': function () {
 				var form = document.getElement('#createDataPoint form');
