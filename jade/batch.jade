@@ -211,7 +211,7 @@ block content
 				.control-group
 					label.control-label Action
 					.controls
-						select.span2(name="action", data-validators="required")
+						select.span3(name="action", data-validators="required")
 							option(value='', selected) ---
 							option(value="pitch")= descriptions['pitch']
 							option(value="temp")= descriptions['temp']
@@ -222,6 +222,7 @@ block content
 							option(value="package")= descriptions['package']
 							option(value="note")= descriptions['note']
 							option(value="tasting")= descriptions['tasting']
+							option(value="judgeTasting")= descriptions['judgeTasting']
 				.control-group.hide.pitch.temp.addition.dryHop
 					label.control-label Temperature
 					.controls
@@ -251,38 +252,81 @@ block content
 					label.control-label In
 					.controls
 						select.span2(name="in", data-validators="required")
-							option(value="bottle") Bottle
-							option(value="keg", selected) Keg
+							option(value="bottle", selected) Bottle
+							option(value="keg") Keg
 				.control-group.hide.pitch.temp.addition.dryHop.rack.package.note
 					label.control-label Notes
 					.controls
 						textarea.span3(name="notes", value="", rows="6")
-				.control-group.hide.tasting
+				.control-group.hide.tasting.judgeTasting
 					label.control-label From
 					.controls
 						select.span2(name="from", data-validators="required")
-							option(value="keg", selected) Keg
-							option(value="bottle") Bottle
-				.control-group.hide.tasting
+							option(value="keg") Keg
+							option(value="bottle", selected) Bottle
+				.control-group.hide.tasting.judgeTasting
+					label.control-label Descriptors
+					.controls
+						label.checkbox Acetaldehyde
+							input(type="checkbox", name="descriptor[acetaldehyde]")
+						label.checkbox Alcoholic
+							input(type="checkbox", name="descriptor[alcoholic]")
+						label.checkbox Astringent
+							input(type="checkbox", name="descriptor[astringent]")
+						label.checkbox Diacetyl
+							input(type="checkbox", name="descriptor[diacetyl]")
+						label.checkbox DMS (dimethyl sulfide)
+							input(type="checkbox", name="descriptor[dms]")
+						label.checkbox Estery
+							input(type="checkbox", name="descriptor[estery]")
+						label.checkbox Grassy
+							input(type="checkbox", name="descriptor[grassy]")
+						label.checkbox Light-Struck
+							input(type="checkbox", name="descriptor[light-struck]")
+						label.checkbox Metallic
+							input(type="checkbox", name="descriptor[metallic]")
+						label.checkbox Musty
+							input(type="checkbox", name="descriptor[musty]")
+						label.checkbox Oxidized
+							input(type="checkbox", name="descriptor[oxidized]")
+						label.checkbox Phenolic
+							input(type="checkbox", name="descriptor[phenolic]")
+						label.checkbox Solvent
+							input(type="checkbox", name="descriptor[solvent]")
+						label.checkbox Sour/Acidic
+							input(type="checkbox", name="descriptor[sour-acidic]")
+						label.checkbox Sulfur
+							input(type="checkbox", name="descriptor[sulfur]")
+						label.checkbox Vegetal
+							input(type="checkbox", name="descriptor[vegetal]")
+						label.checkbox Yeasty
+							input(type="checkbox", name="descriptor[yeasty]")
+				.control-group.hide.tasting.judgeTasting
 					label.control-label Aroma
 					.controls
 						textarea.span3(name="aroma", value="", rows="3")
-				.control-group.hide.tasting
+				.control-group.hide.tasting.judgeTasting
 					label.control-label Appearance
 					.controls
 						textarea.span3(name="appearance", value="", rows="3")
-				.control-group.hide.tasting
+				.control-group.hide.tasting.judgeTasting
 					label.control-label Flavor
 					.controls
 						textarea.span3(name="flavor", value="", rows="3")
-				.control-group.hide.tasting
+				.control-group.hide.tasting.judgeTasting
 					label.control-label Mouthfeel
 					.controls
 						textarea.span3(name="mouthfeel", value="", rows="3")
-				.control-group.hide.tasting
+				.control-group.hide.tasting.judgeTasting
 					label.control-label Overall
 					.controls
 						textarea.span3(name="overall", value="", rows="3")
+				.control-group.hide.judgeTasting
+					label.control-label Score
+					.controls
+						.input-append
+							input.span1(type="text", name="score", data-validators="validate-numeric")
+							span.add-on /50
 			.form-actions
 				button.btn.btn-primary(type="submit") Create
 				| &nbsp;

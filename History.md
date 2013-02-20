@@ -1,3 +1,7 @@
+## 0.5.6 - 2013-02-20
+
+* extend interface to support BJCP judging notes and scores
+
 ## 0.5.5 - 2012-12-24
 
 * default to off for automatically generated points in details

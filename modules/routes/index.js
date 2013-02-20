@@ -405,13 +405,15 @@ module.exports = function (appRef) {
 			'in': req.body['in'],
 			notes: req.body.notes,
 			gravity: req.body.gravity,
-			tasting: req.body.action === 'tasting' ? {
+			tasting: (req.body.action === 'tasting' || req.body.action === 'judgeTasting') ? {
 				from: req.body.from,
+				descriptor: req.body.descriptor,
 				aroma: req.body.aroma,
 				appearance: req.body.appearance,
 				flavor: req.body.flavor,
 				mouthfeel: req.body.mouthfeel,
-				overall: req.body.overall
+				overall: req.body.overall,
+				score: req.body.action === 'judgeTasting' ? req.body.score : undefined
 			} : undefined
 		}, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.writeHead(400), res.end();
@@ -530,6 +532,7 @@ module.exports = function (appRef) {
 		"rack": 'Rack',
 		"package": 'Package',
 		"note": 'Notes',
-		"tasting": 'Tasting Notes'
+		"tasting": 'Tasting Notes (BJCP 2008)',
+		"judgeTasting": "Judge's Tasting Notes (BJCP 2008)"
 	};
 };

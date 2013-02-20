@@ -358,7 +358,7 @@ window.addEvent('domready', function () {
 					
 					// draw points rows
 					batch.points.each(function (point) {
-						var detailContent = '', deleteControl, offsetValue, timeDisplay;
+						var detailContent = '', deleteControl, offsetValue, timeDisplay, descriptors = [];
 						
 						deleteControl = new Element('a.close', {
 							href: '#',
@@ -522,8 +522,17 @@ window.addEvent('domready', function () {
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
 							})));
-						} else if (point.action === 'tasting') {
+						} else if (point.action === 'tasting' || point.action === 'judgeTasting') {
 							// tasting
+							if (point.tasting.descriptor) {
+								Object.each(point.tasting.descriptor, function (value, descriptor) {
+									descriptors.push(descriptor.capitalize());
+								});
+								detailContent = detailContent + '<h5>Descriptors</h5>';
+								descriptors.each(function (descriptor) {
+									detailContent = detailContent + '<span style="margin-right:20px;">' + descriptor + '</span>';
+								});
+							}
 							if (point.tasting.aroma) detailContent = detailContent + '<h5>Aroma</h5><p>' + point.tasting.aroma + '</p>';
 							if (point.tasting.appearance) detailContent = detailContent + '<h5>Appearance</h5><p>' + point.tasting.appearance + '</p>';
 							if (point.tasting.flavor) detailContent = detailContent + '<h5>Flavor</h5><p>' + point.tasting.flavor + '</p>';
@@ -537,7 +546,8 @@ window.addEvent('domready', function () {
 								new Element('td', {
 									html: '\
 										<span>' + descriptions[point.action] + '</span>\
-										<span>' + ': From <strong>' + (point.tasting.from ? (point.tasting.from + '</strong>') : '-') + '</span>'
+										<span>: From <strong>' + (point.tasting.from ? (point.tasting.from + '</strong>') : '-') + '</span>\
+										' + (point.tasting.score ? '<span>: Score <strong>' + point.tasting.score + '</strong> / 50</span>' : '')
 								}).grab(deleteControl)
 							), new Element('tr', { 'data-point': point._id }).grab(new Element('td', {
 								html: detailContent
