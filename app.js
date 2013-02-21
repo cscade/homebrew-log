@@ -16,11 +16,18 @@ var express = require('express'),
 	fs = require('fs'),
 	path = require('path'),
 	app = express(),
-	tweak = require('./lib/tweak'),
-	sslConfig;
+	tweak = require('./lib/tweak');
 
 // Configuration
-app.log = winston;
+app.log = new (winston.Logger)({
+	transports: [
+		new (winston.transports.Console)({
+			level: app.get('env') === 'production' ? 'info' : 'silly',
+			timestamp: true,
+			colorize: true
+		})
+	]
+});
 
 app.configure(function(){
 	app.set('views', __dirname + '/jade');
@@ -30,7 +37,7 @@ app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
-	app.use(express.static(__dirname + '/public', {
+	app.use(express['static'](__dirname + '/public', {
 		maxAge: 86400000 // 1 Day
 	}));
 });
@@ -62,10 +69,5 @@ require('./lib/controllers').initialize(app);
 require('./modules/routes')(app);
 
 http.createServer(app).listen(app.get('config').listen, function () {
-	app.log.remove(winston.transports.Console);
-	app.log.add(winston.transports.Console, {
-		colorize: true,
-		timestamp: true
-	});
 	app.log.info(app.get('config').name + ' ' + app.get('version') + ' listening on port ' + app.get('config').listen);
 });

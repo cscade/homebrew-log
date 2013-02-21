@@ -2,3 +2,4 @@ node_modules/
 _resources/bootstrap
 .DS_Store
 public/_uploads
+/npm-debug.log

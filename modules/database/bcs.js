@@ -1,3 +1,4 @@
+/*jshint couch:true */
 // 
 //  bcs.js
 //  homebrew-log
@@ -33,7 +34,7 @@ exports.design = {
 			}
 		}
 	},
-	validate_doc_update: function (n, o) {
+	validate_doc_update: function (n) {
 		var e, require, optional, resource = n.resource;
 		
 		// throw convenience wrapper
