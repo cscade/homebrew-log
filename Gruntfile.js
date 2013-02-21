@@ -33,13 +33,14 @@ grunt.initConfig({
 		}
 	},
 	watch: {
-		files: 'lib/**',
+		files: ['Gruntfile.js', 'app.js', 'lib/*/*.js', 'modules/*/*.js'],
 		tasks: 'default'
 	}
 });
 
 // Grab dependencies
 grunt.loadNpmTasks('grunt-contrib-jshint');
+grunt.loadNpmTasks('grunt-contrib-watch');
 
 // Tasks (command line)
 grunt.registerTask('default', ['jshint']);
