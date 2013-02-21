@@ -1,3 +1,9 @@
+## 0.5.7 - 2013-02-21
+
+* fix a potential race condition that could cause log update cycles to overlap and fail
+* add linting via grunt/jshint
+* add environment based logging
+
 ## 0.5.6 - 2013-02-20
 
 * extend interface to support BJCP judging notes and scores
