@@ -1,3 +1,4 @@
+/*jshint couch:true */
 // 
 //  batch.js
 //  homebrew-log
@@ -49,7 +50,7 @@ exports.design = {
 			reduce: "_stats"
 		}
 	},
-	validate_doc_update: function (n, o) {
+	validate_doc_update: function (n) {
 		var e, require, optional, resource = n.resource;
 		
 		// throw convenience wrapper

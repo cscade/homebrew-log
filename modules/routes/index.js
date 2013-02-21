@@ -12,7 +12,6 @@ var app,
 	colorMap,
 	convert = require('../lib/convert'),
 	db,
-	Device = require('bcs.client'),
 	extend = require('xtend'),
 	fs = require('fs'),
 	path = require('path'),
@@ -21,7 +20,7 @@ var app,
 bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
 
 // SRM to RGB Color Model
-!function (xml) {
+(function (xml) {
 	var parser = new xml2js.Parser();
 	
 	parser.parseString(xml, function (e, colors) {
@@ -33,7 +32,7 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 			};
 		});
 	});
-}(fs.readFileSync(path.join(__dirname, '..', 'lib', 'colors.xml'), 'utf-8'));
+}(fs.readFileSync(path.join(__dirname, '..', 'lib', 'colors.xml'), 'utf-8')));
 
 // re-usable loaders
 module.load = {
@@ -106,7 +105,7 @@ module.exports = function (appRef) {
 							numbers: numbers,
 							beer: beer
 						});
-					})
+					});
 				});
 			}
 		}, function (e, results) {
@@ -147,7 +146,7 @@ module.exports = function (appRef) {
 		
 		if (req.params.batch.length !== 32) {
 			// lookup batch by number
-			batch = beer.batches.filter(function (batch) { return batch.number == req.params.batch; })[0];
+			batch = beer.batches.filter(function (batch) { return batch.number.toString() === req.params.batch.toString(); })[0];
 		} else {
 			// lookup batch by id
 			batch = beer.batches.filter(function (batch) { return batch._id === req.params.batch; })[0];
@@ -172,7 +171,7 @@ module.exports = function (appRef) {
 		// endpoint for PDF attachments
 		if (req.params.batch.length !== 32) {
 			// lookup batch by number
-			req.params.batch = req.data.beer.batches.filter(function (batch) { return batch.number == req.params.batch; });
+			req.params.batch = req.data.beer.batches.filter(function (batch) { return batch.number.toString() === req.params.batch.toString(); });
 			if (!req.params.batch.length) return app.log.error('no batch'), res.send(404);
 			req.params.batch = req.params.batch[0]._id;
 		}
@@ -229,7 +228,7 @@ module.exports = function (appRef) {
 	});
 	
 	app.post('/bcs/create', function (req, res) {
-		app.create.bcs(req.body, function (e, bcs) {
+		app.create.bcs(req.body, function (e) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			app.get('controllers').refresh(function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
@@ -239,7 +238,7 @@ module.exports = function (appRef) {
 	});
 	
 	app.post('/bcs/edit', function (req, res) {
-		if (req.body.delete === 'true') {
+		if (req.body['delete'] === 'true') {
 			// delete
 			db.get(req.body._id, function (e, bcs) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
@@ -255,7 +254,7 @@ module.exports = function (appRef) {
 			// edit
 			db.get(req.body._id, function (e, bcs) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
-				delete req.body.delete;
+				delete req.body['delete'];
 				req.body.port = Number.from(req.body.port) || 80;
 				extend(bcs, req.body);
 				db.save(bcs._id, bcs._rev, bcs, function (e) {
@@ -435,7 +434,7 @@ module.exports = function (appRef) {
 							'content-type': req.files.attachment.type,
 							body: data
 						},
-						function (e, data) {
+						function (e) {
 							if (e) return res.send(500);
 							res.redirect('/beer/' + batch.beer + '/' + batch._id + '/#/');
 						}
@@ -464,7 +463,7 @@ module.exports = function (appRef) {
 	app.post('/deleteAttachment', function (req, res) {
 		db.get(req.body.batch, function (e, batch) {
 			if (e) return res.send(e.reason === 'missing' ? 404 : 500);
-			db.removeAttachment(batch, req.body.name, function (e, data) {
+			db.removeAttachment(batch, req.body.name, function (e) {
 				if (e) return res.send(500);
 				res.send(200);
 			});

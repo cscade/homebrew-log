@@ -16,8 +16,7 @@ var express = require('express'),
 	fs = require('fs'),
 	path = require('path'),
 	app = express(),
-	tweak = require('./lib/tweak'),
-	sslConfig;
+	tweak = require('./lib/tweak');
 
 // Configuration
 app.log = winston;
@@ -30,7 +29,7 @@ app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
-	app.use(express.static(__dirname + '/public', {
+	app.use(express['static'](__dirname + '/public', {
 		maxAge: 86400000 // 1 Day
 	}));
 });

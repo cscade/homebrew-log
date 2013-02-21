@@ -14,7 +14,7 @@ grunt.initConfig({
 	jshint automatic code quality checking
 	*/
 	jshint: {
-		all: ['Gruntfile.js', 'lib/*/*.js'],
+		all: ['Gruntfile.js', 'app.js', 'lib/*/*.js', 'modules/*/*.js'],
 		options: {
 			eqeqeq: true,
 			immed: true,
