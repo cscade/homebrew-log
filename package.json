@@ -9,7 +9,8 @@
     "semver": "~1.1.4",
     "async": "~0.2.8",
     "xtend": "~2.0.4",
-    "bcs.client": "~0.1.3"
+    "bcs.client": "~0.1.3",
+    "convey": "~0.2.2"
   },
   "description": "Homebrew batch logging software",
   "devDependencies": {

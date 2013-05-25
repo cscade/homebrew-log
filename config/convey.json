@@ -1,0 +1,7 @@
+{
+	"homebrew-log": {
+		"batches": "modules/database/batch",
+		"beers": "modules/database/beer",
+		"bcs": "modules/database/bcs"
+	}
+}
