@@ -24,7 +24,7 @@ var bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.js
 	
 	parser.parseString(xml, function (e, colors) {
 		if (e) return app.log.error('could not parse colors xml', e);
-		colorMap = colors.COLOR.map(function (color) {
+		colorMap = colors.COLORS.COLOR.map(function (color) {
 			return {
 				srm: Number.from(color.SRM),
 				rgb: color.RGB
