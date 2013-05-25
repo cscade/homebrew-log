@@ -1,14 +1,10 @@
-// 
-//	app.js
-//	homebrew-log
-//	
-//	Created by Carson Christian on 2012-06-11.
-//	Copyright 2012 Carson Christian. All rights reserved.
-// 
+/*
+	# Homebrew log.
 
-/**
- * Module dependencies.
- */
+	Logging software for all your home brew data.
+
+	Created by Carson S. Christian <cc@seekerbeer.com>
+*/
 
 var Convey = require('convey').Convey;
 

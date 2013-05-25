@@ -1,11 +1,3 @@
-// 
-//  local.js
-//  homebrew-log
-//  
-//  Created by Carson S. Christian on 2012-11-03.
-//  Copyright 2012 (ampl)EGO. All rights reserved.
-// 
-
 window.addEvent('domready', function () {
 	/*
 	View
