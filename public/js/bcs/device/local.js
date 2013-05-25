@@ -1,11 +1,3 @@
-// 
-//  bcs/device/local.js
-//  homebrew-log
-//  
-//  Created by Carson Christian on 2012-06-13.
-//  Copyright 2012 Carson Christian. All rights reserved.
-// 
-
 window.addEvent('domready', function () {
 	/*
 	View

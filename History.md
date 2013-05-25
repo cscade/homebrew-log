@@ -1,3 +1,9 @@
+## 0.6.0 - 2013-05-25
+
+* changes
+	* update all dependencies
+	* change default development environment port to 3000
+
 ## 0.5.7 - 2013-02-21
 
 * fix a potential race condition that could cause log update cycles to overlap and fail

@@ -1,10 +1,6 @@
-/*!
- * convert.js
- * homebrew-log
- * 
- * Created by Carson Christian on 2012-06-12.
- * Copyright 2012 (ampl)EGO. All rights reserved.
- */
+/*
+	# Conversion tools.
+*/
 
 exports.liters = {
 	toGallons: function (liters) {
