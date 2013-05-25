@@ -6,18 +6,17 @@
  * Copyright 2012 (ampl)EGO. All rights reserved.
  */
 
-var app,
-	async = require('async'),
-	bjcp,
-	colorMap,
-	convert = require('../lib/convert'),
-	db,
-	extend = require('xtend'),
-	fs = require('fs'),
-	path = require('path'),
-	xml2js = require('xml2js');
+var app;
+var async = require('async');
+var colorMap;
+var convert = require('../lib/convert');
+var db;
+var extend = require('xtend');
+var fs = require('fs');
+var path = require('path');
+var xml2js = require('xml2js');
 
-bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
+var bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
 
 // SRM to RGB Color Model
 (function (xml) {
