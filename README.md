@@ -2,7 +2,7 @@
 
 Want to keep track of all the details of the beers you brew? Comfortable with CouchDB and Node.js? Then this project might just be for you!
 
-The goal of homebrew-log is to provide a centralized, authorative, organized and powerful archive of all my home brewing log data. I like to keep good records, and I like to be able to refresh myself on how I brewed a beer last time, before I brew it again. homebrew-log works great in your browser and on iOS devices. I assume it works great on Android too.
+The goal of homebrew-log is to provide a centralized, authoritative, organized and powerful archive of all my home brewing log data. I like to keep good records, and I like to be able to refresh myself on how I brewed a beer last time, before I brew it again. homebrew-log works great in your browser and on iOS devices. I assume it works great on Android too.
 
 ## Features
 
@@ -40,9 +40,11 @@ The software is designed to run on a node.js server with a copy of couchdb. It c
 
 * Clone the repository to your server environment
 * Run `npm install` to install dependencies
-* Edit `./config/config.json` with your server settings. In particular, set the `database` name to whatever you like. If you change it from `homebrew-log`, be sure to also change the reference in `./lib/tweak/config.json` to match.
-* Create a new database in couch with the name you have chosen
-* Start with `node app.js`. All the database setup will be done automatically
+* Edit `./config/config.json` with your server settings.
+	* In particular, set the `database` name to whatever you like.
+	* If you change it from `homebrew-log`, be sure to also change the reference in `./config/convey.json` to match.
+* Create a new database in couch with the name you have chosen, ex. `homebrew-log`.
+* Start with `node app.js`. All the database setup will be done automatically.
 
 ### License 
 

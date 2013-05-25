@@ -1,23 +1,18 @@
-/*!
- * routes
- * homebrew-log
- * 
- * Created by Carson Christian on 2012-06-12.
- * Copyright 2012 (ampl)EGO. All rights reserved.
- */
+/*
+	# Routes.
+*/
 
-var app,
-	async = require('async'),
-	bjcp,
-	colorMap,
-	convert = require('../lib/convert'),
-	db,
-	extend = require('xtend'),
-	fs = require('fs'),
-	path = require('path'),
-	xml2js = require('xml2js');
+var app;
+var async = require('async');
+var colorMap;
+var convert = require('../lib/convert');
+var db;
+var extend = require('xtend');
+var fs = require('fs');
+var path = require('path');
+var xml2js = require('xml2js');
 
-bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
+var bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json'), 'utf-8'));
 
 // SRM to RGB Color Model
 (function (xml) {
@@ -25,7 +20,7 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 	
 	parser.parseString(xml, function (e, colors) {
 		if (e) return app.log.error('could not parse colors xml', e);
-		colorMap = colors.COLOR.map(function (color) {
+		colorMap = colors.COLORS.COLOR.map(function (color) {
 			return {
 				srm: Number.from(color.SRM),
 				rgb: color.RGB
@@ -38,8 +33,7 @@ bjcp = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'lib', 'bjcp.json')
 module.load = {
 	// load all devices from application controllers
 	devices: function (req, res, next) {
-		req.data = req.data || {};
-		extend(req.data, { bcss: app.get('controllers').map(function (bcs) { return bcs; }) });
+		req.data = extend(req.data || {}, { bcss: app.get('controllers').map(function (bcs) { return bcs; }) });
 		next();
 	},
 	// load a single beer including it's batches and batch numbers
@@ -52,13 +46,13 @@ module.load = {
 			color = convert.round.call(beer.properties.color, 1);
 			beer.properties.colorRGB = color ? colorMap.filter(function (c) { return c.srm === color; })[0].rgb : '255,255,255';
 			beer.properties.bjcp.name = bjcp.categories[Number.from(beer.properties.bjcp.number) - 1].subcategories.filter(function (cat) { return cat.id === beer.properties.bjcp.number + beer.properties.bjcp.letter; })[0].name;
-			extend(req.data, { beer: beer });
+			req.data = extend(req.data, { beer: beer });
 			db.view('batches/byBeer', { key: beer._id, include_docs: true, reduce: false }, function (e, rows) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				beer.batches = rows.map(function (key, doc) { return doc; });
 				db.view('batches/numbers', function (e, numbers) {
 					if (e) return next(e);
-					extend(req.data, { numbers: numbers.map(function (key, value) { return value; })[0] });
+					req.data = extend(req.data, { numbers: numbers.map(function (key, value) { return value; })[0] });
 					next();
 				});
 			});
@@ -256,7 +250,7 @@ module.exports = function (appRef) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				delete req.body['delete'];
 				req.body.port = Number.from(req.body.port) || 80;
-				extend(bcs, req.body);
+				bcs = extend(bcs, req.body);
 				db.save(bcs._id, bcs._rev, bcs, function (e) {
 					if (e) return app.log.error(e.message || e.reason), res.send(500);
 					app.get('controllers').refresh(function (e) {

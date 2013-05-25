@@ -1,11 +1,7 @@
+/*
+	# Beer design.
+*/
 /*jshint couch:true */
-// 
-//  beer.js
-//  homebrew-log
-//  
-//  Created by Carson S. Christian on 2012-11-04.
-//  Copyright 2012 (ampl)EGO. All rights reserved.
-// 
 
 exports.tweak = function (doc, next) {
 	var create;
