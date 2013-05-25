@@ -1,7 +1,7 @@
 {
 	"development": {
 		"name": "homebrew-log",
-		"listen": 80,
+		"listen": 3000,
 		"couch": {
 			"url": "http://mini.local",
 			"port": 5984,
