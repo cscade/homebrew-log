@@ -19,5 +19,5 @@
         "grunt-contrib-watch": "~0.2.0"
     },
     "name": "homebrew-log",
-    "version": "0.5.8"
+    "version": "0.6.0"
 }
