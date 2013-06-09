@@ -1,3 +1,8 @@
+## 0.6.1 - 2013-06-09
+
+* bugfixes
+	* add missing yeast method descriptor
+
 ## 0.6.0 - 2013-05-25
 
 * changes
