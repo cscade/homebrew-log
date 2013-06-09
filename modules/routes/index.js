@@ -500,6 +500,7 @@ module.exports = function (appRef) {
 		"ag-direct": 'All Grain, Direct Fire',
 		"ag-rims": 'All Grain, RIMS',
 		"ag-herms": 'All Grain, HERMS',
+		"direct": 'Dry, direct pitch into wort'
 		"rehydrate-water": 'Dry, Rehydrate in water',
 		"rehydrate-wort": 'Dry, Rehydrate in wort',
 		"starter": 'Liquid, Starter, simple',
