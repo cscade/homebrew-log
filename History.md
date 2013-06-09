@@ -1,3 +1,8 @@
+## 0.6.2 - 2013-06-09
+
+* bugfixes
+	* seriously. missed a comma
+
 ## 0.6.1 - 2013-06-09
 
 * bugfixes
