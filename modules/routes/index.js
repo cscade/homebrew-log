@@ -360,7 +360,20 @@ module.exports = function (appRef) {
 	});
 	
 	app.post('/createBatch', function (req, res) {
-		app.create.batch(req.body, function (e, batch) {
+		var batch;
+
+		batch = {
+			beer: req.body.beer,
+			brewed: req.body.brewed,
+			control: req.body.control,
+			equipment: req.body.equipment,
+			fermentor: req.body.fermentor,
+			name: req.body.name,
+			notes: req.body.notes,
+			number: req.body.number,
+			yeastMethod: req.body.yeastMethod,
+		};
+		app.create.batch(batch, function (e, batch) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			res.redirect('/beer/' + batch.beer + '/#/');
 		});
