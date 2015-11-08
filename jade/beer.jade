@@ -182,6 +182,6 @@ block content
 
 block localJS
 	script(src='/js/beer/local.js')
-	script(type='text/javascript')
+	script(type='text/javascript').
 		ampl.set('_id', !{JSON.stringify(beer._id)});
 		ampl.set('descriptions', !{JSON.stringify(descriptions)});

@@ -1,4 +1,4 @@
-doctype 5
+doctype html
 html(lang='en')
 	head
 		block head
@@ -8,10 +8,10 @@ html(lang='en')
 		meta(name='author', content='')
 		// styles
 		link(href='/css/bootstrap.css', rel='stylesheet')
-		style(type='text/css')
+		style(type='text/css').
 			body {
-			padding-top: 40px;
-			padding-bottom: 40px;
+				padding-top: 40px;
+				padding-bottom: 40px;
 			}
 		link(href='/css/bootstrap-responsive.css', rel='stylesheet')
 		link(href='/css/library.css', rel='stylesheet')
@@ -39,7 +39,7 @@ html(lang='en')
 		// javascript
 		script(src='/js/lib/library.min.js')
 		script(src='/js/lib/ampl.js')
-		script(type='text/javascript')
+		script(type='text/javascript').
 			jQuery.noConflict();
 		script(src='/js/lib/jquery.flot.js')
 		script(src="/js/lib/highcharts/highcharts.js")
