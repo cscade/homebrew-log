@@ -3,7 +3,7 @@
 		"name": "homebrew-log",
 		"listen": 3000,
 		"couch": {
-			"url": "http://fire-dev",
+			"url": "http://localhost",
 			"port": 5984,
 			"database": "homebrew-log"
 		}
