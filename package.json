@@ -27,5 +27,5 @@
         "type": "git",
         "url": "git://github.com/cscade/homebrew-log.git"
     },
-    "version": "0.6.3"
+    "version": "0.7.0"
 }
