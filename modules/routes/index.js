@@ -507,6 +507,7 @@ module.exports = function (appRef) {
 		}
 	};
 	var descriptions = {
+		"no-boil": 'No-Boil',
 		"stovetop": 'Stovetop / Extract / Partial Mash',
 		"ag-biab": 'All Grain, BIAB',
 		"ag-insulated": 'All Grain, Insulated',

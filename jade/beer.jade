@@ -131,6 +131,7 @@ block content
 						label.control-label Equipment Type
 						.controls
 							select.span3(name="equipment", data-validators="required")
+								option(value="no-boil")= descriptions['no-boil']
 								option(value="stovetop")= descriptions['stovetop']
 								option(value="ag-biab")= descriptions['ag-biab']
 								option(value="ag-insulated")= descriptions['ag-insulated']
