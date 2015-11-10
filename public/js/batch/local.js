@@ -301,14 +301,14 @@ window.addEvent('domready', function () {
 		!function (module) {
 			// populate probes
 			document.getElement('#batchDevice select[name=device]').addEvent('change', function () {
-				var sensors = JSON.parse(this.get('value')).sensors,
+				var probes = JSON.parse(this.get('value')).probes,
 					process = document.getElement('#batchDevice select[name=process]'),
 					ambient = document.getElement('#batchDevice select[name=ambient]');
 				
-				if (sensors) {
+				if (probes) {
 					[process, ambient].each(function (select) {
 						select.set('value', '-1').getElements('option[value!=-1]').destroy();
-						select.adopt(sensors.map(function (sensor, index) {
+						select.adopt(probes.map(function (sensor, index) {
 							return new Element('option', {
 								html: '&nbsp;&nbsp;' + index + ': ' + sensor.name,
 								value: index

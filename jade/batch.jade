@@ -87,7 +87,7 @@ block content
 								select.span3(name="device")
 									option(value="-1", selected) None
 									each bcs in bcss
-										option(value=JSON.stringify({ _id: bcs._id, sensors: bcs.sensors }))= '&nbsp;&nbsp;' + bcs.name + ' - ' + (bcs.device.info.ready ? bcs.device.info.firmware : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']'))
+										option(value=JSON.stringify({ _id: bcs._id, probes: bcs.probes }))!= '&nbsp;&nbsp;' + bcs.name + ' - ' + (bcs.device.info.ready ? (bcs.device.info.version + ' (build ' + bcs.device.info.build + ')') : (bcs.device.info.error.message + ' [' + bcs.device.info.error.code + ']'))
 						.control-group
 							label.control-label Temperature Probe
 							.controls

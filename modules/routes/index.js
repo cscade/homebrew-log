@@ -205,11 +205,11 @@ module.exports = function (appRef) {
 					sensor.value = probeInfo.temp / 10;
 					next(null, sensor);
 				});
-			}, function (e, sensors) {
+			}, function (e, probes) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				res.render('bcs/device.jade', {
 					bcs: bcs,
-					temps: sensors
+					temps: probes
 				});
 			});
 		} else {
