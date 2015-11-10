@@ -285,8 +285,8 @@ module.exports = function (appRef) {
 		db.view('bcs-controllers/byTarget', { key: req.body.batch, include_docs: true }, function (e, rows) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			async.forEach(rows, function (bcs, next) {
-				delete bcs.targets[req.body.batch];
-				db.save(bcs._id, bcs._rev, bcs, next);
+				delete bcs.doc.targets[req.body.batch];
+				db.save(bcs._id, bcs._rev, bcs.doc, next);
 			}, function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
 				// add to a device?
