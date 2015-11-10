@@ -222,7 +222,14 @@ module.exports = function (appRef) {
 	});
 	
 	app.post('/bcs/create', function (req, res) {
-		app.create.bcs(req.body, function (e) {
+		var bcs;
+
+		bcs = {
+			host: req.body.host,
+			name: req.body.name,
+			port: req.body.port,
+		};
+		app.create.bcs(bcs, function (e) {
 			if (e) return app.log.error(e.message || e.reason), res.send(500);
 			app.get('controllers').refresh(function (e) {
 				if (e) return app.log.error(e.message || e.reason), res.send(500);
