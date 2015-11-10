@@ -200,9 +200,9 @@ module.exports = function (appRef) {
 			async.map([0,1,2,3], function (i, next) {
 				var sensor = {};
 						
-				bcs.device.read('temp.value' + i, function (e, value) {
+				bcs.device.read('temp/' + i, function (e, probeInfo) {
 					if (e) return next(e);
-					sensor.value = value;
+					sensor.value = probeInfo.temp / 10;
 					next(null, sensor);
 				});
 			}, function (e, sensors) {
